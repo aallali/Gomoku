@@ -103,12 +103,15 @@ const CordT = styled.div`
     top: -50%;
     left: 45%;
     transform: translateX(-50%);  
+    font-size : 20px;
+    font-weight : bold;
 `
 const CordL = styled.div`
     position: absolute;
     top: 10%;
     right: 120%;
-    // transform: translateX(-50%);  
+    font-size : 20px;
+    font-weight : bold;
     text-align:left
 `
 const Chess = ({ row, col, value, onClick }: { row: number, col: number, value: string | null, onClick: Function }) => {
@@ -126,7 +129,7 @@ const Chess = ({ row, col, value, onClick }: { row: number, col: number, value: 
         dots.includes(`${row}${col}`) && !value ?
           (<Dot $value={value} />) :
           (<ChessElement $value={value}>
-            {!row ? (<CordT> {alpha[col]} </CordT>) : null}
+            {!row ? (<CordT> {col} </CordT>) : null}
             {!col ? (<CordL> {row} </CordL>) : null}
           </ChessElement>)
       }
