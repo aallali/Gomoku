@@ -1,89 +1,73 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
+import Gomoku from "./Gomoku";
 import styled from "styled-components";
-
-import useBoard from "../utils/useBoard";
-import Chess from "./Chess";
+import { Button, Row, Container, Col } from 'react-bootstrap';
+import { useSelector, shallowEqual } from "react-redux"
 
 const Title = styled.h1`
   color: #333;
   text-align: center;
+  flex:row;
 `;
 
-const Wrapper = styled.div`
-  text-align: center;
-`;
-
-const Checkerboard = styled.div`
-  display: inline-block;
-  margin-top: 0;
-  background: #c19d38;
-  padding:30px;
-  border-radius:5px
-`;
-
-const Row = styled.div`
-  display: flex;
-`;
-
-const WinnerModal = styled.div`
-  position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-`;
-
-const ModalInner = styled.div`
-  background: white;
-  color: black;
-  height: 300px;
-  width: 300px;
-  padding: 24px;
-  text-align: center;
-`;
 
 export default function App() {
-  const { board, wineer, handleChessClick } = useBoard();
+
+  /**
+   * Menu :
+   * 1 - Mode : 1v1 - 1vai - aiVai
+   * 2 - Turn : Black or White
+   * 3 - Black Points : 0
+   * 4 - White Points : 0
+   * 5 - view suggestions : button (onOff)
+   * 6 - invit player
+   */
+
+  const currntPlayer: string = useSelector(
+    (state: GomokuState) => state.currentPlayer,
+    shallowEqual
+  )
+
   return (
-    <div>
-      <Title>Gomoku (allali)</Title>
-      {wineer && (
-        <WinnerModal>
-          <ModalInner>
-            {wineer === "d" && "Tie"}
-            {wineer === "b" && "Black wins"}
-            {wineer === "w" && "White wins"}
-            <br />
-            <button onClick={() => window.location.reload()}>Play Again</button>
-          </ModalInner>
-        </WinnerModal>
-      )}
-      <Wrapper>
-        <Checkerboard>
-          {board.map((row, rowIndex) => {
-            return (
-              <Row key={rowIndex}>
-                {row.map((col: any, colIndex: number) => {
-                  return (
-                    <Chess
-                      key={colIndex}
-                      row={rowIndex}
-                      col={colIndex}
-                      value={board[rowIndex][colIndex]}
-                      onClick={handleChessClick}
-                    />
-                  );
-                })}
+    <div><Title>Gomoku (allali)</Title>
+      <Container>
+        <Row className="justify-content-md-center">
+
+          <Col>
+            <Gomoku />
+          </Col>
+
+          <Col>
+            <div className="menu">
+              <h3>Menu</h3>
+              <Row gap={3}>
+                <Col><div className="ticket">Mode</div></Col>
+                <Col className="mb-1"><div className="ticket"> Solo</div></Col>
               </Row>
-            );
-          })}
-        </Checkerboard>
-      </Wrapper>
-    </div>
+              <Row>
+                <Col><div className="ticket">Turn</div></Col>
+                <Col className="mb-1"><div className="ticket"> {currntPlayer}</div></Col>
+              </Row>
+              <Row>
+                <Col><div className="ticket">Black Pnts.</div></Col>
+                <Col className="mb-1"><div className="ticket"> 0</div></Col>
+              </Row>
+              <Row>
+                <Col><div className="ticket">White Pnts.</div></Col>
+                <Col className="mb-1"><div className="ticket"> 5</div></Col>
+              </Row>
+
+              <Row>
+                <Col><div className="ticket">View Hints</div></Col>
+                <Col><Button className="py-1">View</Button></Col>
+              </Row>
+
+
+            </div>
+
+          </Col>
+        </Row>
+      </Container>
+    </div >
   );
 }
