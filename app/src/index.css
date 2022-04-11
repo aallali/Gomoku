@@ -15,17 +15,21 @@ code {
  
 
 .ticket {
-  background-color: #b8c6db;
-  background-image: linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%);
-  padding: 3px;
-  border-radius: 3px
+ padding: 3px;
+  border-radius: 3px;
+  background:white;
+  /* border-left:solid 1px gray; */
+  border-bottom:solid 1px gray;
+
 }
 
 .menu {
   padding:10px;
   /* padding-top: 0px; */
-  background-color: #c19d38;
-  border-radius:5px
+  background-image: linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%);
+  /* border-left:solid 1px gray; */
+  /* border-bottom:solid 1px gray;   */
+  /* border-bottom-left-radius: 5px; */
  
 }
 button {
