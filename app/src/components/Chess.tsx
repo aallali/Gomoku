@@ -10,7 +10,7 @@ const Col = styled.div<{ $row: any, $col: any }>`
   &:before {
     content: "";
     height: 100%;
-    width: 1.3px;
+    width: 1px;
     background: black;
     position: absolute;
     top: 0;
@@ -33,7 +33,7 @@ const Col = styled.div<{ $row: any, $col: any }>`
   &:after {
     content: "";
     width: 100%;
-    height: 1.3px;
+    height: 1px;
     background: black;
     position: absolute;
     top: 50%;
@@ -81,6 +81,20 @@ const ChessElement = styled.div<{ $value: any }>`
     background-color: #b8c6db;
     background-image: linear-gradient(315deg, #b8c6db 0%, #f5f7fa 74%);
   `}
+
+  ${(props: any) =>
+    props.$value === "r" &&
+    `
+    background-color #3f0d12;
+    background-image linear-gradient(315deg, #3f0d12 0%, #a71d31 74%);
+  `}
+  ${(props: any) =>
+    props.$value === "s" &&
+    `
+    background-color: #045de9;
+    background-image: linear-gradient(315deg, #045de9 0%, #09c6f9 74%);
+  `}
+  
 `;
 const Dot = styled.div<{ $value: any }>`
   width: 100%;
@@ -100,18 +114,18 @@ const Dot = styled.div<{ $value: any }>`
 
 const CordT = styled.div`
     position: absolute;
-    top: -50%;
+    top: -70%;
     left: 45%;
     transform: translateX(-50%);  
     font-size : 20px;
-    font-weight : bold;
+    // font-weight : bold;
 `
 const CordL = styled.div`
     position: absolute;
     top: 10%;
     right: 120%;
     font-size : 20px;
-    font-weight : bold;
+    // font-weight : light;
     text-align:left
 `
 const Chess = ({ row, col, value, onClick }: { row: number, col: number, value: string | null, onClick: Function }) => {
