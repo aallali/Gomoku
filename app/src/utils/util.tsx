@@ -194,14 +194,14 @@ export function isForbiddenMove(
 
   return false;
 }
-const rotate: any = (matrix: string[][], turns: number | undefined) => {
+const matrixRotator: any = (matrix: string[][], turns: number | undefined) => {
 
   // Make the rows to become cols (transpose)
   const mtrx = matrix.map((_, i) => matrix.map(column => column[i]));
   // Reverse each row to get a rotated matrix
   const res = mtrx.map(row => row.reverse());
   if (turns && turns > 0)
-    return rotate(res, --turns)
+    return matrixRotator(res, --turns)
   return res
 };
 export function isDoubleFreeThree(
@@ -213,27 +213,23 @@ export function isDoubleFreeThree(
   const doubleFreeThreePattern = patterns['doubleFreeThree']
   let copyBoard = JSON.parse(JSON.stringify(board)) // create deep copy for the board
   copyBoard[y][x] = curr
-  copyBoard = trim(copyBoard, '')
+  copyBoard = trim(copyBoard, '', true)
+
   const enemy = curr === 'b' ? 'w' : curr
-  let allRotates: string[][][] = [doubleFreeThreePattern]
-  for (let i = 0; i < 3; i++) {
-    allRotates.push(rotate(doubleFreeThreePattern, i))
+  let allRotates: any = new Set()
+  for (let i = 0; i < 8; i++) {
+    let rotated = matrixRotator(doubleFreeThreePattern, i)
+    let reversed = matrixRotator(doubleFreeThreePattern.map((l: any) => l.reverse()), i)
+
+    allRotates.add(rotated)
+    allRotates.add(reversed)
   }
-  log("--------")
-  // allRotates.forEach((rot: string[][]) => {
-  //   log(rot)
-  //   log(findDoublePattern(copyBoard, curr, enemy, rot))
-  // })
-  log(allRotates[1])
-log(findDoublePattern(copyBoard, curr, enemy, allRotates[0]))
-log(findDoublePattern(copyBoard, curr, enemy, allRotates[1]))
-// log(findDoublePattern(copyBoard, curr, enemy, allRotates[2]))
+  allRotates = [...allRotates]
 
-
-  return true
-
-
-
+  for (let i = 0; i < allRotates.length; i++)
+    if (findDoublePattern(copyBoard, curr, enemy, trim(allRotates[i], '', false)))
+      return true
+  return false
 }
 
 
@@ -241,10 +237,13 @@ export function findDoublePattern(cboard: string[][], curr: string, enemy: strin
 
   let k = 0
 
-  const board = JSON.parse(JSON.stringify(cboard))
-  // doubleFreeThreePattern = trim(doubleFreeThreePattern, '')
+  let board: string[][] = JSON.parse(JSON.stringify(cboard))
 
-  log(board, doubleFreeThreePattern)
+  // let row2Add = board.length < doubleFreeThreePattern.length ? doubleFreeThreePattern.length - board.length : 0
+  let cols2Add = board[0].length < doubleFreeThreePattern[0].length ? doubleFreeThreePattern[0].length - board[0].length : 0
+
+  board = board.map((r: string[]) => [...r, ...Array(cols2Add).fill('')])
+
   for (let i = 0; i < board.length; i++) {
     for (let j = 0; j < board[i].length; j++) {
       k = 0
@@ -261,22 +260,30 @@ export function findDoublePattern(cboard: string[][], curr: string, enemy: strin
       }
       if (k === 9)
         return true
-     
     }
   }
 
 
   return false
 }
-function crop(board: string[][], ymin: number, ymax: number, xmin: number, xmax: number) {
+function crop(board: string[][], ymin: number, ymax: number, xmin: number, xmax: number, margin: boolean) {
 
-
-  return board.slice(ymin - 1, ymax + 1).map(function (row) {
-    return row.slice(xmin - 1, xmax + 2)
+  if (margin) {
+    ymin = ymin > 0 ? --ymin : ymin
+    ymax = ymax < 18 ? ymax + 2 : ymax
+    xmin = xmin > 0 ? --xmin : xmin
+    xmax = xmax < 18 ? xmax + 2 : xmax
+  } else {
+    ymin = ymin > 0 ? --ymin : ymin
+    ymax = ymax < 18 ? ++ymax : ymax
+    xmax = xmax < 18 ? xmax + 1 : xmax
+  }
+  return board.slice(ymin, ymax).map(function (row) {
+    return row.slice(xmin, xmax)
   });
 }
 
-function trim(board: string[][], toTrim: string) {
+function trim(board: string[][], toTrim: string, margin: boolean) {
   let cmin, rmin, cmax, rmax
 
   cmin = board[0].length
@@ -292,6 +299,6 @@ function trim(board: string[][], toTrim: string) {
         if (rmin > r) rmin = r;
         if (rmax < r) rmax = r;
       }
-  return crop(board, rmin, rmax, cmin, cmax);
+  return crop(board, rmin, rmax, cmin, cmax, margin);
 }
 

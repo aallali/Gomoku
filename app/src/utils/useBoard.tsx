@@ -13,9 +13,9 @@ let demoBoard = [
 	[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
 	[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
 	[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-	[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " "],
-	[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " "],
-	[" ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+	[" ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " "],
+	[" ", " ", " ", " ", "b", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " "],
+	[" ", " ", " ", " ", " ", "b", " ", " ", " ", "w", " ", " ", " ", " ", " ", " ", " ", " ", " "],
 	[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
 	[" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
 	[" ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
@@ -64,11 +64,11 @@ export default function useBoard() {
 			if (value) return;
 			lastRow.current = row;
 			lastCol.current = col;
-			isDoubleFreeThree(board, row, col, isBlackMoving.current ? "b" : "w")
-			if (!isForbiddenMove(board, row, col, isBlackMoving.current ? "b" : "w")) {
+			
+			if (!isForbiddenMove(board, row, col, isBlackMoving.current ? "b" : "w") && !isDoubleFreeThree(board, row, col, isBlackMoving.current ? "b" : "w")) {
 
 				updateBoard(row, col, isBlackMoving.current ? "b" : "w");
-				// isBlackMoving.current = !isBlackMoving.current;
+				isBlackMoving.current = !isBlackMoving.current;
 				setCurrentPlayer(isBlackMoving.current ? "Black" : "White")
 			} else
 				alert("Forbidden Move")
