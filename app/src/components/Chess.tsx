@@ -65,7 +65,8 @@ const ChessElement = styled.div<{ $value: any }>`
   z-index: 1;
   :hover {
     transform: scale(0.85);
-    background-color: rgba(220,220,220, 0.6);
+    background-color: rgba(220,220,220, 0.4);
+    border:solid 1px black;
    }
   
   ${(props: any) =>
@@ -108,7 +109,8 @@ const Dot = styled.div<{ $value: any }>`
   background-color: black;
   :hover {
     transform: scale(0.85);
-    background-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(220,220,220, 0.9);
+    border:solid 1px black;
   }
 `;
 
