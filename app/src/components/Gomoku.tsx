@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { shallowEqual, useSelector } from "react-redux";
 import styled from "styled-components";
 import useBoard from "../utils/useBoard";
 import Chess from "./Chess";
@@ -40,48 +41,93 @@ const ModalInner = styled.div`
   text-align: center;
 `;
 
-
-
+function generateRandom(maxLimit = 19) {
+  let rand = Math.random() * maxLimit;
+  rand = Math.floor(rand); // 99
+  return rand;
+}
+function aiMove(board: string[][]): number[] {
+  const row = generateRandom()
+  const col = generateRandom()
+  if (board[row][col])
+    return aiMove(board)
+  else
+    return [row, col]
+}
 
 export default function Gomoku() {
-    const { board, wineer, handleChessClick } = useBoard();
-  
-    return (
-      <div>
-    
-        {wineer && (
-          <WinnerModal>
-            <ModalInner>
-              {wineer === "d" && "Tie"}
-              {wineer === "b" && "Black wins"}
-              {wineer === "w" && "White wins"}
-              <br />
-              <button onClick={() => window.location.reload()}>Play Again</button>
-            </ModalInner>
-          </WinnerModal>
-        )}
-      
-          <Checkerboard>
-            {board.map((row, rowIndex) => {
-              return (
-                <Row key={rowIndex}>
-                  {row.map((col: any, colIndex: number) => {
-                    return (
-                      <Chess
-                        key={colIndex}
-                        row={rowIndex}
-                        col={colIndex}
-                        value={board[rowIndex][colIndex]}
-                        onClick={handleChessClick}
-                      />
-                    );
-                  })}
-                </Row>
-              );
-            })}
-          </Checkerboard>
-      
-      </div>
-    );
-  }
-  
+  const options: any = useSelector(
+    (state: GomokuState) => state,
+    shallowEqual
+  )
+  const isMyTurn: any = useSelector(
+    (state: GomokuState) => state.myTurn,
+    shallowEqual
+  )
+  const enemy = options.enemy
+  const player = options.player
+  const { board, wineer, handleChessClick } = useBoard(options.mode, options.enemy, options.player, isMyTurn);
+  const colors: any = useSelector(
+    (state: GomokuState) => state.color,
+    shallowEqual
+  )
+
+  useEffect(() => {
+    let timer: any
+
+    if (!isMyTurn && enemy === 'ai') {
+      const [row, col] = aiMove(board)
+      timer = setTimeout(() => {
+        handleChessClick(row, col, '')
+      }, 500)
+
+    } else if (isMyTurn && player === 'ai') {
+
+      const [row, col] = aiMove(board)
+      timer = setTimeout(() => {
+        handleChessClick(row, col, '')
+      }, 500)
+
+    }
+    if (timer)
+      return () => clearTimeout(timer);
+  }, [isMyTurn])
+  return (
+    <div>
+
+      {wineer && (
+        <WinnerModal>
+          <ModalInner>
+            {wineer === "d" && "Tie"}
+            {wineer === "b" && "Black wins"}
+            {wineer === "w" && "White wins"}
+            <br />
+            <button onClick={() => window.location.reload()}>Play Again</button>
+          </ModalInner>
+        </WinnerModal>
+      )}
+
+      <Checkerboard>
+        {board.map((row, rowIndex) => {
+          return (
+            <Row key={rowIndex}>
+              {row.map((col: any, colIndex: number) => {
+                return (
+                  <Chess
+                    colors={colors}
+                    key={colIndex}
+                    row={rowIndex}
+                    col={colIndex}
+                    value={board[rowIndex][colIndex]}
+                    onClick={handleChessClick}
+                  />
+                );
+              })}
+            </Row>
+          );
+        })}
+      </Checkerboard>
+
+    </div>
+  );
+}

@@ -10,7 +10,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import reducer from "./store/reducer"
 
-const store: Store<GomokuState, CurrentPlayerAction> & {
+const store: Store<GomokuState, GomokuAction> & {
   dispatch: DispatchType
 } = createStore(reducer, applyMiddleware(thunk))
 

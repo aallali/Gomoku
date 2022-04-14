@@ -1,4 +1,5 @@
 import React, { memo, useCallback } from "react";
+
 import styled from "styled-components";
 
 const Col = styled.div<{ $row: any, $col: any }>`
@@ -90,7 +91,7 @@ const ChessElement = styled.div<{ $value: any }>`
     background-image linear-gradient(315deg, #3f0d12 0%, #a71d31 74%);
   `}
   ${(props: any) =>
-    props.$value === "s" &&
+    props.$value === "bl" &&
     `
     background-color: #045de9;
     background-image: linear-gradient(315deg, #045de9 0%, #09c6f9 74%);
@@ -130,7 +131,9 @@ const CordL = styled.div`
     // font-weight : light;
     text-align:left
 `
-const Chess = ({ row, col, value, onClick }: { row: number, col: number, value: string | null, onClick: Function }) => {
+const Chess = ({ colors, row, col, value, onClick }: { colors: { enemy: string, current: string }, row: number, col: number, value: string | null, onClick: Function }) => {
+
+  const color = value ? (value === 'b' ? colors.current : colors.enemy) : ''
 
   const dots = ['44', '414', '144', '1414', '99', '914', '94', '49', '149']
   const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -143,8 +146,8 @@ const Chess = ({ row, col, value, onClick }: { row: number, col: number, value: 
     <Col $row={row} $col={col} onClick={handleClick}>
       {
         dots.includes(`${row}${col}`) && !value ?
-          (<Dot $value={value} />) :
-          (<ChessElement $value={value}>
+          (<Dot $value={color} />) :
+          (<ChessElement $value={color}>
             {!row ? (<CordT> {col} </CordT>) : null}
             {!col ? (<CordL> {row} </CordL>) : null}
           </ChessElement>)
