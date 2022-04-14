@@ -10,13 +10,15 @@ type GomokuState = {
   player: 'human' | 'ai'
   enemy: 'human' | 'ai',
   mode: 'local' | 'online',
-  myTurn: boolean
+  myTurn: boolean,
+  winner: undefined | string
 }
 
 type GomokuAction = {
   type: string
   currentPlayer?: IArticle
-  options?: any
+  options?: any,
+  winner?: undefined | string
 }
 
 type DispatchType = (args: GomokuAction) => CurrentPlayerAction

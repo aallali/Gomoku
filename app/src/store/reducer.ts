@@ -10,21 +10,25 @@ const initialState: GomokuState = {
   player: 'human',
   enemy: 'ai',
   mode: 'local',
-  myTurn: true
+  myTurn: true,
+  winner: undefined
 }
 
 const reducer = (
   state: GomokuState = initialState,
   action: GomokuAction
 ): GomokuState => {
+  let currP
   switch (action.type) {
     case actionTypes.SET_CURRENT_PLAYER:
-      return { ...state, currentPlayer: action.currentPlayer }
+      currP = state.options.color === 'rb' ? (action.currentPlayer === 'Black' ? 'Blue' : 'Red') : action.currentPlayer
+      return { ...state, currentPlayer: currP }
     case actionTypes.SET_OPTIONS:
       const color: any = {
         current: 'b',
         enemy: 'w'
       }
+      currP = state.options.color === 'rb' ? (state.currentPlayer === 'Black' ? 'Blue' : 'Red') : state.currentPlayer
 
       if (action.options.color === 'rb') {
         color.current = "bl"
@@ -36,11 +40,13 @@ const reducer = (
         color,
         enemy: '34'.includes(action.options.mode) ? 'ai' : 'human',
         mode: action.options.mode === 2 ? 'online' : 'local',
-        options: action.options
+        options: action.options,
+        currentPlayer:currP
       }
     case actionTypes.SET_TURN:
- 
       return { ...state, myTurn: !state.myTurn }
+    case actionTypes.SET_WINNER:
+      return { ...state, winner: action.winner }
   }
 
   return state

@@ -29,3 +29,13 @@ export function setTurn() {
   }
 }
 
+export function setWinner(winner: string) {
+  const action: GomokuAction = {
+    type: actionTypes.SET_WINNER,
+    winner
+  }
+  return (dispatch: DispatchType) => {
+    dispatch(action)
+  }
+}
+
