@@ -31,8 +31,8 @@ const reducer = (
       currP = state.options.color === 'rb' ? (state.currentPlayer === 'Black' ? 'Blue' : 'Red') : state.currentPlayer
 
       if (action.options.color === 'rb') {
-        color.current = "bl"
-        color.enemy = "r"
+        color.current = "r"
+        color.enemy = "bl"
       }
       return {
         ...state,
