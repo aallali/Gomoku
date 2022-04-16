@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { shallowEqual, useSelector } from "react-redux";
 import styled from "styled-components";
 import useBoard from "../utils/useBoard";
@@ -61,10 +61,10 @@ function aiMove(
 
 
   const availableSpots: string[] = getAvailableSpots(board)
- 
+
   const randomMove: string = availableSpots[Math.floor(Math.random() * availableSpots.length)];
-  const row = randomMove ?  parseInt(randomMove.split(',')[0]) : 0
-  const col = randomMove ? parseInt(randomMove.split(',')[1]) : 0
+  const row = randomMove ? parseInt(randomMove.split(',')[0]) : 9
+  const col = randomMove ? parseInt(randomMove.split(',')[1]) : 9
 
   if (
     !board[row][col] &&
@@ -79,6 +79,7 @@ function aiMove(
 }
 
 export default function Gomoku({ winner }: any) {
+  const [moves, setMoves] = useState<string[]>([])
   const options: any = useSelector((state: GomokuState) => state);
   const isMyTurn: any = useSelector(
     (state: GomokuState) => state.myTurn,
@@ -93,7 +94,10 @@ export default function Gomoku({ winner }: any) {
     options.player,
     isMyTurn
   );
-
+    function storeAndHandleChessClick(row:number, col:number, value:string, bot:boolean) {
+      setMoves(prev => [...prev, `${row},${col}`])
+      handleChessClick(row, col, value, bot)
+    }
   const colors: any = useSelector(
     (state: GomokuState) => state.color,
     shallowEqual
@@ -108,8 +112,8 @@ export default function Gomoku({ winner }: any) {
 
         if (row || row === 0)
           timer = setTimeout(() => {
-            handleChessClick(row, col, "", true);
-          }, 1);
+            storeAndHandleChessClick(row as number, col as number, "", true);
+          }, 10);
         else clearTimeout(timer);
       } else if (isMyTurn && player === "ai") {
 
@@ -117,8 +121,8 @@ export default function Gomoku({ winner }: any) {
 
         if (row || row === 0)
           timer = setTimeout(() => {
-            handleChessClick(row, col, "", true);
-          }, 1);
+            storeAndHandleChessClick(row as number, col as number, "", true);
+          }, 10);
         else clearTimeout(timer);
       }
     }
@@ -150,8 +154,9 @@ export default function Gomoku({ winner }: any) {
                     key={colIndex}
                     row={rowIndex}
                     col={colIndex}
+                    order={moves.indexOf(`${rowIndex},${colIndex}`) || 0}
                     value={board[rowIndex][colIndex]}
-                    onClick={handleChessClick}
+                    onClick={storeAndHandleChessClick}
                   />
                 );
               })}

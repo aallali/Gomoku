@@ -61,6 +61,8 @@ const ChessElement = styled.div<{ $value: any }>`
   border-radius: 50%;
   position: absolute;
   transform: scale(0.85);
+  padding-top:6px;
+  text-align:center;
   top: 0;
   left: 0;
   z-index: 1;
@@ -131,7 +133,7 @@ const CordL = styled.div`
     // font-weight : light;
     text-align:left
 `
-const Chess = ({ colors, row, col, value, onClick }: { colors: { enemy: string, current: string }, row: number, col: number, value: string | null, onClick: Function }) => {
+const Chess = ({ colors, row, col, value, onClick, order }: { colors: { enemy: string, current: string }, row: number, col: number, value: string | null, onClick: Function , order:number}) => {
 
   const color = value ? (value === 'b' ? colors.current : colors.enemy) : ''
 
@@ -143,13 +145,14 @@ const Chess = ({ colors, row, col, value, onClick }: { colors: { enemy: string, 
   }, [row, col, value, onClick]);
 
   return (
-    <Col $row={row} $col={col} onClick={handleClick}>
+    <Col $row={row} $col={col}   onClick={handleClick}>
       {
         dots.includes(`${row}${col}`) && !value ?
           (<Dot $value={color} />) :
           (<ChessElement $value={color}>
             {!row ? (<CordT> {col} </CordT>) : null}
             {!col ? (<CordL> {row} </CordL>) : null}
+            {value ?  (<b style={{color:value === 'b' ? 'white' : 'black'}}>{order}</b>) : null}
           </ChessElement>)
       }
 
