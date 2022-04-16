@@ -11,6 +11,7 @@ let patterns = {
     ["", "", "", "", "", "", "", ""],
   ],
 };
+const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const paths: Record<string, string> = {
   right: "diagTL:diagBL",
   left: "diagTR:diagBR",
@@ -100,7 +101,13 @@ export function findWinner(board: string[][], y: number, x: number) {
 
   return;
 }
-
+/**
+ * find the captures in the board after the play
+ * @param board 
+ * @param y 
+ * @param x 
+ * @returns [capturesExists, board]
+ */
 export function findCaptures(board: string[][], y: number, x: number) {
   const now: string = board[y][x];
   const enemy: string = now === "b" ? "w" : "b";
@@ -142,11 +149,11 @@ export function findCaptures(board: string[][], y: number, x: number) {
         tmpX < 19 &&
         copyBoard[tmpY][tmpX] === now
       )
-        return copyBoard;
+        return [copyBoard, true];
     }
   }
 
-  return board;
+  return [board, false];
 }
 
 export function isForbiddenMove(
@@ -155,7 +162,7 @@ export function isForbiddenMove(
   x: number,
   curr: string
 ) {
- 
+
   const now: string = curr;
   const enemy: string = now === "b" ? "w" : "b";
   const forbiddenCombination = `${enemy}${now}${enemy}`;
@@ -210,7 +217,7 @@ export function isDoubleFreeThree(
   x: number,
   curr: string
 ) {
- 
+
   const doubleFreeThreePattern = patterns["doubleFreeThree"];
   let copyBoard = JSON.parse(JSON.stringify(board)); // create deep copy for the board
   copyBoard[y][x] = curr;
@@ -281,6 +288,17 @@ export function findDoublePattern(
 
   return false;
 }
+
+/**
+ * crop a board by given coordinations
+ * @param board 
+ * @param ymin 
+ * @param ymax 
+ * @param xmin 
+ * @param xmax 
+ * @param margin 
+ * @returns 
+ */
 function crop(
   board: string[][],
   ymin: number,
@@ -304,6 +322,13 @@ function crop(
   });
 }
 
+/**
+ * trim board from all empty blocks to minize area of search
+ * @param board 
+ * @param toTrim 
+ * @param margin 
+ * @returns 
+ */
 function trim(board: string[][], toTrim: string, margin: boolean) {
   let cmin, rmin, cmax, rmax;
 
@@ -321,4 +346,30 @@ function trim(board: string[][], toTrim: string, margin: boolean) {
         if (rmax < r) rmax = r;
       }
   return crop(board, rmin, rmax, cmin, cmax, margin);
+}
+
+
+function findNearbySpots(board: string[][], y: number, x: number) {
+  let spots = []
+
+  for (let k in directions) {
+     if (board[y + directions[k][0]]?.[x + directions[k][1]] === null)
+      spots.push(`${y + directions[k][0]},${x + directions[k][1]}`)
+  }
+  return spots
+}
+
+export function getAvailableSpots(board: string[][]) {
+  const spots = new Set()
+  const [h, w] = [board.length, board[0].length]
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      if (board[y][x]) {
+        findNearbySpots(board, y, x).forEach(spots.add, spots)
+       }
+    }
+  }
+
+  
+  return Array.from(spots) as string[]
 }
