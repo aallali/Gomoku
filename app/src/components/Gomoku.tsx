@@ -3,12 +3,15 @@ import { shallowEqual, useSelector } from "react-redux";
 import styled from "styled-components";
 import useBoard from "../utils/useBoard";
 import Chess from "./Chess";
+import { getAvailableSpots } from "../utils/util"
 import {
   findWinner,
   findCaptures,
   isForbiddenMove,
   isDoubleFreeThree,
 } from "../utils/util";
+
+const { log } = console
 const Checkerboard = styled.div`
   display: inline-block;
   margin-top: 0;
@@ -54,18 +57,24 @@ function aiMove(
   recur: number
 ): number[] | boolean[] {
   if (recur === 0)
-  return [false, false]
-  const row = generateRandom();
-  const col = generateRandom();
+    return [false, false]
+
+
+  const availableSpots: string[] = getAvailableSpots(board)
+ 
+  const randomMove: string = availableSpots[Math.floor(Math.random() * availableSpots.length)];
+  const row = randomMove ?  parseInt(randomMove.split(',')[0]) : 0
+  const col = randomMove ? parseInt(randomMove.split(',')[1]) : 0
+
   if (
     !board[row][col] &&
     !isForbiddenMove(board, row, col, isBlackMoving.current ? "b" : "w") &&
     !isDoubleFreeThree(board, row, col, isBlackMoving.current ? "b" : "w")
   ) {
 
-     
-      return [row, col];
-    
+
+    return [row, col];
+
   } else return aiMove(board, isBlackMoving, --recur);
 }
 
@@ -94,16 +103,18 @@ export default function Gomoku({ winner }: any) {
     let timer: any;
     if (!winner) {
       if (!isMyTurn && enemy === "ai") {
+
         const [row, col] = aiMove(board, isBlackMoving, 1000);
-      
+
         if (row || row === 0)
           timer = setTimeout(() => {
             handleChessClick(row, col, "", true);
           }, 1);
         else clearTimeout(timer);
       } else if (isMyTurn && player === "ai") {
+
         const [row, col] = aiMove(board, isBlackMoving, 1000);
-       
+
         if (row || row === 0)
           timer = setTimeout(() => {
             handleChessClick(row, col, "", true);
