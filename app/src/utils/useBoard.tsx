@@ -53,8 +53,8 @@ export default function useBoard(
   // use ref since this doesn't need to be displayed on the UI
 
   // record the last time you played chess row and col
-  const lastRow = useRef();
-  const lastCol = useRef();
+  const lastRow:React.MutableRefObject<undefined> = useRef();
+  const lastCol:React.MutableRefObject<undefined> = useRef();
 
   // use here functional update because if not
 
@@ -99,16 +99,11 @@ export default function useBoard(
   );
 
   useEffect(() => {
-    if (!lastRow.current || !lastCol.current) return;
+    if (lastRow.current === undefined || lastCol.current === undefined) return;
     setBoard(findCaptures(board, lastRow.current, lastCol.current));
     const winner = findWinner(board, lastRow.current, lastCol.current);
- 
-	if (winner && winner !== "w" && winner !== "b")
-	{
-		console.log(winner)
-		setWinnerOfTheGame(winner);
-	}
-   
+
+    if (winner) setWinnerOfTheGame(winner);
   }, [board]);
 
   return {

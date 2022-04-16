@@ -155,7 +155,7 @@ export function isForbiddenMove(
   x: number,
   curr: string
 ) {
-  return false;
+ 
   const now: string = curr;
   const enemy: string = now === "b" ? "w" : "b";
   const forbiddenCombination = `${enemy}${now}${enemy}`;
@@ -210,7 +210,7 @@ export function isDoubleFreeThree(
   x: number,
   curr: string
 ) {
-  return false;
+ 
   const doubleFreeThreePattern = patterns["doubleFreeThree"];
   let copyBoard = JSON.parse(JSON.stringify(board)); // create deep copy for the board
   copyBoard[y][x] = curr;
