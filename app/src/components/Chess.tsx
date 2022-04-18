@@ -105,14 +105,14 @@ const Dot = styled.div<{ $value: any }>`
   height: 100%;
   border-radius: 50%;
   position: absolute;
-  transform: scale(0.2);
+  transform: scale(0.15);
   top: 0;
   left: 0;
   z-index: 1;
   background-color: black;
   :hover {
     transform: scale(0.85);
-    background-color: rgba(220,220,220, 0.9);
+    background-color: rgba(220,220,220, 0.4);
     border:solid 1px black;
   }
 `;
@@ -122,15 +122,15 @@ const CordT = styled.div`
     top: -70%;
     left: 45%;
     transform: translateX(-50%);  
-    font-size : 20px;
-    // font-weight : bold;
+    font-size : 17px;
+    font-weight : bold;
 `
 const CordL = styled.div`
     position: absolute;
     top: 10%;
     right: 120%;
-    font-size : 20px;
-    // font-weight : light;
+    font-size : 17px;
+    font-weight : bold;
     text-align:left
 `
 const Chess = ({ colors, row, col, value, onClick, order }: { colors: { enemy: string, current: string }, row: number, col: number, value: string | null, onClick: Function , order:number}) => {
@@ -150,7 +150,7 @@ const Chess = ({ colors, row, col, value, onClick, order }: { colors: { enemy: s
         dots.includes(`${row}${col}`) && !value ?
           (<Dot $value={color} />) :
           (<ChessElement $value={color}>
-            {!row ? (<CordT> {col} </CordT>) : null}
+            {!row ? (<CordT> {alpha[col]} </CordT>) : null}
             {!col ? (<CordL> {row} </CordL>) : null}
             {value ?  (<i style={{color:value === 'b' ? 'white' : 'black', fontSize:'12px'}}>{order}</i>) : null}
           </ChessElement>)
