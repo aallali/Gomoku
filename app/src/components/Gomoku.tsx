@@ -5,13 +5,12 @@ import useBoard from "../utils/useBoard";
 import Chess from "./Chess";
 import { getAvailableSpots } from "../utils/util"
 import {
-  findWinner,
-  findCaptures,
   isForbiddenMove,
   isDoubleFreeThree,
 } from "../utils/util";
+import minimax from "../utils/miniMax";
 
-const { log } = console
+// const { log } = console
 const Checkerboard = styled.div`
   display: inline-block;
   margin-top: 0;
@@ -46,11 +45,7 @@ const ModalInner = styled.div`
   text-align: center;
 `;
 
-function generateRandom(maxLimit = 19) {
-  let rand = Math.random() * maxLimit;
-  rand = Math.floor(rand); // 99
-  return rand;
-}
+
 function aiMove(
   board: string[][],
   isBlackMoving: any,
@@ -65,8 +60,8 @@ function aiMove(
 
 
   const randomMove: string = aspots[Math.floor(Math.random() * aspots.length)];
-  const row = randomMove ? parseInt(randomMove.split(',')[0]) : 9
-  const col = randomMove ? parseInt(randomMove.split(',')[1]) : 9
+  const row = randomMove ? parseInt(randomMove.split(',')[0]) : 1
+  const col = randomMove ? parseInt(randomMove.split(',')[1]) : 1
   if (!(board[row][col] ||
     isForbiddenMove(board, row, col, isBlackMoving.current ? "b" : "w") ||
     isDoubleFreeThree(board, row, col, isBlackMoving.current ? "b" : "w")))
@@ -120,7 +115,7 @@ export default function Gomoku({ winner }: any) {
     let timer: any;
     if (!winner) {
       if (!isMyTurn && enemy === "ai") {
-
+        console.log(minimax(board, isBlackMoving ? 'b': 'w', 2, false, -Infinity, Infinity))
         const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board), true);
 
         if (row || row === 0)
@@ -143,6 +138,7 @@ export default function Gomoku({ winner }: any) {
     else {
       getAvailableSpots(board)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMyTurn]);
 
   return (

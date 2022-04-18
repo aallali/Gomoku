@@ -1,4 +1,4 @@
-let { log } = console;
+// let { log } = console;
 let patterns = {
   doubleFreeThree: [
     ["-1", "", "", "", "", "", "", ""],
@@ -11,17 +11,17 @@ let patterns = {
     ["", "", "", "", "", "", "", ""],
   ],
 };
-const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-const paths: Record<string, string> = {
-  right: "diagTL:diagBL",
-  left: "diagTR:diagBR",
-  top: "diagBR:diagBL",
-  bottom: "diagTR:diagTL",
-  diagTR: "left:bottom",
-  diagTL: "right:bottom",
-  diagBL: "top:right",
-  diagBR: "top:left",
-};
+// const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+// const paths: Record<string, string> = {
+//   right: "diagTL:diagBL",
+//   left: "diagTR:diagBR",
+//   top: "diagBR:diagBL",
+//   bottom: "diagTR:diagTL",
+//   diagTR: "left:bottom",
+//   diagTL: "right:bottom",
+//   diagBL: "top:right",
+//   diagBR: "top:left",
+// };
 const directions: Record<string, number[]> = {
   top: [0, -1],
   bottom: [0, 1],
@@ -376,6 +376,6 @@ export function getAvailableSpots(board: string[][]) {
         findNearbySpots(board, y, x).forEach(el => {
           spots.add(el)
         })
-
   return Array.from(spots) as string[]
 }
+
