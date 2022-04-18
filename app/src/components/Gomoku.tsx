@@ -54,31 +54,32 @@ function generateRandom(maxLimit = 19) {
 function aiMove(
   board: string[][],
   isBlackMoving: any,
-  recur: number
+  aspots: string[],
+  start: boolean
 ): number[] | boolean[] {
-  if (recur === 0)
+  if (aspots.length === 0 && !start) {
+    // log(getAvailableSpots(board))
     return [false, false]
+  }
 
 
-  const availableSpots: string[] = getAvailableSpots(board)
 
-  const randomMove: string = availableSpots[Math.floor(Math.random() * availableSpots.length)];
+  const randomMove: string = aspots[Math.floor(Math.random() * aspots.length)];
   const row = randomMove ? parseInt(randomMove.split(',')[0]) : 9
   const col = randomMove ? parseInt(randomMove.split(',')[1]) : 9
-
-  if (
-    !board[row][col] &&
-    !isForbiddenMove(board, row, col, isBlackMoving.current ? "b" : "w") &&
-    !isDoubleFreeThree(board, row, col, isBlackMoving.current ? "b" : "w")
-  ) {
-
-
+  if (!(board[row][col] ||
+    isForbiddenMove(board, row, col, isBlackMoving.current ? "b" : "w") ||
+    isDoubleFreeThree(board, row, col, isBlackMoving.current ? "b" : "w")))
     return [row, col];
+  else {
+    aspots = aspots.filter(l => l !== randomMove)
+    return aiMove(board, isBlackMoving, aspots, false)
+  }
 
-  } else return aiMove(board, isBlackMoving, --recur);
 }
 
 export default function Gomoku({ winner }: any) {
+
   const [moves, setMoves] = useState<string[]>([])
   const options: any = useSelector((state: GomokuState) => state);
   const isMyTurn: any = useSelector(
@@ -94,10 +95,22 @@ export default function Gomoku({ winner }: any) {
     options.player,
     isMyTurn
   );
-    function storeAndHandleChessClick(row:number, col:number, value:string, bot:boolean) {
-      setMoves(prev => [...prev, `${row},${col}`])
-      handleChessClick(row, col, value, bot)
+
+  function getOrder(rowCol: string) {
+    let biggestIndex = 0
+    for (let i = 0; i < moves.length; i++) {
+      if (moves[i] === rowCol) {
+        if (i > biggestIndex)
+          biggestIndex = i
+      }
     }
+    return biggestIndex
+  }
+  function storeAndHandleChessClick(row: number, col: number, value: string, bot: boolean) {
+
+    if (handleChessClick(row, col, value, bot))
+      setMoves(prev => [...prev, `${row},${col}`])
+  }
   const colors: any = useSelector(
     (state: GomokuState) => state.color,
     shallowEqual
@@ -108,25 +121,28 @@ export default function Gomoku({ winner }: any) {
     if (!winner) {
       if (!isMyTurn && enemy === "ai") {
 
-        const [row, col] = aiMove(board, isBlackMoving, 1000);
+        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board), true);
 
         if (row || row === 0)
           timer = setTimeout(() => {
             storeAndHandleChessClick(row as number, col as number, "", true);
-          }, 10);
+          }, 1);
         else clearTimeout(timer);
       } else if (isMyTurn && player === "ai") {
 
-        const [row, col] = aiMove(board, isBlackMoving, 1000);
+        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board), true);
 
         if (row || row === 0)
           timer = setTimeout(() => {
             storeAndHandleChessClick(row as number, col as number, "", true);
-          }, 10);
+          }, 1);
         else clearTimeout(timer);
       }
     }
     if (timer) return () => clearTimeout(timer);
+    else {
+      getAvailableSpots(board, true)
+    }
   }, [isMyTurn]);
 
   return (
@@ -154,7 +170,7 @@ export default function Gomoku({ winner }: any) {
                     key={colIndex}
                     row={rowIndex}
                     col={colIndex}
-                    order={moves.indexOf(`${rowIndex},${colIndex}`) || 0}
+                    order={getOrder(`${rowIndex},${colIndex}`) || 0}
                     value={board[rowIndex][colIndex]}
                     onClick={storeAndHandleChessClick}
                   />
