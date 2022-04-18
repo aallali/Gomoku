@@ -141,7 +141,7 @@ export default function Gomoku({ winner }: any) {
     }
     if (timer) return () => clearTimeout(timer);
     else {
-      getAvailableSpots(board, true)
+      getAvailableSpots(board)
     }
   }, [isMyTurn]);
 

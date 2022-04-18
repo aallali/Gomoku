@@ -1,4 +1,4 @@
-const { log } = console;
+let { log } = console;
 let patterns = {
   doubleFreeThree: [
     ["-1", "", "", "", "", "", "", ""],
@@ -24,13 +24,16 @@ const paths: Record<string, string> = {
 };
 const directions: Record<string, number[]> = {
   top: [0, -1],
+  bottom: [0, 1],
+
   right: [1, 0],
+  left: [-1, 0],
+
   diagTR: [1, -1],
   diagTL: [-1, -1],
+
   diagBR: [1, 1],
-  diagBL: [-1, 1],
-  bottom: [0, 1],
-  left: [-1, 0],
+  diagBL: [-1, 1]
 };
 const mirror: Record<string, string> = {
   top: "bottom",
@@ -131,7 +134,7 @@ export function findCaptures(board: string[][], y: number, x: number) {
         tmpX < 19 &&
         copyBoard[tmpY][tmpX] === enemy
       ) {
-        copyBoard[tmpY][tmpX] = "";
+        copyBoard[tmpY][tmpX] = null;
         k--;
         continue;
       }
@@ -353,8 +356,9 @@ function findNearbySpots(board: string[][], y: number, x: number) {
   let spots = []
 
   for (let k in directions) {
-     if (board[y + directions[k][0]]?.[x + directions[k][1]] === null)
-      spots.push(`${y + directions[k][0]},${x + directions[k][1]}`)
+    let checkSpot = board[y + directions[k][1]]?.[x + directions[k][0]]
+    if (checkSpot === null)
+      spots.push(`${y + directions[k][1]},${x + directions[k][0]}`)
   }
   return spots
 }
@@ -362,14 +366,13 @@ function findNearbySpots(board: string[][], y: number, x: number) {
 export function getAvailableSpots(board: string[][]) {
   const spots = new Set()
   const [h, w] = [board.length, board[0].length]
-  for (let y = 0; y < h; y++) {
-    for (let x = 0; x < w; x++) {
-      if (board[y][x]) {
-        findNearbySpots(board, y, x).forEach(spots.add, spots)
-       }
-    }
-  }
 
-  
+  for (let y = 0; y < h; y++)
+    for (let x = 0; x < w; x++)
+      if (board[y][x])
+        findNearbySpots(board, y, x).forEach(el => {
+          spots.add(el)
+        })
+
   return Array.from(spots) as string[]
 }
