@@ -115,12 +115,14 @@ export function findCaptures(board: string[][], y: number, x: number) {
   const now: string = board[y][x];
   const enemy: string = now === "b" ? "w" : "b";
   const dirs: string[] = Object.keys(directions);
-
+  let foundCapture = false
+  let copyBoard  
   for (let i = 0; i < dirs.length; i++) {
+    copyBoard = JSON.parse(JSON.stringify(board));
     let k = 2;
     let tmpY = y;
     let tmpX = x;
-    const copyBoard = JSON.parse(JSON.stringify(board)); // create deep copy for the board
+    // create deep copy for the board
     const dir: string = dirs[i];
 
     while (k) {
@@ -152,11 +154,12 @@ export function findCaptures(board: string[][], y: number, x: number) {
         tmpX < 19 &&
         copyBoard[tmpY][tmpX] === now
       )
-        return [copyBoard, true];
+      board = copyBoard
+      foundCapture = true
     }
   }
 
-  return [board, false];
+  return [JSON.parse(JSON.stringify(board)), foundCapture];
 }
 
 export function isForbiddenMove(
