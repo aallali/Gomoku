@@ -7,7 +7,7 @@ export default function Menu({ isClicked }: any) {
     const dispatch: Dispatch<any> = useDispatch()
     const [show, setShow] = useState(true);
 
-    const [mode, setMode] = useState<number>(3)
+    const [mode, setMode] = useState<number>(1)
     const [rules, setRules] = useState<any>({
         captureMove: true,
         endinGCapture: false,
@@ -69,6 +69,7 @@ export default function Menu({ isClicked }: any) {
                         name="group1"
                         label="Player vs Player (local)"
                         value={1}
+                        defaultChecked={true}
                     />
                     <Form.Check
                         type="radio"
@@ -82,7 +83,7 @@ export default function Menu({ isClicked }: any) {
                         name="group1"
                         label="Player vs AI"
                         value={3}
-                        defaultChecked={true}
+                        
                     />
                     <Form.Check
                         type="radio"
