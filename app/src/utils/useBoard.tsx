@@ -70,7 +70,7 @@ export default function useBoard(
   const handleChessClick = useCallback(
     (row, col, value, bot = false) => {
       // already down
-      if (value) return;
+      if (value) return false;
       lastRow.current = row;
       lastCol.current = col;
       const currentPlayer = isBlackMoving.current ? "b" : "w"
@@ -92,7 +92,10 @@ export default function useBoard(
         isBlackMoving.current = !isBlackMoving.current;
         setCurrentPlayer(isBlackMoving.current ? "Black" : "White");
         updatePlayerTurn();
-      } else alert(`Forbidden Move : ${isInCaptureMove ? "Cant play in capture area" : "You can perform a double three form"}`);
+        return true
+      } else { 
+        alert(`Forbidden Move : ${isInCaptureMove ? "Cant play in capture area" : "You can perform a double three form"}`); 
+        return false }
 
 
     },
