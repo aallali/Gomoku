@@ -2,31 +2,32 @@ import { useState, useRef, useCallback, useEffect } from "react";
 import { findWinner, findCaptures, isForbiddenMove, isDoubleFreeThree } from "./util";
 import { updateCurrentPlayer, setTurn, setWinner } from "../store/actionCreators"
 import { Dispatch } from "redux"
-import { shallowEqual, useDispatch, useSelector } from "react-redux"
+import { useDispatch} from "react-redux"
 const SIZE = 19;
 
-const { log } = console
-let demoBoard = [
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", "b", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", "b", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", "w", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", "w", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "w", " ", "b", "w", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
-  [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
-].map(row => row.map(col => col.trim()))
+// const { log } = console
+// let demoBoard = [
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", "b", "b", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", "w", " ", " ", " ", " ", " ", "b", "b", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", "w", " ", " ", " ", " ", " ", "w", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", "w", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", "w", " ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", "w", " ", " ", " ", " ", " ", " ", " ", " ", " ", "w", " ", "b", "w", " "],
+//   [" ", " ", " ", " ", " ", "b", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "],
+//   [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
+// ].map(row => row.map(col => col === " " ? "" : col))
+
 
 export default function useBoard(
   mode: string,
@@ -60,12 +61,12 @@ export default function useBoard(
 
   // every time board there are changes，updateBoard will change
   // so outsideChess Every flag will be all re-render
-  const updateBoard = useCallback((y, x, newValue) => {
-    setBoard((board) => {
-      board[y][x] = newValue;
-      return [...board];
-    });
-  }, []);
+  // const updateBoard = useCallback((y, x, newValue) => {
+  //   setBoard((board) => {
+  //     board[y][x] = newValue;
+  //     return [...board];
+  //   });
+  // }, []);
 
   const handleChessClick = useCallback(
     (row, col, value, bot = false) => {
@@ -80,35 +81,36 @@ export default function useBoard(
       fakeBoard[row][col] = currentPlayer
       let capturesBoards = findCaptures(fakeBoard, row, col)
       const isDoubleThree = capturesBoards[1] ? false : isDoubleFreeThree(board, row, col, currentPlayer)
-      // log(capturesBoards[1], isInCaptureMove, isDoubleThree)
-
 
       if (
         !isInCaptureMove &&
         !isDoubleThree
       ) {
-        // updateBoard(row, col, isBlackMoving.current ? "b" : "w");
+
         setBoard(capturesBoards[0])
         isBlackMoving.current = !isBlackMoving.current;
         setCurrentPlayer(isBlackMoving.current ? "Black" : "White");
         updatePlayerTurn();
+
         return true
-      } else { 
-        alert(`Forbidden Move : ${isInCaptureMove ? "Cant play in capture area" : "You can perform a double three form"}`); 
-        return false }
+      } else {
+        alert(`Forbidden Move : ${isInCaptureMove ? "Cant play in capture area" : "You can perform a double three form"}`);
+        return false
+      }
 
 
     },
-    [updateBoard, board]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [board]
   );
 
   useEffect(() => {
     if (lastRow.current === undefined || lastCol.current === undefined) return;
-    // setBoard(findCaptures(board, lastRow.current, lastCol.current)[0]);
     const winner = findWinner(board, lastRow.current, lastCol.current);
 
-    // if (winner) setWinnerOfTheGame(winner);
-  }, [board]);
+    if (winner) setWinnerOfTheGame(winner);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [board])
 
   return {
     board,
