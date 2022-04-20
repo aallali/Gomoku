@@ -1,5 +1,7 @@
-// let { log } = console;
-let patterns = {
+import minimax from "./miniMax";
+
+let { log } = console;
+let paths = {
   doubleFreeThree: [
     ["-1", "", "", "", "", "", "", ""],
     ["", "1", "", "", "", "", "", ""],
@@ -116,7 +118,7 @@ export function findCaptures(board: string[][], y: number, x: number) {
   const enemy: string = now === "b" ? "w" : "b";
   const dirs: string[] = Object.keys(directions);
   let foundCapture = false
-  let copyBoard  
+  let copyBoard
   for (let i = 0; i < dirs.length; i++) {
     copyBoard = JSON.parse(JSON.stringify(board));
     let k = 2;
@@ -154,7 +156,7 @@ export function findCaptures(board: string[][], y: number, x: number) {
         tmpX < 19 &&
         copyBoard[tmpY][tmpX] === now
       )
-      board = copyBoard
+        board = copyBoard
       foundCapture = true
     }
   }
@@ -224,7 +226,7 @@ export function isDoubleFreeThree(
   curr: string
 ) {
 
-  const doubleFreeThreePattern = patterns["doubleFreeThree"];
+  const doubleFreeThreePattern = paths["doubleFreeThree"];
   let copyBoard = JSON.parse(JSON.stringify(board)); // create deep copy for the board
   copyBoard[y][x] = curr;
   copyBoard = trim(copyBoard, "", true);
@@ -295,6 +297,160 @@ export function findDoublePattern(
   return false;
 }
 
+const patterns: Record<string, string[]> = {
+  fiveInRow: ['11111'],
+  openFourDouble: ['011110'],
+  openFour: [
+    '11110',
+    '11101',
+    '11011',
+    '10111',
+    '01111'
+  ],
+  openFourBroken: ['011112', '211110'],
+  openThree: [
+    '01110',
+    '01011',
+    '10101'
+  ],
+  openThreeBroken: [
+    '01112',
+    '010112'
+  ],
+  capture: ['1220', '0221'],
+
+  openThreeBrokenCovered: ['2011102'],
+  openTwo: ['01010', '01100'],
+  openTwoBroken: ['01120', '01012'],
+
+  twoCoverTwo: ['010010'],
+  twoCoverTwoBroken: ['10012'],
+  twoCoverThree: ['10001'],
+
+  close: ['10', '01']
+}
+
+const scores: Record<string, number> = {
+  fiveInRow: 500000,
+  openFourDouble: 2000,
+  openFour: 1500,
+  openFourBroken: 1400,
+  openThree: 1000,
+  openThreeBroken: 250,
+  capture: 200,
+  openThreeBrokenCovered: 175,
+  openTwo: 150,
+  openTwoBroken: 100,
+  twoCoverTwo: 60,
+  twoCoverTwoBroken: 30,
+  twoCoverThree: 10,
+  close: 0
+
+
+}
+
+export function get5PiecesDoubleDirection(board: string[][], y: number, x: number, direction: { x: number, y: number }, player: string) {
+  let res = []
+  let [tmpY, tmpX] = [y, x]
+
+  for (let i = 0; i < 5; i++) {
+    tmpY -= direction.y
+    tmpX -= direction.x
+    res.push(board[tmpY]?.[tmpX])
+  }
+  res.reverse()
+  res.push(board[y]?.[x]);
+  // reset temp coordination
+  [tmpY, tmpX] = [y, x]
+  for (let i = 0; i < 5; i++) {
+    tmpY += direction.y
+    tmpX += direction.x
+    res.push(board[tmpY]?.[tmpX])
+  }
+  res = res.map(l => {
+    if (l === undefined)
+      return ""
+    if (l === null)
+      return 0
+    if (l === player)
+      return 1
+    return 2
+  })
+  return res.join("")
+}
+function getPossibleMoves(board: string[][], player: string) {
+
+  let moves = getAvailableSpots(board)
+    .filter((l: string) => {
+
+      let y = parseInt(l.split(",")[0]);
+      let x = parseInt(l.split(",")[1]);
+
+      const isInCaptureMove = isForbiddenMove(board, y, x, player);
+      const isDouble = isDoubleFreeThree(board, y, x, player);
+      // log(isInCaptureMove, isDouble)
+
+
+
+      return !isInCaptureMove && !isDouble;
+    })
+    .map((l: string) => ({
+      y: parseInt(l.split(",")[0]),
+      x: parseInt(l.split(",")[1]),
+    }));
+
+  return moves as { x: number; y: number }[];
+}
+export function heuristic(board: string[][], player: string) {
+  let score = 0
+  const dirs: string[] = Object.keys(directions);
+  const patternKys: string[] = Object.keys(patterns)
+  for (let i = 0; i < 19; i++) {
+    for (let j = 0; j < 19; j++) {
+      if (board[i][j] === player) {
+        for (let k = 0; k < dirs.length; k++) {
+          const direction = { x: directions[dirs[k]][0], y: directions[dirs[k]][1] }
+          const doubleRow = get5PiecesDoubleDirection(board, i, j, direction, player)
+          // log(doubleRow, dirs[k])
+          // eslint-disable-next-line no-loop-func
+          patternKys.forEach((key: string) => {
+            patterns[key].forEach(path => {
+              if (doubleRow.includes(path)) {
+                // log(key, doubleRow, "--", path, doubleRow.includes(path))
+
+                score += scores[key]
+              }
+            })
+          })
+        }
+      }
+    }
+  }
+  return score
+}
+
+export function bestMoveInState(board: string[][], player: string) {
+  const moves = getPossibleMoves(board, player)
+  let move: { x: number, y: number } = { x: 9, y: 9 }
+  let bestScore = 0
+
+  for (let i = 0; i < moves.length; i++) {
+    const fakeBoard = JSON.parse(JSON.stringify(board))
+    fakeBoard[moves[i].y][moves[i].x] = player
+    if (findWinner(fakeBoard, moves[i].y, moves[i].x)) {
+      move = moves[i]
+      break
+    }else {
+    const score = minimax(fakeBoard, player === "b" ? "w" : "b", 2, true, 555, -555)
+
+    if (score >= bestScore) {
+      bestScore = score
+      move = moves[i]
+    }}
+  }
+  return move
+
+}
 /**
  * crop a board by given coordinations
  * @param board 
@@ -366,16 +522,19 @@ function findNearbySpots(board: string[][], y: number, x: number) {
   return spots
 }
 
-export function getAvailableSpots(board: string[][], opponent:string) {
+export function getAvailableSpots(board: string[][]) {
   const spots = new Set()
   const [h, w] = [board.length, board[0].length]
 
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++)
-      if (board[y][x] === opponent)
+      if (board[y][x])
         findNearbySpots(board, y, x).forEach(el => {
           spots.add(el)
         })
   return Array.from(spots) as string[]
 }
+
+
+
 

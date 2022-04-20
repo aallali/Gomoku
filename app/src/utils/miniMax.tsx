@@ -1,6 +1,7 @@
 import {
   findWinner,
   getAvailableSpots,
+  heuristic,
   isDoubleFreeThree,
   isForbiddenMove,
 } from "./util";
@@ -54,22 +55,27 @@ const min = Math.min,
 //     return value
 function evalMove(board: string[][], p: string) {
   const winner = checkWinner(board, p);
-  if (winner !== p) return -5000;
-  else if (winner) {
-    board.forEach(row => {
-      log(row.map(l => l ? l : ".").join(""))
-    })
+  if (winner)
+ { 
+   log(winner)
+   if (winner !== p) {
+    
+    return -5000;
+  }
+  else if (winner === p) {
+     
     return 5000;
-  } else return 1;
+  } }else return 1;
 }
 function getPossibleMoves(board: string[][], player: string) {
-  let moves = getAvailableSpots(board, player === "b" ? "w" : "b")
+ 
+  let moves = getAvailableSpots(board)
     .filter((l: string) => {
       let y = parseInt(l.split(",")[0]);
       let x = parseInt(l.split(",")[1]);
       const isInCaptureMove = isForbiddenMove(board, y, x, player);
       const isDouble = isDoubleFreeThree(board, y, x, player);
-      return !(isInCaptureMove && isDouble);
+      return !isInCaptureMove && !isDouble;
     })
     .map((l: string) => ({
       y: parseInt(l.split(",")[0]),
@@ -97,10 +103,10 @@ export default function minimax(
   alpha: number,
   beta: number
 ) {
-  let enemy = isMinimizer ? "w" : "b";
-
+  let enemy = player === "b" ? "w" : "b";
+  
   if (maxDepth === 0 || checkWinner(board, player))
-    return evalMove(board, enemy);
+    return heuristic(board, player)
   let value;
   let moves = getPossibleMoves(board, player);
   let res: any = {};
@@ -112,7 +118,7 @@ export default function minimax(
       const move = moves[i];
       const copyBoard = JSON.parse(JSON.stringify(board));
       copyBoard[move.y][move.x] = player;
-      if (!seen.has(JSON.stringify(copyBoard))) {
+     
         const score = minimax(
           copyBoard,
           enemy,
@@ -128,12 +134,12 @@ export default function minimax(
 
         value = min(score as number, value);
 
-        alpha = Math.min(alpha, value);
+        alpha = min(alpha, value);
 
-        if (beta < alpha) {
+        if (beta <= alpha) {
           break;
         }
-      } else seen.add(JSON.stringify(copyBoard));
+      
     }
 
     return maxDepth === 0 ? res : value;
@@ -144,10 +150,10 @@ export default function minimax(
       const move = moves[i];
       const copyBoard = JSON.parse(JSON.stringify(board));
       copyBoard[move.y][move.x] = player;
-      if (!seen.has(JSON.stringify(copyBoard))) {
+     
         const score = minimax(
           copyBoard,
-          enemy,
+          player,
           maxDepth - 1,
           true,
           alpha,
@@ -159,12 +165,12 @@ export default function minimax(
         }
 
         value = max(score as number, value);
-        alpha = Math.max(alpha, value);
+        alpha = max(alpha, value);
 
-        if (beta < alpha) {
+        if (beta <= alpha) {
           break;
         }
-      } else seen.add(JSON.stringify(copyBoard));
+      
     }
 
     return maxDepth === 0 ? res : value;

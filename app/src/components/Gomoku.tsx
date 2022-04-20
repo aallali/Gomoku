@@ -3,7 +3,7 @@ import { shallowEqual, useSelector } from "react-redux";
 import styled from "styled-components";
 import useBoard from "../utils/useBoard";
 import Chess from "./Chess";
-import { getAvailableSpots } from "../utils/util"
+import { bestMoveInState, getAvailableSpots, heuristic } from "../utils/util"
 import {
   isForbiddenMove,
   isDoubleFreeThree,
@@ -114,23 +114,22 @@ export default function Gomoku({ winner }: any) {
     let timer: any;
     if (!winner) {
       if (!isMyTurn && enemy === "ai") {
-       console.log(minimax(board, isBlackMoving ? 'b': 'w', 2, false, -555, 555))
-        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board, isBlackMoving.current ? "w" : "b"), true);
-
-        if (row || row === 0)
-          timer = setTimeout(() => {
-            storeAndHandleChessClick(row as number, col as number, "", true);
-          }, 1);
-        else clearTimeout(timer);
+        console.log('->', isBlackMoving.current ? 'b': 'w')
+        const move = bestMoveInState(board, isBlackMoving.current ? 'w': 'b') 
+         timer = setTimeout(() => {
+          storeAndHandleChessClick(move.y as number, move.x as number, "", true);
+         }, 300)
+        
+         
+     
       } else if (isMyTurn && player === "ai") {
-
-        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board, isBlackMoving.current ? "w" : "b"), true);
-
-        if (row || row === 0)
-          timer = setTimeout(() => {
-            storeAndHandleChessClick(row as number, col as number, "", true);
-          }, 1);
-        else clearTimeout(timer);
+        console.log(isBlackMoving.current ? 'b': 'w')
+        const move = bestMoveInState(board, isBlackMoving.current? 'b': 'w') 
+        timer = setTimeout(() => {
+          storeAndHandleChessClick(move.y as number, move.x as number, "", true);
+         }, 300)
+        
+      
       }
     }
     if (timer) return () => clearTimeout(timer);
@@ -153,7 +152,7 @@ export default function Gomoku({ winner }: any) {
       )}
 
       <Checkerboard>
-        {board.map((row, rowIndex) => {
+        {board.map((row:any, rowIndex:number) => {
           return (
             <Row key={rowIndex}>
               {row.map((col: any, colIndex: number) => {
