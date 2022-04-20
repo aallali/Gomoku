@@ -57,8 +57,7 @@ function aiMove(
     return [false, false]
   }
 
-
-
+ 
   const randomMove: string = aspots[Math.floor(Math.random() * aspots.length)];
   const row = randomMove ? parseInt(randomMove.split(',')[0]) : 1
   const col = randomMove ? parseInt(randomMove.split(',')[1]) : 1
@@ -115,8 +114,8 @@ export default function Gomoku({ winner }: any) {
     let timer: any;
     if (!winner) {
       if (!isMyTurn && enemy === "ai") {
-        console.log(minimax(board, isBlackMoving ? 'b': 'w', 2, false, -Infinity, Infinity))
-        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board), true);
+       console.log(minimax(board, isBlackMoving ? 'b': 'w', 2, false, -555, 555))
+        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board, isBlackMoving.current ? "w" : "b"), true);
 
         if (row || row === 0)
           timer = setTimeout(() => {
@@ -125,7 +124,7 @@ export default function Gomoku({ winner }: any) {
         else clearTimeout(timer);
       } else if (isMyTurn && player === "ai") {
 
-        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board), true);
+        const [row, col] = aiMove(board, isBlackMoving, getAvailableSpots(board, isBlackMoving.current ? "w" : "b"), true);
 
         if (row || row === 0)
           timer = setTimeout(() => {
@@ -135,9 +134,7 @@ export default function Gomoku({ winner }: any) {
       }
     }
     if (timer) return () => clearTimeout(timer);
-    else {
-      getAvailableSpots(board)
-    }
+   
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMyTurn]);
 

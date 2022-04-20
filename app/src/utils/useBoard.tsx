@@ -102,7 +102,7 @@ export default function useBoard(
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [board]
-  );
+  ); 
 
   useEffect(() => {
     if (lastRow.current === undefined || lastCol.current === undefined) return;

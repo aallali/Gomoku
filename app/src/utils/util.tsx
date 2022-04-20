@@ -366,13 +366,13 @@ function findNearbySpots(board: string[][], y: number, x: number) {
   return spots
 }
 
-export function getAvailableSpots(board: string[][]) {
+export function getAvailableSpots(board: string[][], opponent:string) {
   const spots = new Set()
   const [h, w] = [board.length, board[0].length]
 
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++)
-      if (board[y][x])
+      if (board[y][x] === opponent)
         findNearbySpots(board, y, x).forEach(el => {
           spots.add(el)
         })

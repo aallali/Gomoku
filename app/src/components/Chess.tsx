@@ -150,7 +150,7 @@ const Chess = ({ colors, row, col, value, onClick, order }: { colors: { enemy: s
         dots.includes(`${row}${col}`) && !value ?
           (<Dot $value={color} />) :
           (<ChessElement $value={color}>
-            {!row ? (<CordT> {alpha[col]} </CordT>) : null}
+            {!row ? (<CordT> {col} </CordT>) : null}
             {!col ? (<CordL> {row} </CordL>) : null}
             {value ?  (<i style={{color:value === 'b' ? 'white' : 'black', fontSize:'12px'}}>{order}</i>) : null}
           </ChessElement>)
