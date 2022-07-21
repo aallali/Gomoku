@@ -1,4 +1,5 @@
 import {
+  findCaptures,
   findWinner,
   getAvailableSpots,
   heuristic,
@@ -55,20 +56,16 @@ const min = Math.min,
 //     return value
 function evalMove(board: string[][], p: string) {
   const winner = checkWinner(board, p);
-  if (winner)
- { 
-   log(winner)
-   if (winner !== p) {
-    
-    return -5000;
-  }
-  else if (winner === p) {
-     
-    return 5000;
-  } }else return 1;
+  if (winner) {
+    log(winner);
+    if (winner !== p) {
+      return -5000;
+    } else if (winner === p) {
+      return 5000;
+    }
+  } else return 1;
 }
 function getPossibleMoves(board: string[][], player: string) {
- 
   let moves = getAvailableSpots(board)
     .filter((l: string) => {
       let y = parseInt(l.split(",")[0]);
@@ -104,75 +101,60 @@ export default function minimax(
   beta: number
 ) {
   let enemy = player === "b" ? "w" : "b";
-  
-  if (maxDepth === 0 || checkWinner(board, player))
-    return heuristic(board, player)
-  let value;
+  let winner = checkWinner(board, player);
+  if (maxDepth === 0 || winner) {
+    if (winner && winner === enemy) return -1;
+    return heuristic(board, player);
+  }
+  let value; 
+  // var bestScore = player === "b" ? -1000000000 : 1000000000;
   let moves = getPossibleMoves(board, player);
-  let res: any = {};
+
   if (isMinimizer) {
     value = Infinity;
 
     for (let i = 0; i < moves.length; i++) {
       // console.log("# ", i, moves.length);
       const move = moves[i];
-      const copyBoard = JSON.parse(JSON.stringify(board));
-      copyBoard[move.y][move.x] = player;
-     
-        const score = minimax(
-          copyBoard,
-          enemy,
-          maxDepth - 1,
-          false,
-          alpha,
-          beta
-        );
+      let copyBoard = JSON.parse(JSON.stringify(board));
+      copyBoard[move.y][move.x] = "w";
+      let ifCapture = findCaptures(copyBoard, move.y, move.x);
 
-        if (score < value) {
-          res = move;
-        }
+      copyBoard = ifCapture[0];
+      let score = minimax(copyBoard, "b", maxDepth - 1, false, alpha, beta);
+      if (ifCapture[1]) score = score * 2;
 
-        value = min(score as number, value);
+      value = min(score as number, value);
 
-        alpha = min(alpha, value);
+      alpha = min(alpha, value);
 
-        if (beta <= alpha) {
-          break;
-        }
-      
+      if (beta <= alpha) {
+        break;
+      }
     }
 
-    return maxDepth === 0 ? res : value;
+    return value;
   } else {
     value = -Infinity;
     for (let i = 0; i < moves.length; i++) {
       // console.log("> ", i, moves.length);
       const move = moves[i];
-      const copyBoard = JSON.parse(JSON.stringify(board));
-      copyBoard[move.y][move.x] = player;
-     
-        const score = minimax(
-          copyBoard,
-          player,
-          maxDepth - 1,
-          true,
-          alpha,
-          beta
-        );
+      let copyBoard = JSON.parse(JSON.stringify(board));
+      copyBoard[move.y][move.x] = "b";
+      let ifCapture = findCaptures(copyBoard, move.y, move.x);
 
-        if (score > value) {
-          res = move;
-        }
+      copyBoard = ifCapture[0];
+      let score = minimax(copyBoard, "w", maxDepth - 1, true, alpha, beta);
+      log(score);
+      if (ifCapture[1]) score = score * 2;
 
-        value = max(score as number, value);
-        alpha = max(alpha, value);
-
-        if (beta <= alpha) {
-          break;
-        }
-      
+      value = max(score as number, value);
+      alpha = max(alpha, value);
+      if (beta <= alpha) {
+        break;
+      }
     }
 
-    return maxDepth === 0 ? res : value;
+    return value;
   }
 }

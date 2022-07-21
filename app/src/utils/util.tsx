@@ -35,7 +35,7 @@ const directions: Record<string, number[]> = {
   diagTL: [-1, -1],
 
   diagBR: [1, 1],
-  diagBL: [-1, 1]
+  diagBL: [-1, 1],
 };
 const mirror: Record<string, string> = {
   top: "bottom",
@@ -108,17 +108,17 @@ export function findWinner(board: string[][], y: number, x: number) {
 }
 /**
  * find the captures in the board after the play
- * @param board 
- * @param y 
- * @param x 
+ * @param board
+ * @param y
+ * @param x
  * @returns [capturesExists, board]
  */
 export function findCaptures(board: string[][], y: number, x: number) {
   const now: string = board[y][x];
   const enemy: string = now === "b" ? "w" : "b";
   const dirs: string[] = Object.keys(directions);
-  let foundCapture = false
-  let copyBoard
+  let foundCapture = false;
+  let copyBoard;
   for (let i = 0; i < dirs.length; i++) {
     copyBoard = JSON.parse(JSON.stringify(board));
     let k = 2;
@@ -156,8 +156,8 @@ export function findCaptures(board: string[][], y: number, x: number) {
         tmpX < 19 &&
         copyBoard[tmpY][tmpX] === now
       )
-        board = copyBoard
-      foundCapture = true
+        board = copyBoard;
+      foundCapture = true;
     }
   }
 
@@ -170,7 +170,6 @@ export function isForbiddenMove(
   x: number,
   curr: string
 ) {
-
   const now: string = curr;
   const enemy: string = now === "b" ? "w" : "b";
   const forbiddenCombination = `${enemy}${now}${enemy}`;
@@ -225,7 +224,6 @@ export function isDoubleFreeThree(
   x: number,
   curr: string
 ) {
-
   const doubleFreeThreePattern = paths["doubleFreeThree"];
   let copyBoard = JSON.parse(JSON.stringify(board)); // create deep copy for the board
   copyBoard[y][x] = curr;
@@ -298,99 +296,83 @@ export function findDoublePattern(
 }
 
 const patterns: Record<string, string[]> = {
-  fiveInRow: ['11111'],
-  openFourDouble: ['011110'],
-  openFour: [
-    '11110',
-    '11101',
-    '11011',
-    '10111',
-    '01111'
-  ],
-  openFourBroken: ['011112', '211110'],
-  openThree: [
-    '01110',
-    '01011',
-    '10101'
-  ],
-  openThreeBroken: [
-    '01112',
-    '010112'
-  ],
-  capture: ['1220', '0221'],
+  fiveInRow: ["11111"],
+  openFourDouble: ["011110"],
+  openFour: ["11110", "11101", "11011", "10111", "01111"],
+  openFourBroken: ["011112", "211110"],
+  openThree: ["01110", "01011", "10101"],
+  openThreeBroken: ["01112", "010112"],
+  capture: ["1220", "0221"],
 
-  openThreeBrokenCovered: ['2011102'],
-  openTwo: ['01010', '01100'],
-  openTwoBroken: ['01120', '01012'],
+  openThreeBrokenCovered: ["2011102"],
+  openTwo: ["01010", "01100"],
+  openTwoBroken: ["01120", "01012"],
 
-  twoCoverTwo: ['010010'],
-  twoCoverTwoBroken: ['10012'],
-  twoCoverThree: ['10001'],
+  twoCoverTwo: ["010010"],
+  twoCoverTwoBroken: ["10012"],
+  twoCoverThree: ["10001"],
 
-  close: ['10', '01']
-}
+  close: ["10", "01"],
+};
 
 const scores: Record<string, number> = {
-  fiveInRow: 500000,
-  openFourDouble: 2000,
-  openFour: 1500,
-  openFourBroken: 1400,
-  openThree: 1000,
-  openThreeBroken: 250,
-  capture: 200,
-  openThreeBrokenCovered: 175,
-  openTwo: 150,
-  openTwoBroken: 100,
-  twoCoverTwo: 60,
-  twoCoverTwoBroken: 30,
+  fiveInRow: 500,
+  openFourDouble: 400,
+  openFour: 90,
+  openFourBroken: 85,
+  openThree: 80,
+  openThreeBroken: 75,
+  capture: 70,
+  openThreeBrokenCovered: 40,
+  openTwo: 30,
+  openTwoBroken: 25,
+  twoCoverTwo: 20,
+  twoCoverTwoBroken: 15,
   twoCoverThree: 10,
-  close: 0
+  close: 5,
+};
 
-
-}
-
-export function get5PiecesDoubleDirection(board: string[][], y: number, x: number, direction: { x: number, y: number }, player: string) {
-  let res = []
-  let [tmpY, tmpX] = [y, x]
+export function get5PiecesDoubleDirection(
+  board: string[][],
+  y: number,
+  x: number,
+  direction: { x: number; y: number },
+  player: string
+) {
+  let res = [];
+  let [tmpY, tmpX] = [y, x];
 
   for (let i = 0; i < 5; i++) {
-    tmpY -= direction.y
-    tmpX -= direction.x
-    res.push(board[tmpY]?.[tmpX])
+    tmpY -= direction.y;
+    tmpX -= direction.x;
+    res.push(board[tmpY]?.[tmpX]);
   }
-  res.reverse()
+  res.reverse();
   res.push(board[y]?.[x]);
   // reset temp coordination
-  [tmpY, tmpX] = [y, x]
+  [tmpY, tmpX] = [y, x];
   for (let i = 0; i < 5; i++) {
-    tmpY += direction.y
-    tmpX += direction.x
-    res.push(board[tmpY]?.[tmpX])
+    tmpY += direction.y;
+    tmpX += direction.x;
+    res.push(board[tmpY]?.[tmpX]);
   }
-  res = res.map(l => {
-    if (l === undefined)
-      return ""
-    if (l === null)
-      return 0
-    if (l === player)
-      return 1
-    return 2
-  })
-  return res.join("")
+  res = res.map((l) => {
+    if (l === undefined) return "";
+    if (l === null) return 0;
+    if (l === player) return 1;
+    return 2;
+  });
+  return res.join("");
 }
-function getPossibleMoves(board: string[][], player: string) {
-
+export function getPossibleMoves(board: string[][], player: string) {
   let moves = getAvailableSpots(board)
     .filter((l: string) => {
-
       let y = parseInt(l.split(",")[0]);
       let x = parseInt(l.split(",")[1]);
 
       const isInCaptureMove = isForbiddenMove(board, y, x, player);
       const isDouble = isDoubleFreeThree(board, y, x, player);
       // log(isInCaptureMove, isDouble)
-
-
 
       return !isInCaptureMove && !isDouble;
     })
@@ -402,64 +384,263 @@ function getPossibleMoves(board: string[][], player: string) {
   return moves as { x: number; y: number }[];
 }
 export function heuristic(board: string[][], player: string) {
-  let score = 0
+  let score = 0;
+   
   const dirs: string[] = Object.keys(directions);
-  const patternKys: string[] = Object.keys(patterns)
+  const patternKys: string[] = Object.keys(patterns);
   for (let i = 0; i < 19; i++) {
-    for (let j = 0; j < 19; j++) {
-      if (board[i][j] === player) {
-        for (let k = 0; k < dirs.length; k++) {
-          const direction = { x: directions[dirs[k]][0], y: directions[dirs[k]][1] }
-          const doubleRow = get5PiecesDoubleDirection(board, i, j, direction, player)
-          // log(doubleRow, dirs[k])
-          // eslint-disable-next-line no-loop-func
-          patternKys.forEach((key: string) => {
-            patterns[key].forEach(path => {
-              if (doubleRow.includes(path)) {
-                // log(key, doubleRow, "--", path, doubleRow.includes(path))
+    const j = 0;
+    let row = board[i]
+      .map((l) => {
+        if (l === null) return 0;
+        if (l === player) return 1;
+        return 2;
+      })
+      .join("");
+ 
+    // eslint-disable-next-line no-loop-func
+    patternKys.forEach((key: string) => {
+      patterns[key].forEach((path) => {
+        if (row.includes(path)) {
+          // log(key, row, "--", path, row.includes(path))
 
-                score += scores[key]
-              }
-            })
-          })
+          score += scores[key];
         }
-      }
-    }
+      });
+    });
   }
-  return score
+  for (let j = 0;j < 19;j++) {
+    const i = 0;
+    let row = board[i]
+      .map((l) => {
+        if (l === null) return 0;
+        if (l === player) return 1;
+        return 2;
+      })
+      .join("");
+  
+    // eslint-disable-next-line no-loop-func
+    patternKys.forEach((key: string) => {
+      patterns[key].forEach((path) => {
+        if (row.includes(path)) {
+          // log(key, row, "--", path, row.includes(path))
+
+          score += scores[key];
+        }
+      });
+    });
+  }
+  getDiagos(board, player).forEach((el) => {
+ 
+    patternKys.forEach((key: string) => {
+      patterns[key].forEach((path) => {
+        if (el.row.includes(path)) {
+          // log(key, el.row, "++", path, el.row.includes(path));
+
+          score += scores[key];
+        }
+      });
+    });
+  });
+
+  return score;
 }
 
-export function bestMoveInState(board: string[][], player: string) {
-  const moves = getPossibleMoves(board, player)
-  let move: { x: number, y: number } = { x: 9, y: 9 }
-  let bestScore = 0
+function getDiagos(board: any, player: string) {
+  let rows = [];
 
-  for (let i = 0; i < moves.length; i++) {
-    const fakeBoard = JSON.parse(JSON.stringify(board))
-    fakeBoard[moves[i].y][moves[i].x] = player
-    if (findWinner(fakeBoard, moves[i].y, moves[i].x)) {
-      move = moves[i]
-      break
-    }else {
-    const score = minimax(fakeBoard, player === "b" ? "w" : "b", 2, true, 555, -555)
+  for (let y = 0; y < 19; y++) {
+    let row = [];
+    let x = 0;
 
-    if (score >= bestScore) {
-      bestScore = score
-      move = moves[i]
-    }}
+    let [tmpX, tmpY] = [x, y];
+
+    while (tmpX < 19 && tmpY < 19) {
+      row.push(board[tmpY][tmpX]);
+      tmpX++;
+      tmpY++;
+    }
+
+    rows.push({
+      x,
+      y,
+      row: row
+        .map((l) => {
+          if (l === null) return 0;
+          if (l === player) return 1;
+
+          return 2;
+        })
+        .join(""),
+    });
   }
-  return move
+  for (let x = 0; x < 19; x++) {
+    let row = [];
+    let y = 0;
 
+    let [tmpX, tmpY] = [x, y];
+    if (!rows.filter((l) => l.x == tmpX && l.y === tmpY).length) {
+      while (tmpX < 19 && tmpY < 19) {
+        row.push(board[tmpY][tmpX]);
+        tmpX++;
+        tmpY++;
+      }
+
+      rows.push({
+        x,
+        y,
+        row: row
+          .map((l) => {
+            if (l === null) return 0;
+            if (l === player) return 1;
+
+            return 2;
+          })
+          .join(""),
+      });
+    }
+  }
+  rows = [];
+  for (let y = 18; y >= 0; y--) {
+    let row = [];
+    let x = 18;
+
+    let [tmpX, tmpY] = [x, y];
+
+    while (tmpX >= 0 && tmpY < 18) {
+      row.push(board[tmpY][tmpX]);
+      tmpX--;
+      tmpY++;
+    }
+
+    rows.push({
+      x,
+      y,
+      row: row
+        .map((l) => {
+          if (l === null) return 0;
+          if (l === player) return 1;
+
+          return 2;
+        })
+        .join(""),
+    });
+  }
+  for (let x = 18; x >= 0; x--) {
+    let row = [];
+    let y = 0;
+
+    let [tmpX, tmpY] = [x, y];
+    if (!rows.filter((l) => l.x === tmpX && l.y === tmpY).length) {
+      while (tmpX  >= 0 && tmpY  < 19) {
+        row.push(board[tmpY][tmpX]);
+        tmpX--;
+        tmpY++;
+      }
+     
+      rows.push({
+        x,
+        y,
+        row: row
+          .map((l) => {
+            if (l === null) return 0;
+            if (l === player) return 1;
+
+            return 2;
+          })
+          .join(""),
+      });
+    }
+  }
+ 
+  return rows
+    .map((l) => ({
+      ...l,
+      row: l.row.replace(/^[0]+(?=0)/, "").replace(/(?<=0)[0]+$/, ""),
+    }))
+    .filter((l) => l.row !== "0");
+}
+
+function bestGomokuMove(board: string[][], player: string, depth: number) {
+  var color = player;
+  const bturn = player === "b";
+  var xBest = -1,
+    yBest = -1;
+  var bestScore = bturn ? -1000000000 : 1000000000;
+  var analysis, response;
+
+  var moves = getPossibleMoves(board, player);
+
+  for (var i = 0; i < moves.length; i++) {
+    const fakeBoard = JSON.parse(JSON.stringify(board));
+    fakeBoard[moves[i].y][moves[i].x] = color;
+    if (depth === 1) {
+      analysis = heuristic(fakeBoard, player);
+    } else {
+      response = bestGomokuMove(fakeBoard, player, depth - 1);
+      analysis = response[2];
+    }
+
+    if ((analysis > bestScore && bturn) || (analysis < bestScore && !bturn)) {
+      bestScore = analysis;
+      xBest = moves[i].x;
+      yBest = moves[i].y;
+    }
+  }
+
+  return [xBest, yBest, bestScore];
+}
+export function bestMoveInState(board: string[][], player: string) {
+  // log("start");
+  // const bmove = bestGomokuMove(board, player, 2);
+  // log(bmove);
+  // if (bmove[0] === -1)
+  // return { x: 9, y: 9 };
+  // return { x: bmove[0], y: bmove[1] };
+  // log("end");
+  const moves = getPossibleMoves(board, player);
+  let move: { x: number; y: number } = { x: 9, y: 9 };
+  let bestScore = 0;
+  let movesSorted = [];
+  for (let i = 0; i < moves.length; i++) {
+    let fakeBoard = JSON.parse(JSON.stringify(board));
+    fakeBoard[moves[i].y][moves[i].x] = player;
+    fakeBoard = findCaptures(board, moves[i].y, moves[i].x);
+
+    // log(fakeBoard)
+    fakeBoard = fakeBoard[0];
+    // const score = minimax(
+    //   fakeBoard,
+    //   player === "b" ? "w" : "b",
+    //   2,
+    //   false,
+    //   -1000,
+    //   1000
+    // );
+    log("----------");
+    log(moves[i]);
+    const score = heuristic(fakeBoard, player);
+
+    movesSorted.push({ x: moves[i].x, y: moves[i].y, score });
+
+    if (score > bestScore) {
+      bestScore = score;
+      move = moves[i];
+    }
+  }
+
+  movesSorted.sort((a, b) => b.score - a.score);
+  return movesSorted;
 }
 /**
  * crop a board by given coordinations
- * @param board 
- * @param ymin 
- * @param ymax 
- * @param xmin 
- * @param xmax 
- * @param margin 
- * @returns 
+ * @param board
+ * @param ymin
+ * @param ymax
+ * @param xmin
+ * @param xmax
+ * @param margin
+ * @returns
  */
 function crop(
   board: string[][],
@@ -486,10 +667,10 @@ function crop(
 
 /**
  * trim board from all empty blocks to minize area of search
- * @param board 
- * @param toTrim 
- * @param margin 
- * @returns 
+ * @param board
+ * @param toTrim
+ * @param margin
+ * @returns
  */
 function trim(board: string[][], toTrim: string, margin: boolean) {
   let cmin, rmin, cmax, rmax;
@@ -510,31 +691,26 @@ function trim(board: string[][], toTrim: string, margin: boolean) {
   return crop(board, rmin, rmax, cmin, cmax, margin);
 }
 
-
 function findNearbySpots(board: string[][], y: number, x: number) {
-  let spots = []
+  let spots = [];
 
   for (let k in directions) {
-    let checkSpot = board[y + directions[k][1]]?.[x + directions[k][0]]
+    let checkSpot = board[y + directions[k][1]]?.[x + directions[k][0]];
     if (checkSpot === null)
-      spots.push(`${y + directions[k][1]},${x + directions[k][0]}`)
+      spots.push(`${y + directions[k][1]},${x + directions[k][0]}`);
   }
-  return spots
+  return spots;
 }
 
 export function getAvailableSpots(board: string[][]) {
-  const spots = new Set()
-  const [h, w] = [board.length, board[0].length]
+  const spots = new Set();
+  const [h, w] = [board.length, board[0].length];
 
   for (let y = 0; y < h; y++)
     for (let x = 0; x < w; x++)
       if (board[y][x])
-        findNearbySpots(board, y, x).forEach(el => {
-          spots.add(el)
-        })
-  return Array.from(spots) as string[]
+        findNearbySpots(board, y, x).forEach((el) => {
+          spots.add(el);
+        });
+  return Array.from(spots) as string[];
 }
-
-
-
-
