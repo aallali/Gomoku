@@ -1,0 +1,175 @@
+  body {
+    font-family: Ubuntu, "times new roman", times, roman, serif;
+    background-color: rgb(76, 95, 114);
+
+  }
+
+  .headerTitle {
+    text-align: center;
+    color: white;
+    font-size: 30px;
+    margin: 0px;
+    margin-top: 10px;
+  }
+
+  .grid-container {
+    display: inline-grid;
+    grid-template-columns: auto auto auto;
+
+    padding: 10px;
+    gap: 10px;
+
+  }
+
+  .grid {
+    /* border: solid 1px white; */
+    border-radius: 6px;
+  }
+
+  .flag {
+    border-top-right-radius: 60% !important;
+  }
+
+  #board {
+    font-size: 0px;
+    padding: 5px;
+    margin: 20px;
+    /* position: relative; */
+    /* border: solid 1px white;
+  border-radius: 6px; */
+
+  }
+
+  .cross {
+    width: 30px;
+    height: 30px;
+    background-color: #E6BF83;
+    margin: 1px;
+    display: inline-block;
+    border-radius: 10%;
+    font-size: 30px;
+    color: black;
+    line-height: 30px;
+    text-align: center;
+    vertical-align: text-top;
+  }
+
+  .slug {
+    width: 30px;
+    height: 30px;
+    background-color: rgb(255, 255, 255);
+    margin: 1px;
+    display: inline-block;
+    border-radius: 10%;
+
+    font-size: 18px;
+    color: black;
+    line-height: 30px;
+    text-align: center;
+    vertical-align: text-top;
+  }
+
+  .empty {
+
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    margin: 1px;
+    display: inline-block;
+
+    line-height: 30px;
+    text-align: center;
+    vertical-align: text-top;
+
+  }
+
+  .fa {
+    background-color: #E6BF83;
+    line-height: 30px;
+    display: none;
+  }
+
+  .fa-circle {
+    color: rgb(0, 0, 0);
+  }
+
+  .circle-thin {
+    color: rgb(255, 255, 255);
+  }
+
+
+  .menu {
+    padding-top: 50px;
+    display: inline-grid;
+
+    background: transparent;
+    color: wheat;
+    padding-right: 10px;
+    padding-left: 10px;
+
+  }
+
+
+  .menu h3 {
+    color: white;
+  }
+
+
+  #contact h4 {
+    margin: 5px 0 15px;
+    display: block;
+    font-size: 13px;
+  }
+
+  fieldset {
+    border: solid 1px white;
+    border-radius: 7px;
+    margin: 0 0 10px;
+    /* min-width: 230px; */
+    padding: 10px;
+    width: 100%;
+  }
+
+  .option-title {
+    margin: 0px;
+  }
+
+
+  .fa-times {
+    color: red;
+  }
+
+  .circle-white {
+    color: white;
+    margin-top: 1px;
+
+    width: 28px;
+  }
+
+  .circle-black {
+    width: 27px;
+    margin-top: 1px;
+
+  }
+
+  .circle-wood {
+    width: 27px;
+    margin-top: 1px;
+  }
+
+  .circle-green {
+    width: 30px;
+    margin-top: 1px;
+  }
+
+  .score {
+    font-size: 13px;
+  }
+
+  .red {
+    color: red;
+  }
+
+  .green {
+    color: green;
+  }
