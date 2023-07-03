@@ -1,4 +1,9 @@
 
+/**
+ * 
+ * @param {string} option 
+ * @param {string} value 
+ */
 function SetOptions(option, value) {
 
   switch (option) {
@@ -15,10 +20,83 @@ function SetOptions(option, value) {
       break
   }
   myLog(option, value, GAME)
+  
+}
+/**
+ * 
+ * @param {string} stringMove 
+ * @returns {Point} convert move from string format to object: J9 -> {x:9, y:9}
+ */
+function ConvertMoveFormat(stringMove) {
+  return {
+    x: alpha.indexOf(stringMove[0]),
+    y: parseInt(stringMove[1] + (stringMove[2] || ''))
+  }
+}
 
-  RenderInfos()
+/**
+ * 
+ * @param {Point} moves 
+ * @returns return a board copy where the moves are applied + result of captures and current turn
+ */
+function ApplyMoves(moves) {
 
+  let board = []
+  let captures = {
+    "Black": 0,
+    "White": 0
+  };
+  let GameTurn = "Black";
+  for (var i = 0; i < GAME.Size; i++) {
+    board[i] = [];
+    for (var j = 0; j < GAME.Size; j++) {
+      board[i][j] = 0;
+    }
+  }
 
+  for (let i = 0; i < moves.length; i++) {
+    const { x, y } = ConvertMoveFormat(moves[i])
+    const turn = GameTurn == "Black" ? 1 : 2;
+    const { valid, board: newBoard, captures: totalCaptures } = ApplyMove(board, turn, { x, y }, GAME.Mode)
+
+    if (valid) {
+      board = newBoard
+      captures[GameTurn] += totalCaptures
+      GameTurn = GameTurn == "Black" ? "White" : "Black"
+    } else {
+      myLog("Bad Move: ", x, y);
+    }
+  }
+  return { board, captures, turn: GameTurn }
+}
+/**
+ * 
+ * @param {*} matrix 
+ * @param {*} turn 
+ * @param {*} param2 : {x:number, y:number}
+ * @param {*} mode 
+ * @returns 
+ */
+function ApplyMove(matrix, turn, { x, y }, mode) {
+
+  const board = copyMat(matrix)
+  let captures = 0
+  let valid = false
+  if (board[x][y] === 0) {
+    if (mode == "1337" && (IsInCapture(board, turn, x, y) || IsDoubleFreeThree(board, turn, x, y))) {
+      // return 1872
+      alert("Invalid Move (in capture)")
+    } else {
+      board[x][y] = turn
+      if (mode == "1337") {
+        const totalCaptures = findAndApplyCaptures(board, x, y)
+        captures += totalCaptures / 2
+      }
+      valid = true
+    }
+  }
+
+  return { valid, board, captures }
 }
 function ResetStates() {
   GAME.Black = {
@@ -32,82 +110,26 @@ function ResetStates() {
     score: 0
   }
 
-  GAME.Ended = true
   GAME.Winner = false // black | white
   GAME.Turn = "Black"
 
-  MATRIX = []
-  MOVES.history = []
+  // MATRIX = []
+  // MOVES.history = []
   MOVES.suggested = []
 }
 
-function RenderInfos() {
-  $("#infos_turn").text(GAME.Turn)
-
-  $("#infos_black_captures").text(GAME.Black.captures)
-  $("#infos_black_score").text(GAME.Black.score)
-
-  $("#infos_white_captures").text(GAME.White.captures)
-  $("#infos_white_score").text(GAME.White.score)
-}
-function InitBoard() {
-  $("#board").empty();
-  for (var i = 0; i < GAME.Size; i++) {
-    MATRIX[i] = []
-    for (var j = 0; j < GAME.Size; j++) {
-      MATRIX[i][j] = 0
-    }
-  }
-  const flagsSpots = ["33", "39", "315", "93", "99", "915", "153", "159", "1515"]
-  for (var i = 0; i <= GAME.Size + 1; i++) {
-    for (var j = 0; j <= GAME.Size + 1; j++) {
-      if (i == 0 || j == 0 || j == GAME.Size + 1 || i == GAME.Size + 1) {
-        if ((i == 0 && (j == 0 || j == GAME.Size + 1)) || (i == GAME.Size + 1 && (j == 0 || j == GAME.Size + 1))) {
-          $("#board").append(`<div class ='empty'></div>`);
-        } else if (j == 0) {
-          $("#board").append(`<div class='slug'>${alpha[i - 1]}</div>`);
-        } else if (j == GAME.Size + 1) {
-          $("#board").append(`<div class='slug'>${i - 1}</div>`);
-
-        } else {
-          $("#board").append(`<div class='slug'>${j - 1}</div>`);
-
-        }
-      } else {
-        // myLog(flagsSpots.includes(i+""+j),i+""+j )
-        $("#board").append(
-          `<div id='cross${i - 1}r${j - 1}c' 
-        class='cross ${flagsSpots.includes((i - 1) + "" + (j - 1)) ? "flag" : ""}' 
-        onclick='PutStone(${i - 1},${j - 1}, true)' 
-        onmouseover='ShowCellsInfo(this,${i - 1},${j - 1})'
-        onmouseout='UnShowCellsInfo(this,${i - 1},${j - 1})'>
-        <b class="score"></b>
-        <i class = 'fa fa-times' aria-hidden='true'></i>
-
-        <img src='assets/images/white-stone.webp' class='circle-white' aria-hidden='true'></img>
-        <img src='assets/images/check.png' class='circle-green' aria-hidden='true'></img>
-        <img src='assets/images/black-stone.png' class='circle-black' aria-hidden='true'></img>
-        <img src='assets/images/green-circle.webp' class='circle-wood' aria-hidden='true'></img>
-
-        </div>`
-        );
-      }
-    }
-    $("#board").append("<br>");
-  }
-}
-// green-circle.webp
-function ShowCellsInfo(e, i, j) {
-  $("#cell_coord").text(`${alpha[i] + j} (${i},${j})`)
-}
-function UnShowCellsInfo(e, i, j) {
-  $("#cell_coord").text(`XY ... (X,Y)`)
-}
-
+/**
+ * 
+ * @param {number} x 
+ * @param {number} y 
+ * @param {boolean} live 
+ * @returns put stone at given x,y if its valid for current player.
+ */
 function PutStone(x, y, live) {
-  if (GAME.Ended == true) {
+  if (GAME.Ended) {
     return
   }
+
 
   if (MATRIX[x][y] === 0) {
     let turn = GAME.Turn == "Black" ? 1 : 2;
@@ -117,7 +139,7 @@ function PutStone(x, y, live) {
       // return 1872
       alert("Invalid Move (in capture)")
     } else {
-      new Audio('assets/audio/sound-effect.mp3').play()
+      // new Audio('assets/audio/sound-effect.mp3').play()
 
       MATRIX[x][y] = turn
       MOVES.history.push(alpha[x] + y)
@@ -126,22 +148,31 @@ function PutStone(x, y, live) {
         GAME[GAME.Turn].captures += totalCaptures / 2
       }
 
-      if (GAME[GAME.Turn].captures >= 5 || result(x, y, turn)) {
+      if (GAME[GAME.Turn].captures >= 5 || is5InRowWin(x, y, turn)) {
         GAME.Winner = GAME.Turn
         GAME.Ended = true
+        RenderBoard();
+        RenderInfos()
+        ShowMovesHistory()
+
+        return
       }
-      // result(x, inj, turn);
       GAME.Turn = GAME.Turn == "Black" ? "White" : "Black"
 
+      RenderBoard();
+      RenderInfos()
+      ShowMovesHistory()
 
-      update();
       ShowValidSpots()
 
-      if (live && GAME.Mode == "1337" && GAME[GAME.Turn].type == "ai") {
+      const aiMove = AI()
+      if (live && GAME[GAME.Turn].type == "ai") {
 
         setTimeout(() => {
-          AI()
-        }, 1000)
+          PutStone(aiMove.x, aiMove.y, true)
+        }, 10)
+        // PutStone(aiMove.x, aiMove.y, true)
+
       }
 
 
@@ -149,32 +180,46 @@ function PutStone(x, y, live) {
     // ShowValidSpots()
   }
 }
+
+/**
+ * 
+ * @returns {Point} return the best move calculated by the AI for current player turn.
+ */
 function AI() {
 
   turn = GAME.Turn == "Black" ? 1 : 2;
-  // console.clear();
+  console.clear();
   const enemyColor = GAME.Turn == "Black" ? "White" : GAME.Turn
-
   const moves = AnalyseMoves(MATRIX, turn, GAME.Mode)
+  const bestMoveByScore = moves.filter(m => m.isBestMoveByScore)
+  const bestMove = new Point(0, 0, 0)
+
+  if (GAME.Mode == "normal") {
+    bestMove.x = bestMoveByScore[0].x
+    bestMove.y = bestMoveByScore[0].y
+    ShowBestMove(bestMoveByScore[0])
+  }
+
   const winMove = moves.filter(m => m.isWin)
   const blockWinMove = moves.filter(m => m.willBlockWin).sort((a, b) => b.score - a.score)
   const isCapture = moves.filter(m => m.isCapture).sort((a, b) => b.score - a.score)
-  const isDouble4 = moves.filter(m => m.isDouble4).sort((a, b) => b.score - a.score)
+  const isOpenFour = moves.filter(m => m.isOpenFour).sort((a, b) => b.score - a.score)
+  const isOpenThree = moves.filter(m => m.isOpenThree).sort((a, b) => b.score - a.score)
+
   const willBlockACapture = moves.filter(m => m.willBlockACapture).sort((a, b) => b.score - a.score)
   // const willBeCaptured = moves.find(m => m.willBeCaptured)
-  const bestMoveByScore = moves.filter(m => m.isBestMoveByScore).sort((a, b) => b.score - a.score)
+
   const willSetupACapture = moves.filter(m => m.willSetupACapture && !m.willBeCaptured).sort((a, b) => b.score - a.score)
   const willBlockADouble4 = moves.filter(m => m.willBlockADouble4).sort((a, b) => b.score - a.score)
   myLog(moves);
   myLog("Win Move: ", winMove);
   myLog("Anti Win Move: ", blockWinMove);
   myLog("Capture Move: ", isCapture);
-  myLog("Double 4 Move: ", isDouble4);
+  myLog("Double 4 Move: ", isOpenFour);
   myLog("Will Block a Capture: ", willBlockACapture);
   myLog("Will setup capture: ", willSetupACapture);
   myLog("Will block double 4: ", willBlockADouble4);
   myLog("Best Move by Score: ", bestMoveByScore);
-  const bestMove = new Point(0, 0, 0)
   if (isCapture.length && GAME[GAME.Turn].captures >= 4) {
     myLog(`c1:`)
     bestMove.x = isCapture[0].x
@@ -185,7 +230,7 @@ function AI() {
     myLog(`c2:`)
     bestMove.x = winMove[0].x
     bestMove.y = winMove[0].y
-    ShowBestMove(winMove[0])
+    ShowBestMove(bestMove)
 
   } else if (GAME[enemyColor].captures >= 4 && willBlockACapture.length) {
     myLog(`c3:`)
@@ -198,7 +243,7 @@ function AI() {
     myLog(`c4:`)
     bestMove.x = blockWinMove[0].x
     bestMove.y = blockWinMove[0].y
-    ShowBestMove(blockWinMove[0])
+    ShowBestMove(bestMove)
 
   } else if (willBlockADouble4.length) {
     myLog(`c5:`)
@@ -214,99 +259,61 @@ function AI() {
     bestMove.y = move.y
     ShowBestMove(move)
 
-  } else if (isDouble4.length) {
+  } else if (isOpenFour.length) {
     myLog(`c7:`)
-    bestMove.x = isDouble4[0].x
-    bestMove.y = isDouble4[0].y
-    ShowBestMove(isDouble4[0])
+    bestMove.x = isOpenFour[0].x
+    bestMove.y = isOpenFour[0].y
+    ShowBestMove(bestMove)
 
   } else if (willBlockACapture.length) {
     myLog(`c8:`)
     bestMove.x = willBlockACapture[0].x
     bestMove.y = willBlockACapture[0].y
-    ShowBestMove(willBlockACapture[0])
+    ShowBestMove(bestMove)
 
   } else if (willSetupACapture.length) {
     myLog(`c9:`)
     bestMove.x = willSetupACapture[0].x
     bestMove.y = willSetupACapture[0].y
-    ShowBestMove(willSetupACapture[0])
+    ShowBestMove(bestMove)
 
-  } else {
+  } else if (isOpenThree.length && bestMoveByScore[0]) {
     myLog(`c10:`)
+    bestMove.x = isOpenThree[0].x
+    bestMove.y = isOpenThree[0].y
+    ShowBestMove(bestMove)
+  } else {
+    myLog(`c11:`)
     bestMove.x = bestMoveByScore[0].x
     bestMove.y = bestMoveByScore[0].y
-    ShowBestMove(bestMoveByScore[0])
+    ShowBestMove(bestMove)
   }
 
-  PutStone(bestMove.x, bestMove.y, true)
+  return bestMove
 
 
 }
-function ShowBestMove(move) {
-  // fix on clickAttribute
-  $(`#cross${move.x}r${move.y}c .circle-green`).show()
-}
-function ShowValidSpots() {
-  const turn = GAME.Turn == "Black" ? 1 : 2
-  // fix on clickAttribute
-  for (i = 0; i < GAME.Size; i++) {
-    for (j = 0; j < GAME.Size; j++) {
-      $(`#cross${i}r${j}c`).attr("onClick", `PutStone(${i},${j}, true)`);
-    }
-  }
-  // show valid/invalid moves
-  let cells = FindValidSpots(MATRIX, turn, GAME.Mode).filter(c => !c.valid)
-  $(`.score`).text("")
-  for (i = 0; i < cells.length; i++) {
-    const x = cells[i].x
-    const y = cells[i].y
-    $(`#cross${x}r${y}c .fa-times`).show();
-  }
-}
-// 5 4 1
-// 1 5 -4
-// 3 1 2
-function update() {
-
-  $("#board img").hide();
-  $("#board i").hide();
-  $(`#board .score`).hide()
-  $(`.score`).removeClass("red")
-  $(`.score`).removeClass("green")
-
-  for (i = 0; i < GAME.Size; i++) {
-    for (j = 0; j < GAME.Size; j++) {
-      if (MATRIX[i][j]) {
-        $(`#cross${i}r${j}c`).removeClass("flag");
-
-        if (MATRIX[i][j] == 2) {
-          $(`#cross${i}r${j}c .circle-white`).show();
-        } else if (MATRIX[i][j] == 1) {
-          $(`#cross${i}r${j}c .circle-black`).show();
-        }
-
-
-      }
-    }
-  }
-  ShowMovesHistory()
-  RenderInfos()
-  // myLog("diagTopRight: ", ScrapDirection(MATRIX, 2, -1, 9,9, "diagTopRight"))
+/**
+ * 
+ * @param {number} s 
+ * @returns blok the process for s seconds
+ */
+function blok(s) {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, s * 1000)
+  })
 }
 
-function ShowMovesHistory() {
-  const chunkSize = 2;
-  let movesTxtArea = ''
-  for (let i = 0; i < MOVES.history.length; i += chunkSize) {
-    const chunk = MOVES.history.slice(i, i + chunkSize);
-    // do whatever
-    movesTxtArea += chunk.join("-") + '\n'
-  }
-  $("#moves_history").text(movesTxtArea)
-
-}
-function result(R, C, player) {
+/**
+ * 
+ * @param {number} R : row index
+ * @param {number} C : column index
+ * @param {1 | 2} player 
+ * @returns {boolean} if the player at given move has a 5 in row or not
+ */
+function is5InRowWin(R, C, player) {
   var mlength = 0;
   var count = 0;
   for (i = 0; i < GAME.Size; i++) {
@@ -358,10 +365,7 @@ function result(R, C, player) {
   }
   if (mlength >= 5) {
     return true
-
   }
-
-
   return false
 }
 

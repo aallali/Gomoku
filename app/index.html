@@ -41,7 +41,7 @@
         </fieldset>
         <fieldset>
           <h4 style="margin: 0px;">Players:</h4>
-          <div style="color:black;">
+          <div>
             <h5 class="option-title">Black</h5>
             <input type="radio" id="black_ai" name="black_type" value="ai" onChange="SetOptions('black', 'ai')" checked >
             <label for="black_ai">Ai</label><br>
@@ -61,8 +61,81 @@
 
         <fieldset>
           <h4 style="margin: 0px;">Moves:</h4>
-          <textarea name="moves_history" id="moves_history" cols="10" rows="10">
+          <textarea name="moves_history" id="moves_history" cols="15" rows="19">
+Welcome:
+I2
+H3
+G4
+H4
+I4
+J4
+K4
+L4
+M4
+
+
+M6
+M7
+M8
+H14
+L8
+K8
+J8
+I8
+H8
+G8
+G7
+G6
+J7
+J6
+
+
+G10
+G11
+G12
+H12
+I12
+J12
+K12
+L12
+M12
+M11
+M10
+J10
+J11
+
+G14
+G15
+G16
+H16
+I16
+J16
+K16
+L16
+M16
+
+P18
+Q17
+R16
+S15
+D18
+C17
+B16
+A15
+D0
+C1
+B2
+A3
+S3
+R2
+Q1
+P0
+
+            
+
           </textarea>
+          <br>
+          <button onClick="$('#moves_history').val('')">clear</button>
         </fieldset>
         <fieldset>
        <button style="
@@ -80,11 +153,7 @@
 
         <h3 style="color:transparent">_</h3>
 
-        <fieldset>
-          <h4 style="margin: 0px;">Ai Suggestions:</h4>
-          <textarea name="" id="moves_suggestions" cols="26" rows="6" style="font-size: 15px;">
-             </textarea>
-        </fieldset>
+
         <fieldset>
           <table>
             <tbody>
@@ -101,7 +170,7 @@
                 <td>Black Score:</td>
                 <td id="infos_black_score"> 0</td>
               </tr>
-          
+             
               <tr>
                 <td>White Captures:</td>
                 <td id="infos_white_captures">0</td>
@@ -115,14 +184,24 @@
                 <td>Turn:</td>
                 <td id="infos_turn"></td>
               </tr>
+              <tr>
+                <td>Winner:</td>
+                <td id="infos_winner"></td>
+              </tr>
             </tbody>
           </table>
+        </fieldset>
+        <fieldset>
+          <h4 style="margin: 0px;">Ai Suggestions:</h4>
+          <textarea name="" id="moves_suggestions" cols="26" rows="25" style="font-size: 15px;">
+             </textarea>
         </fieldset>
       </div>
     </div>
   </div>
 
   <script src="assets/js/utils.js"></script>
+  <script src="assets/js/ui.js"></script>
   <script src="assets/js/app.js"></script>
   <script src="assets/js/init.js"></script>
 

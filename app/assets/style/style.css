@@ -22,31 +22,42 @@
   }
 
   .grid {
-    /* border: solid 1px white; */
     border-radius: 6px;
   }
 
   .flag {
-    border-top-right-radius: 60% !important;
+    border-top-right-radius: 30% !important;
+    border-bottom-left-radius: 30% !important;
+    border-bottom-left-radius: 30% !important;
+  }
+
+  .flagPro {
+    border-radius: 50% !important;
+    background-color: transparent !important;
+    border: solid 1px rgb(255, 255, 255) !important;
   }
 
   #board {
     font-size: 0px;
     padding: 5px;
     margin: 20px;
+    background-image: url(../images/wood.jpeg);
+    background-repeat: repeat;
     /* position: relative; */
-    /* border: solid 1px white;
-  border-radius: 6px; */
+    /* border: solid 1px white;*/
+    border-radius: 10px;
 
   }
 
   .cross {
     width: 30px;
     height: 30px;
-    background-color: #E6BF83;
+    background-color: rgba(230, 191, 131, 0.7);
     margin: 1px;
     display: inline-block;
     border-radius: 10%;
+    border:solid 1px rgba(230, 191, 131, 1);
+
     font-size: 30px;
     color: black;
     line-height: 30px;
@@ -57,12 +68,13 @@
   .slug {
     width: 30px;
     height: 30px;
-    background-color: rgb(255, 255, 255);
+    background-color: rgb(0, 0, 0, 0.1);
     margin: 1px;
     display: inline-block;
-    border-radius: 10%;
-
+    border-radius: 50%;
+    border: solid 1px rgb(255, 255, 255, 0);
     font-size: 18px;
+    font-weight: bold;
     color: black;
     line-height: 30px;
     text-align: center;
@@ -70,21 +82,23 @@
   }
 
   .empty {
-
     width: 30px;
     height: 30px;
     background-color: transparent;
     margin: 1px;
     display: inline-block;
-
     line-height: 30px;
     text-align: center;
     vertical-align: text-top;
+  }
+  .empty img {
+    background-color: transparent;
+    border-radius: 50% !important;
 
   }
 
   .fa {
-    background-color: #E6BF83;
+    background: transparent;
     line-height: 30px;
     display: none;
   }
@@ -125,7 +139,6 @@
     border: solid 1px white;
     border-radius: 7px;
     margin: 0 0 10px;
-    /* min-width: 230px; */
     padding: 10px;
     width: 100%;
   }
@@ -141,15 +154,13 @@
 
   .circle-white {
     color: white;
-    margin-top: 1px;
-
-    width: 28px;
+    /* margin-top: 1px; */
+    width: 30px;
   }
 
   .circle-black {
-    width: 27px;
+    width: 28px;
     margin-top: 1px;
-
   }
 
   .circle-wood {
@@ -162,14 +173,19 @@
     margin-top: 1px;
   }
 
+  .welcome-stone {
+    width: 30px;
+    /* margin-top: 1px; */
+  }
+
+  .golden-stone {
+    width: 27px;
+    margin-top: 1px;
+  }
+
   .score {
     font-size: 13px;
   }
-
-  .red {
-    color: red;
-  }
-
   .green {
     color: green;
   }

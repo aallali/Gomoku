@@ -10,7 +10,6 @@ const DirectionMirror = {
     "diagTopLeft": "diagBotRight",
     "diagBotLeft": "diagTopRight"
 }
-const Patterns = {}
 function Point(x, y, s) {
     this.x = x;
     this.y = y;
@@ -63,7 +62,7 @@ function ValidXY(size, x, y) {
  * @param {(0 | 1 | 2)[18][18]} matrix 
  * @param {number} x 
  * @param {number} y 
- * @returns {undefined | number}
+ * @returns {number}
  */
 function findAndApplyCaptures(matrix, x, y) {
     const captures = IsCapture(matrix, x, y)
@@ -105,6 +104,22 @@ function IsDoubleFreeThree(matrix, turn, x, y) {
 
     matrix[x][y] = 0
     return count > 1
+}
+
+function IsOpenThree(matrix, turn, x, y) {
+    const allDirs = Object.keys(DirectionMirror);
+    matrix[x][y] = turn;
+    for (let i = 0; i < 4; i++) {
+        const dir = allDirs[i];
+        const rawPath = ScrapDirection(matrix, 5, 5, x, y, dir);
+        const path = Standarize(matrix[x][y] == 1 ? "Black" : "White", rawPath);
+
+        if (path.includes("..XXX.") || path.includes(".XXX..")) {
+            return true
+        }
+    }
+
+    return false
 }
 /**
  * 
@@ -166,6 +181,7 @@ function IsCapture(matrix, x, y) {
 function WillSetupACapture(matrix, turn, x, y) {
     const allDirs = Object.keys(DirectionMirror);
     matrix[x][y] = turn;
+    findAndApplyCaptures(matrix, x, y)
     for (let i = 0; i < allDirs.length; i++) {
         const dir = allDirs[i];
         const rawPath = ScrapDirection(matrix, 0, 3, x, y, dir);
@@ -193,32 +209,33 @@ function WillSetupACapture(matrix, turn, x, y) {
  * @returns {boolean}
  */
 function WillBeCaptured(matrix, turn, x, y) {
+
     const allDirs = Object.keys(DirectionMirror);
     matrix[x][y] = turn;
+    findAndApplyCaptures(matrix, x, y)
     for (let i = 0; i < allDirs.length; i++) {
         const dir = allDirs[i];
         const rawPath = ScrapDirection(matrix, 2, 1, x, y, dir);
         const path = Standarize(matrix[x][y] == 1 ? "Black" : "White", rawPath);
-
+        // if ()
         if (/OXX\./.test(path) || /\.XXO/.test(path)) {
             // matrix[x][y] = 0;
             if (/OXX\./.test(path)) {
                 let ecl = MoveDirection(dir, x, y)
-                if (!IsValidMoveFor1337Mode(matrix, turn, ecl.x, ecl.y)) {
-                    return false
+                if (!IsValidMoveFor1337Mode(matrix, 3-turn, ecl.x, ecl.y)) {
+                    continue
                 }
             } else {
                 let ecl = MoveDirection(DirectionMirror[dir], x, y)
                 ecl = MoveDirection(DirectionMirror[dir], ecl.x, ecl.y)
-                if (!IsValidMoveFor1337Mode(matrix, turn, ecl.x, ecl.y)) {
-                    return false
+                if (!IsValidMoveFor1337Mode(matrix, 3-turn, ecl.x, ecl.y)) {
+                    continue
                 }
             }
             return true;
         }
     }
 
-    // matrix[x][y] = 0;
     return false;
 }
 /**
@@ -298,7 +315,7 @@ function EvalPiece(matrix, x, y, turn) {
     const repport = {
         isWin: false,
         score: 0,
-        isDoubleFour: false
+        isOpenFour: false
     };
     // if (!IsValidMoveFor1337Mode(matrix, turn, x, y)) {
     //     return repport
@@ -353,7 +370,7 @@ function EvalPiece(matrix, x, y, turn) {
         }
 
         if (repport[dir].consecutives >= 3 && repport[dir].bounds == 0) {
-            repport.isDoubleFour = true;
+            repport.isOpenFour = true;
         }
 
     }
@@ -468,7 +485,8 @@ function AnalyseMoves(matrix, turn, mode) {
         y: 0,
         score: 0,
         isWin: false,
-        isDouble4: false,
+        isOpenFour: false,
+        isOpenThree: false,
         isCapture: false,
         willBeCaptured: false,
         willSetupACapture: false,
@@ -486,44 +504,65 @@ function AnalyseMoves(matrix, turn, mode) {
 
     mvs.forEach((mv, i) => {
         if (mv.valid) {
-            matrix[mv.x][mv.y] = turn
-            const eval = EvalPiece(matrix, mv.x, mv.y, turn)
-            mv.score = eval.score
-            mv.isWin = eval.isWin
-            mv.isDouble4 = eval.isDoubleFour
-            mv.isCapture = !!IsCapture(copyMat(matrix), mv.x, mv.y)?.length || false
-            mv.willBeCaptured = WillBeCaptured(copyMat(matrix), turn, mv.x, mv.y)
-            mv.willSetupACapture = WillSetupACapture(copyMat(matrix), turn, mv.x, mv.y)
+            let eval
 
-            if (mode == "1337" && IsValidMoveFor1337Mode(matrix, 3 - turn, mv.x, mv.y)) {
+            const board = copyMat(matrix)
+            const board2 = copyMat(matrix)
 
-                matrix[mv.x][mv.y] = 3 - turn
+            if (mode == "1337") {
 
-                mv.willBlockACapture = !!IsCapture(copyMat(matrix), mv.x, mv.y)
-                matrix[mv.x][mv.y] = 0
+                board[mv.x][mv.y] = turn
+                mv.isCapture = !!IsCapture(copyMat(board), mv.x, mv.y)?.length || false
+                findAndApplyCaptures(board, mv.x, mv.y)
+                const eval = EvalPiece(board, mv.x, mv.y, turn)
+                mv.score = eval.score
+                mv.isWin = eval.isWin
+                mv.isOpenFour = eval.isOpenFour
+                mv.isOpenThree = IsOpenThree(copyMat(board), turn, mv.x, mv.y)
+                mv.willBeCaptured = WillBeCaptured(copyMat(board), turn, mv.x, mv.y)
+                mv.willSetupACapture = WillSetupACapture(copyMat(board), turn, mv.x, mv.y)
 
-                const enemEval = EvalPiece(matrix, mv.x, mv.y, 3 - turn)
-                if (enemEval.isDoubleFour) {
-                    mv.willBlockADouble4 = true
-                }
-                mv.score += enemEval.score
-                if (enemEval.isWin) {
-                    mv.willBlockWin = true
-                }
-                if (!WillBeCaptured(copyMat(matrix), 3 - turn, mv.x, mv.y))
-                    if (enemEval.score > deffensiveMove.score) {
-                        deffensiveMove = new Point(mv.x, mv.y, enemEval.score)
-                        dindex = i
+                if (IsValidMoveFor1337Mode(board2, 3 - turn, mv.x, mv.y)) {
+                    board2[mv.x][mv.y] = 3 - turn
+
+                    mv.willBlockACapture = !!IsCapture(copyMat(board2), mv.x, mv.y)
+                    board2[mv.x][mv.y] = 0
+
+                    const enemEval = EvalPiece(board2, mv.x, mv.y, 3 - turn)
+                    if (enemEval.isOpenFour) {
+                        mv.willBlockADouble4 = true
                     }
+                    mv.score += enemEval.score
+                    if (enemEval.isWin) {
+                        mv.willBlockWin = true
+                    }
+                    if (!WillBeCaptured(copyMat(board2), 3 - turn, mv.x, mv.y))
+                        if (enemEval.score > deffensiveMove.score) {
+                            deffensiveMove = new Point(mv.x, mv.y, enemEval.score)
+                            dindex = i
+                        }
 
-            }
-            if (!mv.willBeCaptured)
+                }
+                if (!mv.willBeCaptured)
+                    if (eval.score > offensvieMove.score) {
+                        offensvieMove = new Point(mv.x, mv.y, eval.score)
+                        oindex = i
+                    }
+            } else {
+                const eval = EvalPiece(board, mv.x, mv.y, turn)
+                const enemyEval = EvalPiece(board, mv.x, mv.y, 3 - turn)
                 if (eval.score > offensvieMove.score) {
                     offensvieMove = new Point(mv.x, mv.y, eval.score)
                     oindex = i
                 }
+                if (enemyEval.score > deffensiveMove.score) {
+                    deffensiveMove = new Point(mv.x, mv.y, enemyEval.score)
+                    dindex = i
+                }
+            }
 
-            matrix[mv.x][mv.y] = 0
+
+            board[mv.x][mv.y] = 0
 
         }
     })
@@ -532,5 +571,7 @@ function AnalyseMoves(matrix, turn, mode) {
     } else {
         mvs[dindex].isBestMoveByScore = true
     }
+
+
     return mvs
 }   

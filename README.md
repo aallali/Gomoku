@@ -3,14 +3,27 @@ This project involves creating, in the language of your choice, a Gomoku game in
 
 
 **30/06/2023 (second day of AÏD AL ADHAA):**
-I started this project 1 years ago (Mars, 2022 i think) as a school project, started it as a simple react app and tried to implement the solver inside, been running through performance issues ofc (you can't apply hardcore MiniMax in the browser hhhh :') ), Well i worked on it for a month or 2 i remmeber then put it on hold, since no solution was clear for me then, 
 
-Lately i came back to the project again, but this time writing the solver engine with GO language, for its speed, and it was honestly, applied many algorithms and strategies, learned a lot honestly, but the results wasn't as expected, since the Algorithm have to find the best move in under half of a second, and my code wasn't well organized, so i gave up on it, but
+I started this project 1 years ago (Mars, 2022 i think) as a school project, started it as a simple react app, tried to implement the solver inside, been running through performance issues ofc (you can't apply hardcore MiniMax in the browser hhhh 😆 ), Well, I worked on it for a month or 2, then put it on hold, since no solution was clear then, 
 
-I learned a lot about a method called NES (Natural Evolution Strategy) where you study the board for any threats or offensive moves, it WORKS PERFECT for the mode (5 in a row rule), but in our case we have custom rules (captures, forbidden in capture move, forbidden move performing double free three shape), so i had to invent a solution for that, and managed to write the first version of this solution that took me 1000s of retries and tests before comming to ideal combination of this algorithm.
+Lately, I came back to the project again, this time writing the solver engine with GO language, for its speed, (and it was), applied many algorithms and strategies, learned a lot actually, but the results wasn't as expected, since the Algorithm have to find the best move in under half of a second, and my code wasn't well organized, so i gave up on it, but
+
+I learned a lot about a method called NES (Natural Evolution Strategy) where you study the board for any threats or offensive moves, it WORKS PERFECT for the mode (5 in a row rule), but in our case we have custom rules (captures, forbidden in capture move, forbidden move performing double free three shape), 
+I had to invent a solution for that, managed to write the first version of it that took me 1000s of retries and tests before comming to ideal combination of this algorithm (still improve it by playing more games against the AI)
 
 The algorithm fully writen in JS in the browser with the UI you can see in the picture (html/css/js only, no frameworks), it applies a modified NES algorithm, it chooses good moves actually, and still can be improved more.
 
 **13:34PM 32% Battery , i can hear the ADHAN (call for the prayer), by**
 
-<img src="./ressources/gomoku-web-v1.png" width="700">
+img updated: `03/07/2023`
+<img src="./ressources/gomoku-web-v2.png" width="700">
+
+Todo:
+- [x] : add support to switch modes (`1337 rules` && `normal`)
+- [x] : support startup game from list of moves set in the '`Moves`' textarea
+- [x] : add welcome animation at first load of page
+- [x] : find and apply captures before running some checks inside the `AnalyseMoves(..)` function
+- [ ] : hover the 5 win pieces with bright color when the game ends
+- [ ] : prevent the game from ending when there still a move that can break tht 5 in row
+- [ ] : make the '`Ai Suggestion`' part functional by including the moves analyse in there
+- [ ] : organize the order of game start function to avoid conflicts.
