@@ -15,8 +15,8 @@ The algorithm fully writen in JS in the browser with the UI you can see in the p
 
 **13:34PM 32% Battery , i can hear the ADHAN (call for the prayer), by**
 
-img updated: `03/07/2023`
-<img src="./ressources/gomoku-web-v2.png" width="700">
+*`img updated: 07/07/2023`*
+<img src="./ressources/gomoku-web-v3.png" width="700">
 
 Todo:
 - [x] : add support to switch modes (`1337 rules` && `normal`)
@@ -27,3 +27,4 @@ Todo:
 - [ ] : prevent the game from ending when there still a move that can break tht 5 in row
 - [ ] : make the '`Ai Suggestion`' part functional by including the moves analyse in there
 - [ ] : organize the order of game start function to avoid conflicts.
+- [ ] : improve algo to: if the oponent setup a capture, and you dont have any other good option to do except 'best by score', try to find if there is a possible move that will make the capture spot for him forbidden using 'forbidden in capture move' pattern.

@@ -1,14 +1,14 @@
 
 function ShowMovesHistory() {
-    const mvs = MOVES.history
-    const chunkSize = 1;
-    let movesTxtArea = ''
-    for (let i = 0; i < mvs.length; i += chunkSize) {
-        const chunk = mvs.slice(i, i + chunkSize);
-        // do whatever
-        movesTxtArea += chunk + '\n'
-    }
-    $("#moves_history").val(`Total moves: ${mvs.length}\n` + movesTxtArea)
+    // const mvs = MOVES.history
+    // const chunkSize = 5;
+    // let movesTxtArea = ''
+    // for (let i = 0; i < mvs.length; i += chunkSize) {
+    //     const chunk = mvs.slice(i, i + chunkSize);
+    //     // do whatever
+    //     movesTxtArea += chunk.join(" ") + '\n'
+    // }
+    $("#moves_bar").val(MOVES.history.join(", "))
 }
 
 function ShowBestMove(move) {
@@ -17,6 +17,7 @@ function ShowBestMove(move) {
 }
 function ShowValidSpots() {
     const turn = GAME.Turn == "Black" ? 1 : 2
+    let cells = FindValidSpots(MATRIX, turn, GAME.Mode)
     // fix on clickAttribute
     for (i = 0; i < GAME.Size; i++) {
         for (j = 0; j < GAME.Size; j++) {
@@ -24,13 +25,15 @@ function ShowValidSpots() {
         }
     }
     // show valid/invalid moves
-    let cells = FindValidSpots(MATRIX, turn, GAME.Mode).filter(c => !c.valid)
+    const invalidCells = cells.filter(c => !c.valid)
     $(`.score`).text("")
-    for (i = 0; i < cells.length; i++) {
-        const x = cells[i].x
-        const y = cells[i].y
+
+    for (i = 0; i < invalidCells.length; i++) {
+        const x = invalidCells[i].x
+        const y = invalidCells[i].y
         $(`#cross${x}r${y}c .fa-times`).show();
     }
+    return cells.filter(c => c.valid).length
 }
 /**
  * 
@@ -44,7 +47,7 @@ function RenderInfos() {
     $("#infos_white_captures").text(GAME.White.captures)
     $("#infos_white_score").text(GAME.White.score)
 
-    $("#infos_winner").text(GAME.Winner)
+    $("#infos_winner").text(!GAME.Winner ? 'Still Playing...' : GAME.Winner)
 }
 
 /**
@@ -96,7 +99,11 @@ function InitBoard() {
             }
         }
         $("#board").append("<br>");
+
+       
     }
+    // $("#board").append(`<input type="text" id='moves_bar'>`);
+
 }
 /**
  * 
@@ -112,7 +119,7 @@ function UnShowCellsInfo() {
 /**
  * 
  */
-async function RenderBoard() {
+async function UpdateBoard() {
     if (GAME.Ended && !GAME.Winner) {
       await blok(1)
     }

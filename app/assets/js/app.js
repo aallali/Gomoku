@@ -20,7 +20,7 @@ function SetOptions(option, value) {
       break
   }
   myLog(option, value, GAME)
-  
+
 }
 /**
  * 
@@ -125,7 +125,7 @@ function ResetStates() {
  * @param {boolean} live 
  * @returns put stone at given x,y if its valid for current player.
  */
-function PutStone(x, y, live) {
+async function PutStone(x, y, live) {
   if (GAME.Ended) {
     return
   }
@@ -137,7 +137,8 @@ function PutStone(x, y, live) {
     if (GAME.Mode == "1337" && (IsInCapture(MATRIX, turn, x, y) || IsDoubleFreeThree(MATRIX, turn, x, y))) {
       myLog(x, y, live, turn, GAME.Turn)
       // return 1872
-      alert("Invalid Move (in capture)")
+      // alert("Invalid Move (in capture)")
+      return
     } else {
       // new Audio('assets/audio/sound-effect.mp3').play()
 
@@ -147,50 +148,79 @@ function PutStone(x, y, live) {
         const totalCaptures = findAndApplyCaptures(MATRIX, x, y)
         GAME[GAME.Turn].captures += totalCaptures / 2
       }
-
-      if (GAME[GAME.Turn].captures >= 5 || is5InRowWin(x, y, turn)) {
-        GAME.Winner = GAME.Turn
-        GAME.Ended = true
-        RenderBoard();
-        RenderInfos()
-        ShowMovesHistory()
-
-        return
-      }
-      GAME.Turn = GAME.Turn == "Black" ? "White" : "Black"
-
-      RenderBoard();
-      RenderInfos()
+      const is5Capts = GAME[GAME.Turn].captures >= 5
+      const is5InRow = is5InRowWin(x, y, turn)
+      UpdateBoard();
       ShowMovesHistory()
 
-      ShowValidSpots()
+      if (is5Capts || is5InRow) {
+        console.log(is5Capts, GAME[GAME.Turn])
+        GAME.Winner = GAME.Turn
+        GAME.Ended = true
+        const winBy5Msg = 'aligning 5 pieces in a row'
+        const winBy5Captures = 'capturing 5 pairs of the enemy stones'
+        let winMsg = ''
+        if (is5InRow)
+          winMsg += winBy5Msg
 
+        if (is5Capts) {
+          if (winMsg.length) {
+            winMsg += ' and '
+          }
+          winMsg += winBy5Captures
+        }
+        RenderInfos()
+        alert(`${GAME.Turn} win by ${winMsg}`)
+        return
+      }
+
+
+      GAME.Turn = GAME.Turn == "Black" ? "White" : "Black"
+
+      RenderInfos()
+
+      if (ShowValidSpots() == 0) {
+        GAME.Ended = true
+        GAME.Winner = 'Tie'
+
+        UpdateBoard();
+        RenderInfos()
+        setTimeout(() => {
+          alert("Game ended in a TIE")
+
+        }, 100)
+        return
+      }
       const aiMove = AI()
+
       if (live && GAME[GAME.Turn].type == "ai") {
 
-        setTimeout(() => {
-          PutStone(aiMove.x, aiMove.y, true)
-        }, 10)
-        // PutStone(aiMove.x, aiMove.y, true)
+        await blok(0.0001)
+        PutStone(aiMove.x, aiMove.y, true)
 
       }
 
 
     }
-    // ShowValidSpots()
+
   }
 }
 
 /**
  * 
- * @returns {Point} return the best move calculated by the AI for current player turn.
+ * @returns {Point | undefined} return the best move calculated by the AI for current player turn.
  */
 function AI() {
+  let start = performance.now();
+
 
   turn = GAME.Turn == "Black" ? 1 : 2;
   console.clear();
-  const enemyColor = GAME.Turn == "Black" ? "White" : GAME.Turn
+  const enemyColor = GAME.Turn == "Black" ? "White" : "Black"
   const moves = AnalyseMoves(MATRIX, turn, GAME.Mode)
+  if (!moves.length) {
+    return undefined
+  }
   const bestMoveByScore = moves.filter(m => m.isBestMoveByScore)
   const bestMove = new Point(0, 0, 0)
 
@@ -204,12 +234,13 @@ function AI() {
   const blockWinMove = moves.filter(m => m.willBlockWin).sort((a, b) => b.score - a.score)
   const isCapture = moves.filter(m => m.isCapture).sort((a, b) => b.score - a.score)
   const isOpenFour = moves.filter(m => m.isOpenFour).sort((a, b) => b.score - a.score)
-  const isOpenThree = moves.filter(m => m.isOpenThree).sort((a, b) => b.score - a.score)
+  const isOpenThree = moves.filter(m => m.isOpenThree && !m.willBeCaptured).sort((a, b) => b.score - a.score)
 
-  const willBlockACapture = moves.filter(m => m.willBlockACapture).sort((a, b) => b.score - a.score)
+  const willBlockACapture = moves.filter(m => m.willBlockACapture && !m.willBeCaptured).sort((a, b) => b.score - a.score)
   // const willBeCaptured = moves.find(m => m.willBeCaptured)
 
-  const willSetupACapture = moves.filter(m => m.willSetupACapture && !m.willBeCaptured).sort((a, b) => b.score - a.score)
+  let willSetupACapture = moves.filter(m => m.willSetupACapture && !m.willBeCaptured).sort((a, b) => b.score - a.score)
+  willSetupACapture = [...willSetupACapture, ...moves.filter(m => m.willSetupACapture && m.willBeCaptured && m.isOpenThree)]
   const willBlockADouble4 = moves.filter(m => m.willBlockADouble4).sort((a, b) => b.score - a.score)
   myLog(moves);
   myLog("Win Move: ", winMove);
@@ -220,78 +251,97 @@ function AI() {
   myLog("Will setup capture: ", willSetupACapture);
   myLog("Will block double 4: ", willBlockADouble4);
   myLog("Best Move by Score: ", bestMoveByScore);
+
+
   if (isCapture.length && GAME[GAME.Turn].captures >= 4) {
-    myLog(`c1:`)
+    myLog(`:Sigma Capture:`)
     bestMove.x = isCapture[0].x
     bestMove.y = isCapture[0].y
     ShowBestMove(isCapture[0])
 
   } else if (winMove.length) {
-    myLog(`c2:`)
+    myLog(`:Sigma Move:`)
     bestMove.x = winMove[0].x
     bestMove.y = winMove[0].y
     ShowBestMove(bestMove)
 
   } else if (GAME[enemyColor].captures >= 4 && willBlockACapture.length) {
-    myLog(`c3:`)
+    myLog(`:block 5th enemy capture:`)
     const move = willBlockACapture.find(m => m.willBlockWin) || willBlockACapture[0]
     bestMove.x = move.x
     bestMove.y = move.y
     ShowBestMove(move)
 
-  } else if (blockWinMove.length) {
-    myLog(`c4:`)
+  }
+  else if (blockWinMove.length) {
+    myLog(`:block win move:`)
     bestMove.x = blockWinMove[0].x
     bestMove.y = blockWinMove[0].y
     ShowBestMove(bestMove)
 
   } else if (willBlockADouble4.length) {
-    myLog(`c5:`)
-    const move = willBlockADouble4.find(m => !m.willBeCaptured) || willBlockADouble4[0] // 
-    bestMove.x = move.x
-    bestMove.y = move.y
-    ShowBestMove(move)
-
-  } else if (isCapture.length && isCapture.find(m => !m.willBeCaptured)) {
-    myLog(`c6:`)
-    const move = isCapture.find(m => !m.willBeCaptured)
+    myLog(`:block double 4:`)
+    let move = moves.filter(m => m.isCapture && m.willBlockADouble4).sort((a, b) => b.score - a.score)
+    if (!move.length) {
+      move = willBlockADouble4.find(m => !m.willBeCaptured) || willBlockADouble4[0] // 
+    } else {
+      move = move.find((m) => !m.willBeCaptured) || move[0]
+    }
     bestMove.x = move.x
     bestMove.y = move.y
     ShowBestMove(move)
 
   } else if (isOpenFour.length) {
-    myLog(`c7:`)
+    myLog(`:open 4:`)
     bestMove.x = isOpenFour[0].x
     bestMove.y = isOpenFour[0].y
     ShowBestMove(bestMove)
 
+  } else if (isCapture.length && isCapture.find(m => !m.willBeCaptured)) {
+    myLog(`:safe capture:`)
+    let move = isCapture.find(m => !m.willBeCaptured && m.isOpenThree)
+
+    if (!move) {
+      move = isCapture.find(m => !m.willBeCaptured)
+
+    }
+
+    bestMove.x = move.x
+    bestMove.y = move.y
+    ShowBestMove(move)
+  } else if (willSetupACapture.find((m => m.isOpenThree && !m.willBeCaptured))) {
+    myLog(`:setup capt + openThree:`)
+    const move = willSetupACapture.find((m => m.isOpenThree && !m.willBeCaptured))
+    bestMove.x = move.x
+    bestMove.y = move.y
+    ShowBestMove(bestMove)
   } else if (willBlockACapture.length) {
-    myLog(`c8:`)
+    myLog(`:block capture:`)
     bestMove.x = willBlockACapture[0].x
     bestMove.y = willBlockACapture[0].y
     ShowBestMove(bestMove)
 
   } else if (willSetupACapture.length) {
-    myLog(`c9:`)
-    bestMove.x = willSetupACapture[0].x
-    bestMove.y = willSetupACapture[0].y
+    myLog(`:will setup capture:`)
+    const move = willSetupACapture.find((m => !m.willBeCaptured))
+    bestMove.x = move.x
+    bestMove.y = move.y
     ShowBestMove(bestMove)
 
-  } else if (isOpenThree.length && bestMoveByScore[0]) {
-    myLog(`c10:`)
+  } else if (isOpenThree.length) {
+    myLog(`:open 3:`)
     bestMove.x = isOpenThree[0].x
     bestMove.y = isOpenThree[0].y
     ShowBestMove(bestMove)
   } else {
-    myLog(`c11:`)
+    myLog(`:best score:`)
     bestMove.x = bestMoveByScore[0].x
     bestMove.y = bestMoveByScore[0].y
     ShowBestMove(bestMove)
   }
-
+  let timeTaken = performance.now() - start;
+  console.log("Total time taken : " + timeTaken + " milliseconds");
   return bestMove
-
-
 }
 /**
  * 

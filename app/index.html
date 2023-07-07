@@ -13,17 +13,20 @@
 
   <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
 
-  <title>Gomoku-1337 (aallali)</title>
+  <title>Gomoku (aallali)</title>
 </head>
 
 <body>
 
   <div class="grid-container">
     <div class="grid">
-      <h3 class="headerTitle">Gomoku-1337 (aallali)</h3>
+      <h3 class="headerTitle">Gomoku (aallali)</h3>
       <div id="board">
+       
       </div>
-
+      <div  class="moves_container">
+        <input type="text" id='moves_bar' value="P0, Q1, R2, S3, A3, B2, C1, D0, A15, B16, C17, D18, S15, R16, Q17, P18, M16, L16, K16, J16, I16, H16, G16, G15, G14, J11, J10, M10, M11, M12, L12, K12, J12, I12, H12, G12, G11, G10, J6, J7, G6, G7, G8, H8, I8, J8, K8, L8, H14, M8, M7, M6, M4, L4, K4, J4, I4, H4, G4, H3, I2">
+      </div>
     </div>
     <div class="grid">
       <div class="menu">
@@ -61,81 +64,19 @@
 
         <fieldset>
           <h4 style="margin: 0px;">Moves:</h4>
-          <textarea name="moves_history" id="moves_history" cols="15" rows="19">
-Welcome:
-I2
-H3
-G4
-H4
-I4
-J4
-K4
-L4
-M4
+          <ul>
+            <li>Total:</li>
+            <hr>
+            <li>Black Stones:</li>
+            <li>Black Coverage:</li>
+            <hr>
+            <li>White Stones:</li>
+            <li>White Coverage:</li>
 
 
-M6
-M7
-M8
-H14
-L8
-K8
-J8
-I8
-H8
-G8
-G7
-G6
-J7
-J6
-
-
-G10
-G11
-G12
-H12
-I12
-J12
-K12
-L12
-M12
-M11
-M10
-J10
-J11
-
-G14
-G15
-G16
-H16
-I16
-J16
-K16
-L16
-M16
-
-P18
-Q17
-R16
-S15
-D18
-C17
-B16
-A15
-D0
-C1
-B2
-A3
-S3
-R2
-Q1
-P0
-
-            
-
-          </textarea>
+          </ul>
           <br>
-          <button onClick="$('#moves_history').val('')">clear</button>
+          <button onClick="$('#moves_bar').val('')">clear moves</button>
         </fieldset>
         <fieldset>
        <button style="
@@ -201,6 +142,7 @@ P0
   </div>
 
   <script src="assets/js/utils.js"></script>
+  <script src="assets/js/AI.js"></script>
   <script src="assets/js/ui.js"></script>
   <script src="assets/js/app.js"></script>
   <script src="assets/js/init.js"></script>

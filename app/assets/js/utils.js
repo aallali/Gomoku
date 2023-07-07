@@ -114,7 +114,7 @@ function IsOpenThree(matrix, turn, x, y) {
         const rawPath = ScrapDirection(matrix, 5, 5, x, y, dir);
         const path = Standarize(matrix[x][y] == 1 ? "Black" : "White", rawPath);
 
-        if (path.includes("..XXX.") || path.includes(".XXX..")) {
+        if (path.includes("..XXX.") || path.includes(".XXX..") || path.includes(".X.XX.") || path.includes(".XX.X.")) {
             return true
         }
     }
@@ -222,13 +222,13 @@ function WillBeCaptured(matrix, turn, x, y) {
             // matrix[x][y] = 0;
             if (/OXX\./.test(path)) {
                 let ecl = MoveDirection(dir, x, y)
-                if (!IsValidMoveFor1337Mode(matrix, 3-turn, ecl.x, ecl.y)) {
+                if (!IsValidMoveFor1337Mode(matrix, 3 - turn, ecl.x, ecl.y)) {
                     continue
                 }
             } else {
                 let ecl = MoveDirection(DirectionMirror[dir], x, y)
                 ecl = MoveDirection(DirectionMirror[dir], ecl.x, ecl.y)
-                if (!IsValidMoveFor1337Mode(matrix, 3-turn, ecl.x, ecl.y)) {
+                if (!IsValidMoveFor1337Mode(matrix, 3 - turn, ecl.x, ecl.y)) {
                     continue
                 }
             }
@@ -495,83 +495,147 @@ function AnalyseMoves(matrix, turn, mode) {
         willBlockADouble4: false,
         isBestMoveByScore: false
     }]
-    mvs = FindValidSpots(matrix, turn, mode)
+    mvs = FindValidSpots(matrix, turn, mode);
 
-    let offensvieMove = new Point(0, 0, -Infinity)
-    let deffensiveMove = new Point(0, 0, -Infinity)
-    let oindex = 0
-    let dindex = 0
 
-    mvs.forEach((mv, i) => {
-        if (mv.valid) {
-            let eval
+    if (!mvs.length) {
+        return []
+    }
+    const turn2 = 3 - turn
+    const offensiveMove = new Point(0, 0, -Infinity);
+    const deffensiveMove = new Point(0, 0, -Infinity);
+    let oindex = 0;
+    let dindex = 0;
 
-            const board = copyMat(matrix)
-            const board2 = copyMat(matrix)
+    const validMoves = mvs.filter(l => l.valid).map(m => `${m.x}.${m.y}`).join("_")
+
+    const mvsEnemy = FindValidSpots(matrix, turn2, mode);
+    const validEnemyMoves = mvsEnemy.filter(l => l.valid).map(m => `${m.x}.${m.y}`).join("_")
+    const baseMatrix = MaskForbiddenSpotsAsEnemyStones(copyMat(matrix), turn, validMoves);
+    const baseEnemyMatrix = MaskForbiddenSpotsAsEnemyStones(copyMat(matrix), turn2, validEnemyMoves)
+    for (let i = 0; i < mvs.length; i++) {
+        let mv = mvs[i]
+        if (!mv.valid) {
+
+        } else {
+            let board = copyMat(matrix);
+            let board2 = copyMat(matrix);
 
             if (mode == "1337") {
+                board[mv.x][mv.y] = turn;
+                const captures = findAndApplyCaptures(board, mv.x, mv.y)
+                mv.isCapture = captures > 0
+                mv.willBeCaptured = WillBeCaptured(copyMat(board), turn, mv.x, mv.y);
+                mv.willSetupACapture = WillSetupACapture(copyMat(board), turn, mv.x, mv.y);
+                // board = copyMat(baseMatrix)
+                const eval = EvalPiece(board, mv.x, mv.y, turn);
+                board = copyMat(matrix);
+                board[mv.x][mv.y] = turn;
+                mv.score = eval.score;
+                mv.isWin = eval.isWin;
+                mv.isOpenFour = eval.isOpenFour;
+                mv.isOpenThree = IsOpenThree(copyMat(board), turn, mv.x, mv.y);
 
-                board[mv.x][mv.y] = turn
-                mv.isCapture = !!IsCapture(copyMat(board), mv.x, mv.y)?.length || false
-                findAndApplyCaptures(board, mv.x, mv.y)
-                const eval = EvalPiece(board, mv.x, mv.y, turn)
-                mv.score = eval.score
-                mv.isWin = eval.isWin
-                mv.isOpenFour = eval.isOpenFour
-                mv.isOpenThree = IsOpenThree(copyMat(board), turn, mv.x, mv.y)
-                mv.willBeCaptured = WillBeCaptured(copyMat(board), turn, mv.x, mv.y)
-                mv.willSetupACapture = WillSetupACapture(copyMat(board), turn, mv.x, mv.y)
+                mv.valid4Enemy = false;
+                // console.log("::->", mv.x, mv.y, mv.score, eval.score)
 
-                if (IsValidMoveFor1337Mode(board2, 3 - turn, mv.x, mv.y)) {
-                    board2[mv.x][mv.y] = 3 - turn
 
-                    mv.willBlockACapture = !!IsCapture(copyMat(board2), mv.x, mv.y)
-                    board2[mv.x][mv.y] = 0
-
-                    const enemEval = EvalPiece(board2, mv.x, mv.y, 3 - turn)
+                if (IsValidMoveFor1337Mode(board2, turn2, mv.x, mv.y)) {
+                    mv.valid4Enemy = true
+                    board2[mv.x][mv.y] = turn2
+                    const captures = findAndApplyCaptures(board2, mv.x, mv.y)
+                    mv.willBlockACapture = captures > 0
+                    // board2 = copyMat(baseEnemyMatrix)
+                    const enemEval = EvalPiece(board2, mv.x, mv.y, turn2)
+                    mv.hisScore = enemEval.score
                     if (enemEval.isOpenFour) {
                         mv.willBlockADouble4 = true
                     }
-                    mv.score += enemEval.score
                     if (enemEval.isWin) {
                         mv.willBlockWin = true
                     }
-                    if (!WillBeCaptured(copyMat(board2), 3 - turn, mv.x, mv.y))
-                        if (enemEval.score > deffensiveMove.score) {
-                            deffensiveMove = new Point(mv.x, mv.y, enemEval.score)
+                    // mv.score += enemEval.score
+
+                    if (enemEval.score > deffensiveMove.score && !mv.willBeCaptured) {
+                        if (!WillBeCaptured(copyMat(matrix), turn2, mv.x, mv.y)) {
+                            deffensiveMove.x = mv.x;
+                            deffensiveMove.y = mv.y;
+                            deffensiveMove.score = enemEval.score;
                             dindex = i
                         }
-
+                    }
                 }
-                if (!mv.willBeCaptured)
-                    if (eval.score > offensvieMove.score) {
-                        offensvieMove = new Point(mv.x, mv.y, eval.score)
+
+                if (!mv.willBeCaptured) {
+                    if (mv.score > offensiveMove.score) {
+                        offensiveMove.x = mv.x;
+                        deffensiveMove.y = mv.y;
+                        offensiveMove.score = mv.score;
                         oindex = i
                     }
+                }
+
+
             } else {
                 const eval = EvalPiece(board, mv.x, mv.y, turn)
-                const enemyEval = EvalPiece(board, mv.x, mv.y, 3 - turn)
-                if (eval.score > offensvieMove.score) {
-                    offensvieMove = new Point(mv.x, mv.y, eval.score)
-                    oindex = i
+                mv.score = eval.score 
+                mv.isWin = eval.isWin
+                if (mv.isWin) {
+                    mv.isBestMoveByScore = true
+                    return [mv]
                 }
+                if (mv.score > offensiveMove.score) {
+                    offensiveMove.x = mv.x;
+                    offensiveMove.y = mv.y;
+                    offensiveMove.score = mv.score;
+                    oindex = i;
+                }
+                
+                const enemyEval = EvalPiece(board, mv.x, mv.y, turn2)
                 if (enemyEval.score > deffensiveMove.score) {
-                    deffensiveMove = new Point(mv.x, mv.y, enemyEval.score)
-                    dindex = i
+                    deffensiveMove.x = mv.x;
+                    deffensiveMove.y = mv.y;
+                    deffensiveMove.score = enemyEval.score;
+                    dindex = i;
                 }
+              
             }
 
-
-            board[mv.x][mv.y] = 0
-
         }
-    })
-    if (offensvieMove.score >= deffensiveMove.score) {
-        mvs[oindex].isBestMoveByScore = true
-    } else {
-        mvs[dindex].isBestMoveByScore = true
+
     }
+    // mvs[oindex].isBestMoveByScore = true;
+
+    if (offensiveMove.score >= deffensiveMove.score) {
+        mvs[oindex].isBestMoveByScore = true;
+    } else {
+        mvs[dindex].isBestMoveByScore = true;
+    }
+
+    mvs.sort((a, b) => b.score - a.score)
+
 
 
     return mvs
-}   
+}
+
+function IsStepAwayFromOpen() {
+    // X : player 1 (current turn)
+    // O : player 2
+    // F : empty but forbidden for player2
+    // . : empty spot
+    // normal open three pattern : .XXX.
+    // Step Away from open three : .XFX. / .XXF. / .FXX.
+
+    // normal open three pattern : .XXXX.
+    // Step Away from open three : .XXFX. / .XFXX. / .XXXF. / .FXXX.
+
+}
+function MaskForbiddenSpotsAsEnemyStones(matrix, turn, vMoves) {
+    const invalidSpots = FindValidSpots(matrix, 3 - turn, "1337").filter(s => !s.valid && vMoves.includes(`${s.x}.${s.y}`));
+    for (let i = 0; i < invalidSpots.length; i++) {
+        const spot = invalidSpots[i];
+        matrix[spot.x][spot.y] = turn;
+    }
+    return matrix
+}
