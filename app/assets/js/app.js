@@ -89,7 +89,7 @@ function ApplyMove(matrix, turn, { x, y }, mode) {
     } else {
       board[x][y] = turn
       if (mode == "1337") {
-        const totalCaptures = findAndApplyCaptures(board, x, y)
+        const totalCaptures = findAndApplyCaptures(board, x, y).length
         captures += totalCaptures / 2
       }
       valid = true
@@ -98,6 +98,14 @@ function ApplyMove(matrix, turn, { x, y }, mode) {
 
   return { valid, board, captures }
 }
+
+/**
+ * Reset all States of the game
+ * - reset captures and score of the players
+ * - reset the value of winner
+ * - reset the player turn to default
+ * - empty the suggested moves
+ */
 function ResetStates() {
   GAME.Black = {
     type: GAME.Black.type,
@@ -113,10 +121,9 @@ function ResetStates() {
   GAME.Winner = false // black | white
   GAME.Turn = "Black"
 
-  // MATRIX = []
-  // MOVES.history = []
   MOVES.suggested = []
 }
+
 
 /**
  * 
@@ -126,223 +133,55 @@ function ResetStates() {
  * @returns put stone at given x,y if its valid for current player.
  */
 async function PutStone(x, y, live) {
+
   if (GAME.Ended) {
     return
   }
 
-
   if (MATRIX[x][y] === 0) {
-    let turn = GAME.Turn == "Black" ? 1 : 2;
+    let myColor = GAME.Turn;
+    let hisColor = myColor == "Black" ? "White" : "Black";
 
-    if (GAME.Mode == "1337" && (IsInCapture(MATRIX, turn, x, y) || IsDoubleFreeThree(MATRIX, turn, x, y))) {
-      myLog(x, y, live, turn, GAME.Turn)
-      // return 1872
-      // alert("Invalid Move (in capture)")
+    let myVal = myColor == "Black" ? 1 : 2;
+    let hisVal = 3 - myVal;
+
+    if (GAME.Mode == "1337" && (IsInCapture(MATRIX, myVal, x, y) || IsDoubleFreeThree(MATRIX, myVal, x, y)))
+      return;
+
+    // new Audio('assets/audio/sound-effect.mp3').play()
+
+    MATRIX[x][y] = myVal
+    MOVES.history.push(alpha[x] + y)
+    if (GAME.Mode == "1337") {
+      const totalCaptures = findAndApplyCaptures(MATRIX, x, y).length
+      GAME[myColor].captures += totalCaptures / 2
+    }
+
+    UpdateBoard();
+    ShowMovesHistory();
+
+    if (CheckWin(hisColor, myColor, hisVal, myVal, GAME.Mode, x, y)) {
       return
-    } else {
-      // new Audio('assets/audio/sound-effect.mp3').play()
+    }
 
-      MATRIX[x][y] = turn
-      MOVES.history.push(alpha[x] + y)
-      if (GAME.Mode == "1337") {
-        const totalCaptures = findAndApplyCaptures(MATRIX, x, y)
-        GAME[GAME.Turn].captures += totalCaptures / 2
-      }
-      const is5Capts = GAME[GAME.Turn].captures >= 5
-      const is5InRow = is5InRowWin(x, y, turn)
-      UpdateBoard();
-      ShowMovesHistory()
+    GAME.Turn = GAME.Turn == "Black" ? "White" : "Black"
+    RenderInfos()
 
-      if (is5Capts || is5InRow) {
-        console.log(is5Capts, GAME[GAME.Turn])
-        GAME.Winner = GAME.Turn
-        GAME.Ended = true
-        const winBy5Msg = 'aligning 5 pieces in a row'
-        const winBy5Captures = 'capturing 5 pairs of the enemy stones'
-        let winMsg = ''
-        if (is5InRow)
-          winMsg += winBy5Msg
+    if (CheckTie()) {
+      return
+    }
 
-        if (is5Capts) {
-          if (winMsg.length) {
-            winMsg += ' and '
-          }
-          winMsg += winBy5Captures
-        }
-        RenderInfos()
-        alert(`${GAME.Turn} win by ${winMsg}`)
-        return
-      }
+    const aiMove = AI(hisVal)
 
-
-      GAME.Turn = GAME.Turn == "Black" ? "White" : "Black"
-
-      RenderInfos()
-
-      if (ShowValidSpots() == 0) {
-        GAME.Ended = true
-        GAME.Winner = 'Tie'
-
-        UpdateBoard();
-        RenderInfos()
-        setTimeout(() => {
-          alert("Game ended in a TIE")
-
-        }, 100)
-        return
-      }
-      const aiMove = AI()
-
-      if (live && GAME[GAME.Turn].type == "ai") {
-
-        await blok(0.0001)
-        PutStone(aiMove.x, aiMove.y, true)
-
-      }
-
-
+    if (live && GAME[GAME.Turn].type == "ai") {
+      await blok(0.01)
+      PutStone(aiMove.x, aiMove.y, true)
     }
 
   }
 }
 
-/**
- * 
- * @returns {Point | undefined} return the best move calculated by the AI for current player turn.
- */
-function AI() {
-  let start = performance.now();
 
-
-  turn = GAME.Turn == "Black" ? 1 : 2;
-  console.clear();
-  const enemyColor = GAME.Turn == "Black" ? "White" : "Black"
-  const moves = AnalyseMoves(MATRIX, turn, GAME.Mode)
-  if (!moves.length) {
-    return undefined
-  }
-  const bestMoveByScore = moves.filter(m => m.isBestMoveByScore)
-  const bestMove = new Point(0, 0, 0)
-
-  if (GAME.Mode == "normal") {
-    bestMove.x = bestMoveByScore[0].x
-    bestMove.y = bestMoveByScore[0].y
-    ShowBestMove(bestMoveByScore[0])
-  }
-
-  const winMove = moves.filter(m => m.isWin)
-  const blockWinMove = moves.filter(m => m.willBlockWin).sort((a, b) => b.score - a.score)
-  const isCapture = moves.filter(m => m.isCapture).sort((a, b) => b.score - a.score)
-  const isOpenFour = moves.filter(m => m.isOpenFour).sort((a, b) => b.score - a.score)
-  const isOpenThree = moves.filter(m => m.isOpenThree && !m.willBeCaptured).sort((a, b) => b.score - a.score)
-
-  const willBlockACapture = moves.filter(m => m.willBlockACapture && !m.willBeCaptured).sort((a, b) => b.score - a.score)
-  // const willBeCaptured = moves.find(m => m.willBeCaptured)
-
-  let willSetupACapture = moves.filter(m => m.willSetupACapture && !m.willBeCaptured).sort((a, b) => b.score - a.score)
-  willSetupACapture = [...willSetupACapture, ...moves.filter(m => m.willSetupACapture && m.willBeCaptured && m.isOpenThree)]
-  const willBlockADouble4 = moves.filter(m => m.willBlockADouble4).sort((a, b) => b.score - a.score)
-  myLog(moves);
-  myLog("Win Move: ", winMove);
-  myLog("Anti Win Move: ", blockWinMove);
-  myLog("Capture Move: ", isCapture);
-  myLog("Double 4 Move: ", isOpenFour);
-  myLog("Will Block a Capture: ", willBlockACapture);
-  myLog("Will setup capture: ", willSetupACapture);
-  myLog("Will block double 4: ", willBlockADouble4);
-  myLog("Best Move by Score: ", bestMoveByScore);
-
-
-  if (isCapture.length && GAME[GAME.Turn].captures >= 4) {
-    myLog(`:Sigma Capture:`)
-    bestMove.x = isCapture[0].x
-    bestMove.y = isCapture[0].y
-    ShowBestMove(isCapture[0])
-
-  } else if (winMove.length) {
-    myLog(`:Sigma Move:`)
-    bestMove.x = winMove[0].x
-    bestMove.y = winMove[0].y
-    ShowBestMove(bestMove)
-
-  } else if (GAME[enemyColor].captures >= 4 && willBlockACapture.length) {
-    myLog(`:block 5th enemy capture:`)
-    const move = willBlockACapture.find(m => m.willBlockWin) || willBlockACapture[0]
-    bestMove.x = move.x
-    bestMove.y = move.y
-    ShowBestMove(move)
-
-  }
-  else if (blockWinMove.length) {
-    myLog(`:block win move:`)
-    bestMove.x = blockWinMove[0].x
-    bestMove.y = blockWinMove[0].y
-    ShowBestMove(bestMove)
-
-  } else if (willBlockADouble4.length) {
-    myLog(`:block double 4:`)
-    let move = moves.filter(m => m.isCapture && m.willBlockADouble4).sort((a, b) => b.score - a.score)
-    if (!move.length) {
-      move = willBlockADouble4.find(m => !m.willBeCaptured) || willBlockADouble4[0] // 
-    } else {
-      move = move.find((m) => !m.willBeCaptured) || move[0]
-    }
-    bestMove.x = move.x
-    bestMove.y = move.y
-    ShowBestMove(move)
-
-  } else if (isOpenFour.length) {
-    myLog(`:open 4:`)
-    bestMove.x = isOpenFour[0].x
-    bestMove.y = isOpenFour[0].y
-    ShowBestMove(bestMove)
-
-  } else if (isCapture.length && isCapture.find(m => !m.willBeCaptured)) {
-    myLog(`:safe capture:`)
-    let move = isCapture.find(m => !m.willBeCaptured && m.isOpenThree)
-
-    if (!move) {
-      move = isCapture.find(m => !m.willBeCaptured)
-
-    }
-
-    bestMove.x = move.x
-    bestMove.y = move.y
-    ShowBestMove(move)
-  } else if (willSetupACapture.find((m => m.isOpenThree && !m.willBeCaptured))) {
-    myLog(`:setup capt + openThree:`)
-    const move = willSetupACapture.find((m => m.isOpenThree && !m.willBeCaptured))
-    bestMove.x = move.x
-    bestMove.y = move.y
-    ShowBestMove(bestMove)
-  } else if (willBlockACapture.length) {
-    myLog(`:block capture:`)
-    bestMove.x = willBlockACapture[0].x
-    bestMove.y = willBlockACapture[0].y
-    ShowBestMove(bestMove)
-
-  } else if (willSetupACapture.length) {
-    myLog(`:will setup capture:`)
-    const move = willSetupACapture.find((m => !m.willBeCaptured))
-    bestMove.x = move.x
-    bestMove.y = move.y
-    ShowBestMove(bestMove)
-
-  } else if (isOpenThree.length) {
-    myLog(`:open 3:`)
-    bestMove.x = isOpenThree[0].x
-    bestMove.y = isOpenThree[0].y
-    ShowBestMove(bestMove)
-  } else {
-    myLog(`:best score:`)
-    bestMove.x = bestMoveByScore[0].x
-    bestMove.y = bestMoveByScore[0].y
-    ShowBestMove(bestMove)
-  }
-  let timeTaken = performance.now() - start;
-  console.log("Total time taken : " + timeTaken + " milliseconds");
-  return bestMove
-}
 /**
  * 
  * @param {number} s 
@@ -357,65 +196,65 @@ function blok(s) {
 }
 
 /**
- * 
+ *
  * @param {number} R : row index
  * @param {number} C : column index
- * @param {1 | 2} player 
+ * @param {1 | 2} player
  * @returns {boolean} if the player at given move has a 5 in row or not
  */
-function is5InRowWin(R, C, player) {
-  var mlength = 0;
-  var count = 0;
-  for (i = 0; i < GAME.Size; i++) {
-    if (MATRIX[i][C] == player) {
-      count++;
-      if (count > mlength) {
-        mlength = count;
-      }
-    } else {
-      count = 0;
-    }
-  }
-  count = 0;
-  for (i = 0; i < GAME.Size; i++) {
-    if (MATRIX[R][i] == player) {
-      count++;
-      if (count > mlength) {
-        mlength = count;
-      }
-    } else {
-      count = 0;
-    }
-  }
-  count = 0;
-  for (i = 0; i < GAME.Size; i++) {
-    if (R - C + i >= 0 && R - C + i < GAME.Size) {
-      if (MATRIX[R - C + i][i] == player) {
-        count++;
-        if (count > mlength) {
-          mlength = count;
-        }
-      } else {
-        count = 0;
-      }
-    }
-  }
-  count = 0;
-  for (i = 0; i < GAME.Size; i++) {
-    if (R + C - i >= 0 && R + C - i < GAME.Size) {
-      if (MATRIX[R + C - i][i] == player) {
-        count++;
-        if (count > mlength) {
-          mlength = count;
-        }
-      } else {
-        count = 0;
-      }
-    }
-  }
-  if (mlength >= 5) {
-    return true
-  }
-  return false
-}
+// function is5InRowWin(R, C, player) {
+//   var mlength = 0;
+//   var count = 0;
+//   for (i = 0; i < GAME.Size; i++) {
+//     if (MATRIX[i][C] == player) {
+//       count++;
+//       if (count > mlength) {
+//         mlength = count;
+//       }
+//     } else {
+//       count = 0;
+//     }
+//   }
+//   count = 0;
+//   for (i = 0; i < GAME.Size; i++) {
+//     if (MATRIX[R][i] == player) {
+//       count++;
+//       if (count > mlength) {
+//         mlength = count;
+//       }
+//     } else {
+//       count = 0;
+//     }
+//   }
+//   count = 0;
+//   for (i = 0; i < GAME.Size; i++) {
+//     if (R - C + i >= 0 && R - C + i < GAME.Size) {
+//       if (MATRIX[R - C + i][i] == player) {
+//         count++;
+//         if (count > mlength) {
+//           mlength = count;
+//         }
+//       } else {
+//         count = 0;
+//       }
+//     }
+//   }
+//   count = 0;
+//   for (i = 0; i < GAME.Size; i++) {
+//     if (R + C - i >= 0 && R + C - i < GAME.Size) {
+//       if (MATRIX[R + C - i][i] == player) {
+//         count++;
+//         if (count > mlength) {
+//           mlength = count;
+//         }
+//       } else {
+//         count = 0;
+//       }
+//     }
+//   }
+//   if (mlength >= 5) {
+//     return true
+//   }
+//   return false
+// }
 

@@ -1,152 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="assets/style/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&subset=Latin"
+    />
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="assets/style/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu:regular,bold&subset=Latin">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <link
+      rel="shortcut icon"
+      href="assets/images/favicon.png"
+      type="image/x-icon"
+    />
 
-  <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+    <title>Gomoku (aallali)</title>
+  </head>
 
-  <title>Gomoku (aallali)</title>
-</head>
-
-<body>
-
-  <div class="grid-container">
-    <div class="grid">
-      <h3 class="headerTitle">Gomoku (aallali)</h3>
-      <div id="board">
-       
+  <body>
+    <div class="grid-container">
+      <div class="grid">
+        <h3 class="headerTitle">Gomoku (aallali)</h3>
+        <div id="board"></div>
+        <div class="moves_container">
+          <input
+            type="text"
+            id="moves_bar"
+            value="P0, Q1, R2, S3, A3, B2, C1, D0, A15, B16, C17, D18, S15, R16, Q17, P18, M16, L16, K16, J16, I16, H16, G16, G15, G14, J11, J10, M10, M11, M12, L12, K12, J12, I12, H12, G12, G11, G10, J6, J7, G6, G7, G8, H8, I8, J8, K8, L8, H14, M8, M7, M6, M4, L4, K4, J4, I4, H4, G4, H3, I2, K7, K8, J8"
+          />
+        </div>
       </div>
-      <div  class="moves_container">
-        <input type="text" id='moves_bar' value="P0, Q1, R2, S3, A3, B2, C1, D0, A15, B16, C17, D18, S15, R16, Q17, P18, M16, L16, K16, J16, I16, H16, G16, G15, G14, J11, J10, M10, M11, M12, L12, K12, J12, I12, H12, G12, G11, G10, J6, J7, G6, G7, G8, H8, I8, J8, K8, L8, H14, M8, M7, M6, M4, L4, K4, J4, I4, H4, G4, H3, I2">
+      <div class="grid">
+        <div class="menu">
+          <h3>Game Options:</h3>
+
+          <fieldset>
+            <h4 style="margin: 0px">Game Mode:</h4>
+            <input
+              type="radio"
+              id="mode_1337"
+              name="game_mode"
+              value="1337"
+              onChange="SetOptions('game_mode', '1337')"
+            />
+            <label for="mode_1337">1337</label><br />
+            <input
+              type="radio"
+              id="mode_normal"
+              name="game_mode"
+              value="normal"
+              onChange="SetOptions('game_mode', 'normal')"
+              checked
+            />
+            <label for="mode_normal">Normal (5 in row)</label><br />
+          </fieldset>
+          <fieldset>
+            <h4 style="margin: 0px">Players:</h4>
+            <div>
+              <h5 class="option-title">Black</h5>
+              <input
+                type="radio"
+                id="black_ai"
+                name="black_type"
+                value="ai"
+                onChange="SetOptions('black', 'ai')"
+                checked
+              />
+              <label for="black_ai">Ai</label><br />
+              <input
+                type="radio"
+                id="black_human"
+                name="black_type"
+                value="human"
+                onChange="SetOptions('black', 'human')"
+              />
+              <label for="black_human">Human</label><br />
+            </div>
+            <div style="color: whitef">
+              <h5 class="option-title">White</h5>
+              <input
+                type="radio"
+                id="white_ai"
+                name="white_type"
+                value="ai"
+                onChange="SetOptions('white', 'ai')"
+              />
+              <label for="white_ai">Ai</label><br />
+              <input
+                type="radio"
+                id="white_human"
+                name="white_type"
+                value="human"
+                onChange="SetOptions('white', 'human')"
+                checked
+              />
+              <label for="white_human">Human</label><br />
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <h4 style="margin: 0px">Overview:</h4>
+
+            <ul>
+              <li>Total Moves: <b data-id="moves_total"></b></li>
+              <hr />
+              <li>Black Stones: <b data-id="black_s"></b></li>
+              <li>Black Coverage: <b data-id="black_c"></b></li>
+              <li>Black Captures: <b id="infos_black_captures"></b></li>
+              <li>Black Score: <b id="infos_black_score"></b></li>
+
+              <hr />
+              <li>White Stones: <b data-id="white_s"></b></li>
+              <li>White Coverage: <b data-id="white_c"></b></li>
+              <li>White Captures: <b id="infos_white_captures"></b></li>
+              <li>White Score: <b id="infos_white_score"></b></li>
+              <hr />
+
+              <li>Current Turn: <b id="infos_white_score"></b></li>
+              <li>White Score: <b id="infos_white_score"></b></li>
+
+            </ul>
+
+            <button onClick="$('#moves_bar').val('')">clear moves</button>
+          </fieldset>
+          <fieldset>
+            <button
+              style="
+                width: 100%;
+                padding: 5px;
+                font-size: 15px;
+                background-color: wheat;
+              "
+              onclick="StartGame()"
+            >
+              Start
+            </button>
+          </fieldset>
+        </div>
+      </div>
+      <div class="grid">
+        <div class="menu">
+          <h3 style="color: transparent">_</h3>
+
+          <fieldset>
+            <table>
+              <tbody>
+                <tr>
+                  <td>Cell:</td>
+                  <td id="cell_coord"></td>
+                </tr>
+
+                <tr>
+                  <td>Turn:</td>
+                  <td id="infos_turn"></td>
+                </tr>
+                <tr>
+                  <td>Winner:</td>
+                  <td id="infos_winner"></td>
+                </tr>
+              </tbody>
+            </table>
+          </fieldset>
+          <fieldset>
+            <h4 style="margin: 0px">Ai Analyse:</h4>
+            <textarea
+              name=""
+              id="moves_suggestions"
+              cols="30"
+              rows="25"
+              style="font-size: 15px"
+            ></textarea>
+          </fieldset>
+        </div>
       </div>
     </div>
-    <div class="grid">
-      <div class="menu">
 
-
-        <h3>Game Options:</h3>
-
-        <fieldset>
-          <h4 style="margin: 0px;">Game Mode:</h4>
-          <input type="radio" id="mode_1337" name="game_mode" value="1337" onChange="SetOptions('game_mode', '1337')" >
-          <label for="mode_1337">1337</label><br>
-          <input type="radio" id="mode_normal" name="game_mode" value="normal" onChange="SetOptions('game_mode', 'normal')" checked >
-          <label for="mode_normal">Normal (5 in row)</label><br>
-
-        </fieldset>
-        <fieldset>
-          <h4 style="margin: 0px;">Players:</h4>
-          <div>
-            <h5 class="option-title">Black</h5>
-            <input type="radio" id="black_ai" name="black_type" value="ai" onChange="SetOptions('black', 'ai')" checked >
-            <label for="black_ai">Ai</label><br>
-            <input type="radio" id="black_human" name="black_type" value="human" onChange="SetOptions('black', 'human')">
-            <label for="black_human">Human</label><br>
-          </div>
-          <div style="color:whitef">
-            <h5 class="option-title">White</h5>
-            <input type="radio" id="white_ai" name="white_type" value="ai" onChange="SetOptions('white', 'ai')">
-            <label for="white_ai">Ai</label><br>
-            <input type="radio" id="white_human" name="white_type" value="human" onChange="SetOptions('white', 'human')" checked>
-            <label for="white_human">Human</label><br>
-          </div>
-        </fieldset>
-
-
-
-        <fieldset>
-          <h4 style="margin: 0px;">Moves:</h4>
-          <ul>
-            <li>Total:</li>
-            <hr>
-            <li>Black Stones:</li>
-            <li>Black Coverage:</li>
-            <hr>
-            <li>White Stones:</li>
-            <li>White Coverage:</li>
-
-
-          </ul>
-          <br>
-          <button onClick="$('#moves_bar').val('')">clear moves</button>
-        </fieldset>
-        <fieldset>
-       <button style="
-       width: 100%;
-       padding: 5px;
-       font-size: 15px;
-       background-color: wheat;"
-       onclick="StartGame()">Start</button>
-        </fieldset>
-      </div>
-    </div>
-    <div class="grid">
-      <div class="menu">
-
-
-        <h3 style="color:transparent">_</h3>
-
-
-        <fieldset>
-          <table>
-            <tbody>
-              <tr>
-                <td>Cell:</td>
-                <td id="cell_coord"></td>
-
-              </tr>
-              <tr>
-                <td>Black Captures:</td>
-                <td id="infos_black_captures">0</td>
-              </tr>
-              <tr>
-                <td>Black Score:</td>
-                <td id="infos_black_score"> 0</td>
-              </tr>
-             
-              <tr>
-                <td>White Captures:</td>
-                <td id="infos_white_captures">0</td>
-              </tr>
-
-              <tr>
-                <td>White Score:</td>
-                <td id="infos_white_score">0</td>
-              </tr>
-              <tr>
-                <td>Turn:</td>
-                <td id="infos_turn"></td>
-              </tr>
-              <tr>
-                <td>Winner:</td>
-                <td id="infos_winner"></td>
-              </tr>
-            </tbody>
-          </table>
-        </fieldset>
-        <fieldset>
-          <h4 style="margin: 0px;">Ai Suggestions:</h4>
-          <textarea name="" id="moves_suggestions" cols="26" rows="25" style="font-size: 15px;">
-             </textarea>
-        </fieldset>
-      </div>
-    </div>
-  </div>
-
-  <script src="assets/js/utils.js"></script>
-  <script src="assets/js/AI.js"></script>
-  <script src="assets/js/ui.js"></script>
-  <script src="assets/js/app.js"></script>
-  <script src="assets/js/init.js"></script>
-
-</body>
-
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/AI.js"></script>
+    <script src="assets/js/ui.js"></script>
+    <script src="assets/js/app.js"></script>
+    <script src="assets/js/init.js"></script>
+  </body>
 </html>

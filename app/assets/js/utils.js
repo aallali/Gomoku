@@ -13,7 +13,7 @@ const DirectionMirror = {
 function Point(x, y, s) {
     this.x = x;
     this.y = y;
-    this.score = s
+    this.score = s;
 }
 function myLog(...params) {
     console.log(...params)
@@ -62,7 +62,7 @@ function ValidXY(size, x, y) {
  * @param {(0 | 1 | 2)[18][18]} matrix 
  * @param {number} x 
  * @param {number} y 
- * @returns {number}
+ * @returns {[{x:number x:number}]}
  */
 function findAndApplyCaptures(matrix, x, y) {
     const captures = IsCapture(matrix, x, y)
@@ -71,9 +71,9 @@ function findAndApplyCaptures(matrix, x, y) {
             const capt = captures[i]
             matrix[capt.x][capt.y] = 0
         }
-        return captures.length
+        return captures
     }
-    return 0
+    return []
 }
 /**
  * 
@@ -105,7 +105,14 @@ function IsDoubleFreeThree(matrix, turn, x, y) {
     matrix[x][y] = 0
     return count > 1
 }
-
+/**
+ * 
+ * @param {(0 | 1 | 2)[18][18]} matrix 
+ * @param {1 | 2} turn 
+ * @param {number} x 
+ * @param {number} y 
+ * @returns 
+ */
 function IsOpenThree(matrix, turn, x, y) {
     const allDirs = Object.keys(DirectionMirror);
     matrix[x][y] = turn;
@@ -468,155 +475,13 @@ function FindValidSpots(matrix, turn, mode) {
 function IsValidMoveFor1337Mode(matrix, turn, x, y) {
     return !IsInCapture(copyMat(matrix), turn, x, y) && !IsDoubleFreeThree(copyMat(matrix), turn, x, y)
 }
-
-function copyMat(matrix) {
-    return JSON.parse(JSON.stringify(matrix))
-}
 /**
  * 
- * @param {(0 | 1 | 2)[18][18]} matrix 
- * @param {1 | 2} turn 
- * @param {'1337' | 'Normal'} mode 
- * @returns 
+ * @param {*} obj 
+ * @returns copy of the object matrix
  */
-function AnalyseMoves(matrix, turn, mode) {
-    let mvs = [{
-        x: 0,
-        y: 0,
-        score: 0,
-        isWin: false,
-        isOpenFour: false,
-        isOpenThree: false,
-        isCapture: false,
-        willBeCaptured: false,
-        willSetupACapture: false,
-        willBlockACapture: false,
-        willBlockWin: false,
-        willBlockADouble4: false,
-        isBestMoveByScore: false
-    }]
-    mvs = FindValidSpots(matrix, turn, mode);
-
-
-    if (!mvs.length) {
-        return []
-    }
-    const turn2 = 3 - turn
-    const offensiveMove = new Point(0, 0, -Infinity);
-    const deffensiveMove = new Point(0, 0, -Infinity);
-    let oindex = 0;
-    let dindex = 0;
-
-    const validMoves = mvs.filter(l => l.valid).map(m => `${m.x}.${m.y}`).join("_")
-
-    const mvsEnemy = FindValidSpots(matrix, turn2, mode);
-    const validEnemyMoves = mvsEnemy.filter(l => l.valid).map(m => `${m.x}.${m.y}`).join("_")
-    const baseMatrix = MaskForbiddenSpotsAsEnemyStones(copyMat(matrix), turn, validMoves);
-    const baseEnemyMatrix = MaskForbiddenSpotsAsEnemyStones(copyMat(matrix), turn2, validEnemyMoves)
-    for (let i = 0; i < mvs.length; i++) {
-        let mv = mvs[i]
-        if (!mv.valid) {
-
-        } else {
-            let board = copyMat(matrix);
-            let board2 = copyMat(matrix);
-
-            if (mode == "1337") {
-                board[mv.x][mv.y] = turn;
-                const captures = findAndApplyCaptures(board, mv.x, mv.y)
-                mv.isCapture = captures > 0
-                mv.willBeCaptured = WillBeCaptured(copyMat(board), turn, mv.x, mv.y);
-                mv.willSetupACapture = WillSetupACapture(copyMat(board), turn, mv.x, mv.y);
-                // board = copyMat(baseMatrix)
-                const eval = EvalPiece(board, mv.x, mv.y, turn);
-                board = copyMat(matrix);
-                board[mv.x][mv.y] = turn;
-                mv.score = eval.score;
-                mv.isWin = eval.isWin;
-                mv.isOpenFour = eval.isOpenFour;
-                mv.isOpenThree = IsOpenThree(copyMat(board), turn, mv.x, mv.y);
-
-                mv.valid4Enemy = false;
-                // console.log("::->", mv.x, mv.y, mv.score, eval.score)
-
-
-                if (IsValidMoveFor1337Mode(board2, turn2, mv.x, mv.y)) {
-                    mv.valid4Enemy = true
-                    board2[mv.x][mv.y] = turn2
-                    const captures = findAndApplyCaptures(board2, mv.x, mv.y)
-                    mv.willBlockACapture = captures > 0
-                    // board2 = copyMat(baseEnemyMatrix)
-                    const enemEval = EvalPiece(board2, mv.x, mv.y, turn2)
-                    mv.hisScore = enemEval.score
-                    if (enemEval.isOpenFour) {
-                        mv.willBlockADouble4 = true
-                    }
-                    if (enemEval.isWin) {
-                        mv.willBlockWin = true
-                    }
-                    // mv.score += enemEval.score
-
-                    if (enemEval.score > deffensiveMove.score && !mv.willBeCaptured) {
-                        if (!WillBeCaptured(copyMat(matrix), turn2, mv.x, mv.y)) {
-                            deffensiveMove.x = mv.x;
-                            deffensiveMove.y = mv.y;
-                            deffensiveMove.score = enemEval.score;
-                            dindex = i
-                        }
-                    }
-                }
-
-                if (!mv.willBeCaptured) {
-                    if (mv.score > offensiveMove.score) {
-                        offensiveMove.x = mv.x;
-                        deffensiveMove.y = mv.y;
-                        offensiveMove.score = mv.score;
-                        oindex = i
-                    }
-                }
-
-
-            } else {
-                const eval = EvalPiece(board, mv.x, mv.y, turn)
-                mv.score = eval.score 
-                mv.isWin = eval.isWin
-                if (mv.isWin) {
-                    mv.isBestMoveByScore = true
-                    return [mv]
-                }
-                if (mv.score > offensiveMove.score) {
-                    offensiveMove.x = mv.x;
-                    offensiveMove.y = mv.y;
-                    offensiveMove.score = mv.score;
-                    oindex = i;
-                }
-                
-                const enemyEval = EvalPiece(board, mv.x, mv.y, turn2)
-                if (enemyEval.score > deffensiveMove.score) {
-                    deffensiveMove.x = mv.x;
-                    deffensiveMove.y = mv.y;
-                    deffensiveMove.score = enemyEval.score;
-                    dindex = i;
-                }
-              
-            }
-
-        }
-
-    }
-    // mvs[oindex].isBestMoveByScore = true;
-
-    if (offensiveMove.score >= deffensiveMove.score) {
-        mvs[oindex].isBestMoveByScore = true;
-    } else {
-        mvs[dindex].isBestMoveByScore = true;
-    }
-
-    mvs.sort((a, b) => b.score - a.score)
-
-
-
-    return mvs
+function copyMat(obj) {
+    return JSON.parse(JSON.stringify(obj))
 }
 
 function IsStepAwayFromOpen() {
@@ -631,6 +496,7 @@ function IsStepAwayFromOpen() {
     // Step Away from open three : .XXFX. / .XFXX. / .XXXF. / .FXXX.
 
 }
+
 function MaskForbiddenSpotsAsEnemyStones(matrix, turn, vMoves) {
     const invalidSpots = FindValidSpots(matrix, 3 - turn, "1337").filter(s => !s.valid && vMoves.includes(`${s.x}.${s.y}`));
     for (let i = 0; i < invalidSpots.length; i++) {
@@ -638,4 +504,153 @@ function MaskForbiddenSpotsAsEnemyStones(matrix, turn, vMoves) {
         matrix[spot.x][spot.y] = turn;
     }
     return matrix
+}
+
+/**
+ * 
+ * @param {matrix} matrix 
+ * @param {1|2} player 
+ * @param {number} x 
+ * @param {number} y 
+ * @returns 
+ */
+function Is5InRowWin(matrix, player, x, y) {
+    let goldenStones = [];
+    const allDirs = Object.keys(DirectionMirror);
+
+    for (let i = 0; i < allDirs.length; i++) {
+        goldenStones = [];
+        const dir = allDirs[i];
+        const mirrorDir = DirectionMirror[dir];
+
+        let coord = MoveDirection(mirrorDir, x, y);
+        while (ValidXY(matrix.length, coord.x, coord.y) && matrix[coord.x][coord.y] == player) {
+            goldenStones.push({ x: coord.x, y: coord.y });
+            coord = MoveDirection(mirrorDir, coord.x, coord.y);
+        }
+
+        coord = MoveDirection(dir, x, y);
+        while (ValidXY(matrix.length, coord.x, coord.y) && matrix[coord.x][coord.y] == player) {
+            goldenStones.push({ x: coord.x, y: coord.y });
+            coord = MoveDirection(dir, coord.x, coord.y);
+        }
+        if (goldenStones.length >= 4) {
+            if (matrix[x][y] == player) {
+                goldenStones = [{ x, y }, ...goldenStones];
+            }
+            break;
+        }
+
+    }
+    return goldenStones.length >= 5 ? goldenStones : undefined
+}
+/**
+ * 
+ * @param {string} hisColor 
+ * @param {string} myColor 
+ * @param {1 | 2} hisVal 
+ * @param {1 | 2} myVal 
+ * @param {"1337" | "normal"} mode 
+ * @param {number} x 
+ * @param {number} y 
+ * @returns 
+ */
+function CheckWin(hisColor, myColor, hisVal, myVal, mode, x, y) {
+    const is5Capts = GAME[myColor].captures >= 5;
+    let is5InRow = Is5InRowWin(MATRIX, myVal, x, y)
+    if (mode == "1337") {
+        if (is5InRow) {
+            const moves = AnalyseMoves(MATRIX, hisVal, mode)
+            if (moves
+                .filter(l => l.isCapture)
+                .find(m => m.captures
+                    .find(c => is5InRow
+                        .map(l => l.x.toString() + '.' + l.y)
+                        .join(",")
+                        .includes(c.x + '.' + c.y))))
+                is5InRow = undefined
+        } else {
+            if (MOVES.history.length >= 3) {
+                const prevMove = ConvertMoveFormat(MOVES.history[MOVES.history.length - 2])
+                is5InRow = Is5InRowWin(MATRIX, hisVal, prevMove.x, prevMove.y)
+                if (is5InRow) {
+                    GAME.Turn = hisColor
+                    myColor = hisColor
+                    myVal = hisVal
+                }
+            }
+        }
+    }
+
+
+    if (is5Capts || is5InRow) {
+        if (is5InRow) {
+            is5InRow.forEach((el => {
+                $(`#cross${el.x}r${el.y}c img`).hide()
+                $(`#cross${el.x}r${el.y}c img.golden-stone`).show()
+            }))
+        }
+        GAME.Winner = myColor
+        GAME.Ended = true
+        const winBy5Msg = 'aligning 5 pieces in a row'
+        const winBy5Captures = 'capturing 5 pairs of the enemy stones'
+        let winMsg = ''
+        if (is5InRow)
+            winMsg += winBy5Msg
+
+        if (is5Capts) {
+            if (winMsg.length) {
+                winMsg += ' and '
+            }
+            winMsg += winBy5Captures
+        }
+        RenderInfos()
+        alert(`${myColor} win by ${winMsg}`)
+        return true
+    }
+
+    return false
+}
+/**
+ * 
+ * @returns {boolean} check if there is any available move still
+ */
+function CheckTie() {
+    if (ShowValidSpots() == 0) {
+        GAME.Ended = true;
+        GAME.Winner = 'Tie';
+        UpdateBoard();
+        RenderInfos();
+
+        setTimeout(() => {
+            alert("Game ended in a TIE");
+        }, 100)
+        return true
+    }
+
+    return false
+}
+/**
+ * 
+ * @param {matrix} matrix 
+ * @returns calculate total stones of each color and coverage percentage
+ * just to have an overview on the game progress
+ */
+function TestEye(matrix) {
+    const stones = { black: 0, white: 0 }
+    const coverage = { black: 0, white: 0 }
+    for (let i = 0; i < matrix.length; i++) {
+        for (let j = 0; j < matrix.length; j++) {
+            if (matrix[i][j] == 1)
+                stones.black++
+            if (matrix[i][j] == 2)
+                stones.white++
+        }
+    }
+
+    // percent = (x * 100)/total
+    coverage.black = (stones.black * 100) / (stones.black + stones.white)
+    coverage.white = (stones.white * 100) / (stones.black + stones.white)
+
+    return { stones, coverage }
 }
