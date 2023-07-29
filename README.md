@@ -17,7 +17,7 @@ The algorithm fully writen in JS in the browser with the UI you can see in the p
 
 ---
 *`img updated: 09/07/2023`*
-<img src="./ressources/gomoku-web-v4.png">
+<img src="./ressources/gomoku-web-v4.1.png">
 
 Todo:
 - [x] : add support to switch modes (`1337 rules` && `normal`)
@@ -31,3 +31,6 @@ Todo:
 - [x] : organize the order of game start function to avoid conflicts.
     - [ ] : refactor it
 - [ ] : improve algo to: if the oponent setup a capture, and you dont have any other good option to do except 'best by score', try to find if there is a possible move that will make the capture spot for him forbidden using 'forbidden in capture move' pattern.
+- [x] : blink the captured pieces before removing them from board for more visibility
+- [ ] : add board score calculation function and implement it to UI
+- [ ] : fix the cases mentioned in history file 
