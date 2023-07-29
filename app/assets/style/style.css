@@ -217,3 +217,15 @@
     border: solid 2px white;
     border-radius: 6px;
   }
+
+  #moves_suggestions {
+    font-family: Ubuntu, "times new roman", times, roman, serif;
+  }
+
+
+  .blink_capture {
+    background: yellow;
+    border-radius: 20%;
+   
+  }
+ 

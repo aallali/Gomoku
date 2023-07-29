@@ -22,6 +22,7 @@ function SetOptions(option, value) {
   myLog(option, value, GAME)
 
 }
+
 /**
  * 
  * @param {string} stringMove 
@@ -69,6 +70,7 @@ function ApplyMoves(moves) {
   }
   return { board, captures, turn: GameTurn }
 }
+
 /**
  * 
  * @param {*} matrix 
@@ -124,7 +126,6 @@ function ResetStates() {
   MOVES.suggested = []
 }
 
-
 /**
  * 
  * @param {number} x 
@@ -139,6 +140,7 @@ async function PutStone(x, y, live) {
   }
 
   if (MATRIX[x][y] === 0) {
+    GAME.validMovesToBreakWin = undefined
     let myColor = GAME.Turn;
     let hisColor = myColor == "Black" ? "White" : "Black";
 
@@ -148,13 +150,27 @@ async function PutStone(x, y, live) {
     if (GAME.Mode == "1337" && (IsInCapture(MATRIX, myVal, x, y) || IsDoubleFreeThree(MATRIX, myVal, x, y)))
       return;
 
-    // new Audio('assets/audio/sound-effect.mp3').play()
-
+    let stoneSound = new Audio('assets/audio/sound-effect.mp3')
+    stoneSound.play()
     MATRIX[x][y] = myVal
     MOVES.history.push(alpha[x] + y)
     if (GAME.Mode == "1337") {
-      const totalCaptures = findAndApplyCaptures(MATRIX, x, y).length
-      GAME[myColor].captures += totalCaptures / 2
+      const totalCaptures = findAndApplyCaptures(MATRIX, x, y)
+      if (totalCaptures.length) {
+   
+        const blinker = setInterval(function () {
+          totalCaptures.forEach(el => {
+            $(`#cross${el.x}r${el.y}c`).toggleClass('blink_capture')
+          });
+      }, 200)
+        await blok(2)
+        clearInterval(blinker)
+        totalCaptures.forEach(el => {
+          $(`#cross${el.x}r${el.y}c`).removeClass('blink_capture')
+        });
+        GAME[myColor].captures += totalCaptures.length / 2
+      }
+
     }
 
     UpdateBoard();
@@ -170,17 +186,17 @@ async function PutStone(x, y, live) {
     if (CheckTie()) {
       return
     }
-
+    await blok(0.1)
+    // stoneSound.pause()
     const aiMove = AI(hisVal)
-
     if (live && GAME[GAME.Turn].type == "ai") {
       await blok(0.01)
       PutStone(aiMove.x, aiMove.y, true)
     }
 
   }
+  
 }
-
 
 /**
  * 
@@ -194,67 +210,4 @@ function blok(s) {
     }, s * 1000)
   })
 }
-
-/**
- *
- * @param {number} R : row index
- * @param {number} C : column index
- * @param {1 | 2} player
- * @returns {boolean} if the player at given move has a 5 in row or not
- */
-// function is5InRowWin(R, C, player) {
-//   var mlength = 0;
-//   var count = 0;
-//   for (i = 0; i < GAME.Size; i++) {
-//     if (MATRIX[i][C] == player) {
-//       count++;
-//       if (count > mlength) {
-//         mlength = count;
-//       }
-//     } else {
-//       count = 0;
-//     }
-//   }
-//   count = 0;
-//   for (i = 0; i < GAME.Size; i++) {
-//     if (MATRIX[R][i] == player) {
-//       count++;
-//       if (count > mlength) {
-//         mlength = count;
-//       }
-//     } else {
-//       count = 0;
-//     }
-//   }
-//   count = 0;
-//   for (i = 0; i < GAME.Size; i++) {
-//     if (R - C + i >= 0 && R - C + i < GAME.Size) {
-//       if (MATRIX[R - C + i][i] == player) {
-//         count++;
-//         if (count > mlength) {
-//           mlength = count;
-//         }
-//       } else {
-//         count = 0;
-//       }
-//     }
-//   }
-//   count = 0;
-//   for (i = 0; i < GAME.Size; i++) {
-//     if (R + C - i >= 0 && R + C - i < GAME.Size) {
-//       if (MATRIX[R + C - i][i] == player) {
-//         count++;
-//         if (count > mlength) {
-//           mlength = count;
-//         }
-//       } else {
-//         count = 0;
-//       }
-//     }
-//   }
-//   if (mlength >= 5) {
-//     return true
-//   }
-//   return false
-// }
 

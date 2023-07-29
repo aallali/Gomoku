@@ -10,12 +10,12 @@ let GAME = {
     Size: 19,
     Mode: "1337",
     Black: {
-        type: "ai",
+        type: "human",
         captures: 0,
         score: 0
     },
     White: {
-        type: "ai",
+        type: "human",
         captures: 0,
         score: 0
     },

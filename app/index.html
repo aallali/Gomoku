@@ -108,29 +108,31 @@
           </fieldset>
 
           <fieldset>
-            <h4 style="margin: 0px">Overview:</h4>
 
-            <ul>
+
+            <ul style="padding-left: 22px;margin-top: 0px;">
               <li>Total Moves: <b data-id="moves_total"></b></li>
               <hr />
-              <li>Black Stones: <b data-id="black_s"></b></li>
-              <li>Black Coverage: <b data-id="black_c"></b></li>
-              <li>Black Captures: <b id="infos_black_captures"></b></li>
+              <li>Black Captures: [<b id="infos_black_captures"></b>]</li>
+              <li>White Captures: [<b id="infos_white_captures"></b>]</li>
+              <br>
+
               <li>Black Score: <b id="infos_black_score"></b></li>
+              <li>White Score: <b id="infos_white_score"></b></li>
+              <br>
 
-              <hr />
-              <li>White Stones: <b data-id="white_s"></b></li>
+              
+              <li>Black Stones: <b data-id="white_s"></b></li>
+              <li>White Stones: <b data-id="black_s"></b></li>
+              <br>
+              <li>Black Coverage: <b data-id="black_c"></b></li>
               <li>White Coverage: <b data-id="white_c"></b></li>
-              <li>White Captures: <b id="infos_white_captures"></b></li>
-              <li>White Score: <b id="infos_white_score"></b></li>
+              <br>
               <hr />
-
-              <li>Current Turn: <b id="infos_white_score"></b></li>
-              <li>White Score: <b id="infos_white_score"></b></li>
+              <li>Now Playing: [<b id="infos_turn"></b>]</li>
 
             </ul>
-
-            <button onClick="$('#moves_bar').val('')">clear moves</button>
+            <button onClick="$('#moves_bar').val('')" style="width: 100%;padding: 5px;font-size:18px;border: none;border-radius:4px">clear moves</button>
           </fieldset>
           <fieldset>
             <button
@@ -139,6 +141,7 @@
                 padding: 5px;
                 font-size: 15px;
                 background-color: wheat;
+                width: 100%;padding: 5px;font-size:18px;border: none;border-radius:4px;
               "
               onclick="StartGame()"
             >
@@ -158,11 +161,6 @@
                   <td>Cell:</td>
                   <td id="cell_coord"></td>
                 </tr>
-
-                <tr>
-                  <td>Turn:</td>
-                  <td id="infos_turn"></td>
-                </tr>
                 <tr>
                   <td>Winner:</td>
                   <td id="infos_winner"></td>
@@ -175,7 +173,7 @@
             <textarea
               name=""
               id="moves_suggestions"
-              cols="30"
+              cols="35"
               rows="25"
               style="font-size: 15px"
             ></textarea>

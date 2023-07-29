@@ -17,6 +17,7 @@ function Point(x, y, s) {
 }
 function myLog(...params) {
     console.log(...params)
+    return [...params].join('')
 }
 /**
  * 
@@ -506,6 +507,32 @@ function MaskForbiddenSpotsAsEnemyStones(matrix, turn, vMoves) {
     return matrix
 }
 
+function ScrapLargeLine(matrix, player, x, y) {
+    let goldenStones = [];
+    const allDirs = Object.keys(DirectionMirror);
+
+    for (let i = 0; i < allDirs.length; i++) {
+        goldenStones[i] = []
+        const dir = allDirs[i];
+        const mirrorDir = DirectionMirror[dir];
+
+        let coord = MoveDirection(mirrorDir, x, y);
+        while (ValidXY(matrix.length, coord.x, coord.y) && matrix[coord.x][coord.y] == player) {
+            goldenStones[i].push({ x: coord.x, y: coord.y });
+            coord = MoveDirection(mirrorDir, coord.x, coord.y);
+        }
+
+        coord = MoveDirection(dir, x, y);
+        while (ValidXY(matrix.length, coord.x, coord.y) && matrix[coord.x][coord.y] == player) {
+            goldenStones[i].push({ x: coord.x, y: coord.y });
+            coord = MoveDirection(dir, coord.x, coord.y);
+        }
+        if (goldenStones[i].length >= 2) {
+            goldenStones[i] = [{ x, y }, ...goldenStones[i]];
+        }
+    }
+    return goldenStones.sort((a, b) => b.length - a.length)[0]
+}
 /**
  * 
  * @param {matrix} matrix 
@@ -544,6 +571,16 @@ function Is5InRowWin(matrix, player, x, y) {
     }
     return goldenStones.length >= 5 ? goldenStones : undefined
 }
+
+function isLineBreakableByAnyCapture(captures, stonesLine) {
+ 
+    return captures
+        .filter(m => m.captures
+            .find(c => stonesLine
+                .map(l => l.x.toString() + '.' + l.y)
+                .join(",")
+                .includes(c.x + '.' + c.y)))
+}
 /**
  * 
  * @param {string} hisColor 
@@ -561,14 +598,13 @@ function CheckWin(hisColor, myColor, hisVal, myVal, mode, x, y) {
     if (mode == "1337") {
         if (is5InRow) {
             const moves = AnalyseMoves(MATRIX, hisVal, mode)
-            if (moves
-                .filter(l => l.isCapture)
-                .find(m => m.captures
-                    .find(c => is5InRow
-                        .map(l => l.x.toString() + '.' + l.y)
-                        .join(",")
-                        .includes(c.x + '.' + c.y))))
+            const breaks = isLineBreakableByAnyCapture(moves.filter(l => l.isCapture), is5InRow)
+
+            if (breaks.length) {
+                console.log(is5InRow, "<------->", moves.filter(l => l.isCapture))
                 is5InRow = undefined
+                GAME.validMovesToBreakWin = breaks
+            }
         } else {
             if (MOVES.history.length >= 3) {
                 const prevMove = ConvertMoveFormat(MOVES.history[MOVES.history.length - 2])
@@ -654,3 +690,4 @@ function TestEye(matrix) {
 
     return { stones, coverage }
 }
+
