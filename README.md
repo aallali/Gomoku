@@ -16,7 +16,7 @@ The algorithm fully writen in JS in the browser with the UI you can see in the p
 **13:34PM 32% Battery , i can hear the ADHAN (call for the prayer), by**
 
 ---
-*`img updated: 09/07/2023`*
+*`img updated: 29/07/2023`*
 <img src="./ressources/gomoku-web-v4.1.png">
 
 Todo:
