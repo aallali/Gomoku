@@ -174,7 +174,7 @@ function AnalyseMoves(matrix, turn, mode) {
                 mv.willBeCaptured = WillBeCaptured(copyMat(board), turn, mv.x, mv.y);
                 mv.willSetupACapture = WillSetupACapture(copyMat(board), turn, mv.x, mv.y);
                 // board = copyMat(baseMatrix)
-                const eval = EvalPiece(board, mv.x, mv.y, turn);
+                const evaluation = EvalPiece(board, mv.x, mv.y, turn);
                 board = copyMat(matrix);
                 board[mv.x][mv.y] = turn;
                 mv.score = eval.score;
@@ -223,7 +223,7 @@ function AnalyseMoves(matrix, turn, mode) {
 
 
             } else {
-                const eval = EvalPiece(board, mv.x, mv.y, turn)
+                const evaluation = EvalPiece(board, mv.x, mv.y, turn)
                 mv.score = eval.score
                 mv.isWin = eval.isWin
                 if (mv.isWin) {
