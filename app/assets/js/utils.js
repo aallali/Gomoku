@@ -24,7 +24,7 @@ function myLog(...params) {
  * @param {keyof DirectionMirror} dir 
  * @param {number} x 
  * @param {number} y 
- * @returns 
+ * @returns {x,y} new coordination after moving to direction
  */
 function MoveDirection(dir, x, y) {
     switch (dir) {
@@ -64,6 +64,8 @@ function ValidXY(size, x, y) {
  * @param {number} x 
  * @param {number} y 
  * @returns {[{x:number x:number}]}
+ * @description find if there is a capture at given X.Y and 
+ * return array of X.Ys of found captures
  */
 function findAndApplyCaptures(matrix, x, y) {
     const captures = IsCapture(matrix, x, y)
