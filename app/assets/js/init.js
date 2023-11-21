@@ -92,7 +92,7 @@ function StartGame() {
         UpdateBoard();
         ShowValidSpots();
 
-        const aiMove = AI()
+        const aiMove = AI(GAME.Turn == "Black" ? 1 : 2)
         if (GAME[GAME.Turn].type == "ai") {
             PutStone(aiMove.x, aiMove.y, true)
         }
