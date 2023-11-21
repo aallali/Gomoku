@@ -47,31 +47,32 @@ function StartGame() {
         const half = parseInt(GAME.Size / 2)
         moves = [`${alpha[half]}${half}`]
         const randomSpots = [
+            'K10', // W
+            'K9', // W
+            'H9', // W
+            'H10', // W
+            'L8', // W
+            // 'I11', // T
+            // 'K11', // T
+            // 'J7', // T
+            // 'K8', // T
+            // 'J8', // T
             // 'I8', // T
             // 'I9', // T
             // 'I10', // T
             // 'J10', // T
-            'K10', // 'win'
-            'K9', // W
-            // 'K8', // T
-            // 'J8', // T
             'J9', // T
             // 'H7', // L
             // 'H8', // L
-            'H9', // w
-            'H10', // W
-            // 'H11', // L
-            // 'I11', // T
             // 'J11',  // L
-            // 'K11', // T
-            // 'L11', // 'lose'
+            // 'H11', // L
+            // 'I7', // L
+            // 'L11', // L
             // 'L10', // L
             // 'L9', // L
-            'L8', // W
-            // 'L7', // 'L'
+            // 'L7', // L
             // 'K7', // L
-            // 'J7', // T
-            // 'I7', // L
+
         ];
 
         const random = Math.floor(Math.random() * randomSpots.length);
