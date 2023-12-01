@@ -1,26 +1,22 @@
 import { useGame, type IGameStore } from "@/store";
 import { check5Win } from "./utils";
 import { findValidSpots } from "./common/moveValidity";
-import { IsCapture } from "./common/captures";
-
-function blok(s: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve()
-        }, s * 1000)
-    })
-}
+import { IsCapture, extractCaptures, isLineBreakableByAnyCapture } from "./common/captures";
+import { blok } from "./common/shared";
+import { BestMove_NormalMode } from "./ai";
 
 export default async function makeMove(x: number, y: number) {
 
     const {
-        matrix, ended, turn, mode,
-        setGoldenStones, fillCell, setWinner, endTheGame, setTurn, applyCaptures, setBlinkCapt
-
+        matrix, turn, mode,
+        fillCell, setWinner, endTheGame, applyCaptures,
+        setTurn,
+        setGoldenStones,
+        setBlinkCapt,
+        setBestMoves
     }
         = useGame.getState()
     const otherPlayer = turn == 'b' ? 'w' : 'b'
-    const running = !ended
     const cellValue = turn == "b" ? 1 : 2
 
     fillCell(x, y)
@@ -32,25 +28,27 @@ export default async function makeMove(x: number, y: number) {
         const captures = IsCapture(matrix, x, y)
         if (captures) {
             setBlinkCapt(captures)
-            await blok(2)
+            await blok(1)
             setBlinkCapt([])
             totalCaptures = applyCaptures(captures)
         }
     }
+    const oponentValidMoves = findValidSpots(matrix, otherPlayer, mode)
+    const capturesOfEnemy = extractCaptures(matrix, oponentValidMoves, otherPlayer)
 
-    // console.log(totalCaptures)
-
-    if (winStones || totalCaptures >= 5) {
+    if ((winStones && (mode == "1337" ? !isLineBreakableByAnyCapture(capturesOfEnemy, winStones) : true)) || totalCaptures >= 5) {
         // TODO: verify if the 5 in row is breakable by enemy
         if (winStones)
             setGoldenStones(winStones)
         setWinner(turn)
         endTheGame()
-    } else if (findValidSpots(matrix, otherPlayer, mode).length == 0) {
+        return
+    } else if (oponentValidMoves.length == 0) {
         endTheGame()
+        return
     } else {
         setTurn(otherPlayer)
+        const bestMove = BestMove_NormalMode(matrix, otherPlayer, oponentValidMoves)
+        setBestMoves([bestMove])
     }
-
-
 }
