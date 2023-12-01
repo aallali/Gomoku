@@ -52,7 +52,21 @@ export function Standarize(turn: TColor, row: string) {
 
         return c
     }).join("");
-}}
+}
+
+/**
+ * 
+ * @description blok the process for 's' given secons
+ */
+export function blok(s: number): Promise<void> {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve()
+        }, s * 1000)
+    })
+}
+
+/**
  * 
  * @description clone the board data to avoid original state change
  */
