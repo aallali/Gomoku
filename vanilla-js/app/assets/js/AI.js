@@ -177,9 +177,9 @@ function AnalyseMoves(matrix, turn, mode) {
                 const evaluation = EvalPiece(board, mv.x, mv.y, turn);
                 board = copyMat(matrix);
                 board[mv.x][mv.y] = turn;
-                mv.score = eval.score;
-                mv.isWin = eval.isWin;
-                mv.isOpenFour = eval.isOpenFour;
+                mv.score = evaluation.score;
+                mv.isWin = evaluation.isWin;
+                mv.isOpenFour = evaluation.isOpenFour;
                 mv.isOpenThree = IsOpenThree(copyMat(board), turn, mv.x, mv.y);
 
                 mv.valid4Enemy = false;
