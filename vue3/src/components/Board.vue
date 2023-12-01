@@ -6,6 +6,7 @@ import * as IMG from "@/assets/images"
 import { useGame, type IGameStore } from "@/store";
 import { isValidMoveFor1337Mode } from "@/gomoku/common/moveValidity"
 import makeMove from "@/gomoku/makeMove";
+const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 interface IBoardData {
     images: { [key: string]: string }
@@ -16,12 +17,13 @@ interface IBoardData {
     goldenStones: Ref<IGameStore["goldenStones"]>
     running: Ref<IGameStore["ended"]>
     mode: Ref<IGameStore["mode"]>
-    alpha: 'ABCDEFGHIJKLMNOPQRS'
+    alpha: typeof alpha
     blinks: Ref<IGameStore["blinks"]>
+    bestMoves: Ref<IGameStore["bestMoves"]>
     isValidSpot?: boolean
     isValidMoveFor1337Mode: typeof isValidMoveFor1337Mode
 }
-const alpha = 'ABCDEFGHIJKLMNOPQRS'
+
 export default {
     data(): IBoardData {
         return {
@@ -43,6 +45,7 @@ export default {
             mode: useGame((state) => state.mode),
             running: useGame((state) => !state.ended),
             blinks: useGame((state) => state.blinks),
+            bestMoves: useGame((state) => state.bestMoves),
             alpha,
             isValidMoveFor1337Mode,
         }
@@ -76,6 +79,9 @@ export default {
         isGoldenStone(x: number, y: number) {
             return this.winner && this.goldenStones?.find(p => p.x == (x) && p.y == (y))
         },
+        isBestMove(x: number, y: number) {
+            return this.bestMoves?.find(p => p.x == (x) && p.y == (y))
+        }
 
     },
     created() {
@@ -100,16 +106,13 @@ export default {
                     <div @click="(e: any) => makeMove(e, i - 1, j - 1)"
                         :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, turn, i - 1, j - 1) : true"
                         :data-is-valid-spot="isValidSpot"
-                        :class='"cross " + (blinks.find(l => l.x == i - 1 && l.y == j - 1) && "blink")'>
-                        <img :src='images.goldenStone' v-if="isGoldenStone(i - 1, j - 1)" class='golden-stone' />
+                        :class='"cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
+                        <!-- <img :src='images.goldenStone' v-if="isGoldenStone(i - 1, j - 1)" class='golden-stone' /> -->
 
-                        <template v-else>
-                            <img :src='images.blackStone' v-if="matrix[i - 1][j - 1] == 1" class='circle-black'>
-                            <img :src='images.whiteStone' v-if="matrix[i - 1][j - 1] == 2" class='circle-white' />
-                        </template>
-
+                        <img :src='images.blackStone' v-if="matrix[i - 1][j - 1] == 1" class='circle-black'>
+                        <img :src='images.whiteStone' v-if="matrix[i - 1][j - 1] == 2" class='circle-white' />
                         <img :src='images.forbiddenMark' v-if="!isValidSpot" class='golden-stone' />
-                        <img :src='images.checkMark' v-if="false" class='circle-green' />
+                        <img :src='images.checkMark' v-if="isBestMove(i - 1, j - 1)" class='circle-green' />
                         <span class="tooltiptext">{{ alpha[i - 1] }}{{ j - 1 }} ({{ i - 1 }},{{ j - 1 }})</span>
                     </div>
                 </template>
@@ -132,6 +135,10 @@ export default {
     font-size: 0px;
     /* background-image: url(src/assets/images/golden-stone.png); */
     background-repeat: repeat;
+}
+
+[class^="circle-"] {
+    pointer-events: none;
 }
 
 .cross {
@@ -210,13 +217,21 @@ export default {
 }
 
 .blink {
-    animation: blinkingBackground 1s infinite;
+    -webkit-animation: blinkingBackground 1s infinite;
+    /* Safari 4+ */
+    -moz-animation: blinkingBackground 1s infinite;
+    /* Fx 5+ */
+    -o-animation: blinkingBackground 1s infinite;
+    /* Opera 12+ */
+    animation: blinkingBackground 0.3s infinite;
+    /* IE 10+, Fx 29+ */
 }
 
 @keyframes blinkingBackground {
+
     100% {
         background-image: none;
-        background-color: rgb(1, 244, 1);
+        background-color: rgb(216, 216, 29);
     }
 }
 
