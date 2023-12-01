@@ -52,4 +52,10 @@ export function Standarize(turn: TColor, row: string) {
 
         return c
     }).join("");
+}}
+ * 
+ * @description clone the board data to avoid original state change
+ */
+export function cloneMatrix(matrix: TMtx) {
+    return matrix.map(arr => arr.slice())
 }
