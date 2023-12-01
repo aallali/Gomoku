@@ -9,6 +9,7 @@ import Players from "./components/Players.vue"
 import Stats from "./components/Stats.vue"
 import Winner from "./components/Winner.vue"
 // inline component with JSX
+// 'Droid Sans Mono', 'monospace', monospace
 const StartButton = defineComponent({
   props: {
     label: String
@@ -43,37 +44,33 @@ export default {
 
 <template>
   <div class="container">
-    <div class="grid-container" >
+    <div class="grid-container">
+
+      <!-- Board  -->
       <Grid>
         <Board />
       </Grid>
-
+      <!-- Ai analyse board -->
       <Grid>
         <AiAnalayse />
       </Grid>
-    </div>
 
-  </div>
-  <History />
-
-  <div class="container">
-
-    <div class="grid-container">
-
+      <!-- Game settings -->
       <Grid>
         <Winner />
         <Players />
         <GameMode />
       </Grid>
 
+      <!-- Players Stats -->
       <Grid>
         <Stats />
         <StartButton />
       </Grid>
 
-
-
     </div>
-
   </div>
+
+  <!-- Moves history during game -->
+  <History />
 </template>
