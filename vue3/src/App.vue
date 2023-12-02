@@ -39,38 +39,72 @@ export default {
     Winner,
   }
 }
-
 </script>
 
 <template>
-  <div class="container">
-    <div class="grid-container">
+  <div class="title-container">
+    <div class="line"/>
+    <div class="title">Gomoku (allali)</div>
+    <div class="line"/>
+  </div>
 
-      <!-- Board  -->
-      <Grid>
-        <Board />
-      </Grid>
-      <!-- Ai analyse board -->
-      <Grid>
-        <AiAnalayse />
-      </Grid>
 
-      <!-- Game settings -->
-      <Grid>
-        <Winner />
-        <Players />
-        <GameMode />
-      </Grid>
+  <div class="grid-container">
 
-      <!-- Players Stats -->
-      <Grid>
-        <Stats />
-        <StartButton />
-      </Grid>
+    <!-- Board  -->
+    <Grid>
+      <Board />
+    </Grid>
+    <!-- Ai analyse board -->
+    <Grid>
+      <AiAnalayse />
+    </Grid>
 
-    </div>
+    <!-- Game settings -->
+    <Grid>
+      <Winner />
+      <Players />
+      <GameMode />
+    </Grid>
+
+    <!-- Players Stats -->
+    <Grid>
+      <Stats />
+      <StartButton />
+    </Grid>
+
   </div>
 
   <!-- Moves history during game -->
   <History />
+  <div class="title-container">
+    <div class="line"></div>
+  </div>
 </template>
+
+<style scoped>
+.title-container {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  margin-top: 30px;
+  margin-bottom: 30px;
+
+}
+
+.line {
+  flex: 1;
+  height: 3px;
+  background-color: black;
+  border-bottom: solid 1px wheat;
+  margin: 0 10px;
+}
+
+.title {
+  font-size: 30px;
+  color: wheat;
+  white-space: nowrap;
+  padding: 0 16px;
+  /* Adjust the padding as needed */
+}
+</style>
