@@ -1,7 +1,29 @@
+<template>
+    <fieldset>
+        <div>
+            <h4 class="option-title">Black is:</h4>
+            <SwitcheButton v-bind:options="['Ai', 'Human']" :selected="players.black === 'ai' ? 'Ai' : 'Human'"
+                :onChangeHandler="(event: Event) => handleChange('b', event)" />
+        </div>
+        <hr>
+        <div>
+            <h4 class="option-title">White is:</h4>
+            <SwitcheButton v-bind:options="['Ai', 'Human']" :selected="players.white === 'ai' ? 'Ai' : 'Human'"
+                :onChangeHandler="(event: Event) => handleChange('w', event)" />
+        </div>
+    </fieldset>
+</template>
+
 <script lang="ts">
+import SwitcheButton from "./common/SwitcheButton.vue";
 import { useGame } from '@/store';
+
 const updatePlayerType = useGame((state) => state.setPlayerType)
+
 export default {
+    components: {
+        SwitcheButton
+    },
     data() {
         return {
             players: {
@@ -11,32 +33,17 @@ export default {
         }
     },
     methods: {
-        handleChange(e: Event) {
+        handleChange(player: "b" | "w", e: Event) {
             const trg = e.target as HTMLInputElement
-            updatePlayerType(trg.getAttribute('name') as "b" | "w", trg.value as "h" | "ai")
+            const playerType = trg.value as 'Ai' | 'Human'
+            updatePlayerType(player, /ai/.test(playerType) ? "ai" : "h")
         }
     },
 }
 </script>
-<template>
-    <fieldset>
-        <h4 style="margin: 0px">Players: </h4>
-        <br>
-        <div>
-            <h5 class="option-title">Black is: {{ players.black }}</h5>
-            <input type="radio" name="b" value="ai" :checked="players.black === 'ai'" v-on:change="handleChange" />
-            <label for="black_ai">Ai</label><br />
-            <input type="radio" name="b" value="human" :checked="players.black === 'h'" v-on:change="handleChange" />
-            <label for="black_human">Human</label><br />
-        </div>
-        <br>
 
-        <div style="color: white">
-            <h5 class="option-title">White is: {{ players.white }}</h5>
-            <input type="radio" name="w" value="ai" :checked="players.white === 'ai'" v-on:change="handleChange" />
-            <label for="white_ai">Ai</label><br />
-            <input type="radio" name="w" value="human" :checked="players.white === 'h'" v-on:change="handleChange" />
-            <label for="white_human">Human</label><br />
-        </div>
-    </fieldset>
-</template>
+<style scoped>
+.option-title {
+    margin-bottom: 6px;
+}
+</style>
