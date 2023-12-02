@@ -9,7 +9,6 @@ export default {
         return {
             IMG_BlackStone,
             IMG_WhiteStone,
-            movesRaw: "P0, Q1, R2, S3, A3, B2, C1, D0, A15, B16, C17, D18, S15, R16, Q17, P18, M16, L16, K16, J16, I16, H16, G16, G15, G14, J11, J10, M10, M11, M12, L12, K12, J12, I12, H12, G12, G11, G10, J6, J7, G6, G7, G8, H8, I8, J8, K8, L8, H14, M8, M7, M6, M4, L4, K4, J4, I4, H4, G4, H3, I2, K7, K8, J8, K12, J12, I12, H12, G12, G11, G10, J6, J7, G6, G7, G8, H8, I8, J8, K8, L8, H14, M8, M7, M6, M4, L4, K4, J4, I4, H4, G4, H3, I2, K7, K8, J8",
             moves: moves
         }
     },
@@ -52,10 +51,8 @@ export default {
 
 <style scoped>
 .moves_container {
-    max-width: 90%;
-    width: fit-content;
     font-size: 17px;
-    margin: 20px;
+    margin: 50px;
     background-image: url(src/assets/images/wood.jpeg);
     background-repeat: repeat;
     padding: 5px;
@@ -71,7 +68,6 @@ input {
     border: none;
     box-sizing: border-box;
 }
-
 
 button {
     width: 100%;
@@ -97,7 +93,7 @@ th,
 td {
     border: 1px solid rgb(76, 95, 114);
     /* border-collapse: collapse; */
-    border-radius: 4px;
+    border-radius: 3px;
 }
 
 td {
@@ -112,4 +108,5 @@ th {
     min-width: 50px;
     text-align: center;
 }
+
 </style>

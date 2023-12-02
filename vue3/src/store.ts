@@ -47,18 +47,19 @@ interface IGameActions {
     setWinner: (winner: IPlayerColor) => void
 
     setBlinkCapt: (captures: TPoint[]) => void
-
     setBestMoves: (bestMoves: TPoint[]) => void
+
+    resetStates: () => void
 }
 
 const initState: IGameStore = {
     matrix: [],
     moves: [],
-    boardSize: 6,
+    boardSize: 19,
     mode: '1337',
     players: {
         black: {
-            type: "ai",
+            type: "h",
             captures: 3,
             score: 0
         },
@@ -80,6 +81,7 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     setBoardSize: (size) => {
         set(() => ({ boardSize: size >= 3 && size <= 19 ? size : 19 }))
         get().initMatrix()
+        get().resetStates()
     },
     setGameMode: (mode) => set(() => ({ mode })),
     initMatrix: () => {
@@ -138,7 +140,29 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     setMoves: (moves) => set({ moves }),
     setWinner: (winner) => set({ winner }),
     setBlinkCapt: (captures) => set({ blinks: captures }),
-    setBestMoves: (bestMoves) => set({ bestMoves })
+    setBestMoves: (bestMoves) => set({ bestMoves }),
+
+    resetStates: () => set((state) => ({
+        moves: [],
+        players: {
+            black: {
+                type: 'h',
+                captures: 0,
+                score: 0
+            },
+            white: {
+                type: 'h',
+                captures: 0,
+                score: 0
+            },
+        },
+        mode: "normal",
+        winner: null,
+        goldenStones: null,
+        ended: false,
+        blinks: [],
+        bestMoves: []
+    }))
 }))
 
 useGame((state) => state.initMatrix)()
