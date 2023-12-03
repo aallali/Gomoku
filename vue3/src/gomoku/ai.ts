@@ -76,19 +76,32 @@ function EvalPiece(matrix: TMtx, x: Nb, y: Nb, player: TColor) {
  * @description return score based on total of consecutives and bounds
  */
 function GetScore(count: Nb, bound: Nb) {
-    if (count >= 4)
-        return bound > 0 ? 5000 : 10000
-
-    if (count == 3)
-        return bound > 0 ? 500 : 1000
-
-    if (count == 2)
-        return bound > 0 ? 50 : 100
-
-    if (count == 1)
-        return bound > 0 ? 5 : 200
-
-    return 0
+    let score = 0
+    if (count >= 4) {
+        if (bound > 0)
+            score += 5000;
+        else
+            score += 10000;
+    }
+    else if (count == 3) {
+        if (bound > 0)
+            score += 500;
+        else
+            score += 1000;
+    }
+    else if (count == 2) {
+        if (bound > 0)
+            score += 50;
+        else
+            score += 500;
+    }
+    else if (count == 1) {
+        if (bound > 0)
+            score += 5;
+        else
+            score += 200;
+    }
+    return score
 }
 
 /**
