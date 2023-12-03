@@ -1,7 +1,6 @@
   body {
     font-family: Ubuntu, "times new roman", times, roman, serif;
     background-color: rgb(76, 95, 114);
-
   }
 
   .headerTitle {
@@ -12,17 +11,26 @@
     margin-top: 10px;
   }
 
-  .grid-container {
-    display: inline-grid;
-    grid-template-columns: auto auto auto;
 
-    padding: 10px;
-    gap: 10px;
+  .grid-container {
+    margin-right: auto;
+    margin-left: auto;
+    justify-content: center;
+    justify-self: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
 
   }
 
   .grid {
-    border-radius: 6px;
+    min-width: 0;
+    /* To prevent overflow issues */
+    height: 100%;
+    display: table-cell;
+    /* padding: 15px; */
+    /* border: 1px solid #ccc; */
+
   }
 
   .flag {
@@ -222,10 +230,8 @@
     font-family: Ubuntu, "times new roman", times, roman, serif;
   }
 
-
   .blink_capture {
     background: yellow;
     border-radius: 20%;
-   
+
   }
- 
