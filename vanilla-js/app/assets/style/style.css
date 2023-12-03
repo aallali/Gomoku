@@ -12,17 +12,21 @@
     margin-top: 10px;
   }
 
+
   .grid-container {
-    display: inline-grid;
-    grid-template-columns: auto auto auto;
 
+    justify-self: center;
     padding: 10px;
+    display: flex;
     gap: 10px;
-
+    flex-wrap: wrap;
+    align-items: flex-start;
   }
 
   .grid {
-    border-radius: 6px;
+    min-width: 0;
+    height: 100%;
+    display: table-cell;
   }
 
   .flag {
@@ -226,6 +230,6 @@
   .blink_capture {
     background: yellow;
     border-radius: 20%;
-   
+
   }
- 
+  
