@@ -224,8 +224,8 @@ function AnalyseMoves(matrix, turn, mode) {
 
             } else {
                 const evaluation = EvalPiece(board, mv.x, mv.y, turn)
-                mv.score = evaluation.score
-                mv.isWin = evaluation.isWin
+                mv.score = eval.score
+                mv.isWin = eval.isWin
                 if (mv.isWin) {
                     mv.isBestMoveByScore = true
                     return [mv]
