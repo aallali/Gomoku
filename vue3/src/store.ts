@@ -110,6 +110,7 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         players[player === "b" ? "black" : "white"].type = type
         set({ players: { ...players } })
     },
+    //TODO: add logic
     setPlayerScore: (player, score) => set(state => ({})),
     addPlayerCapture: (turn, totalCaptures) => {
         const currentPlayer = turn == "b" ? "black" : "white"
