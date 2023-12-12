@@ -45,7 +45,7 @@ interface IGameActions {
     setMoves: (moves: string[]) => void
     setWinner: (winner: IPlayerColor) => void
 
-    setBlinkCapt: (captures: TPoint[]) => void
+    setBlinkCapt: (captures: TPoint[]) => Promise<void>
     setBestMoves: (bestMoves: TPoint[]) => void
 
     resetStates: () => void
@@ -134,9 +134,14 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     setGoldenStones: (stones) => set({ goldenStones: stones }),
     setMoves: (moves) => set({ moves }),
     setWinner: (winner) => set({ winner }),
-    setBlinkCapt: (captures) => set({ blinks: captures }),
+    setBlinkCapt: (captures): Promise<void> => {
+        set({ blinks: captures })
+        return new Promise((resolve) => setTimeout(() => {
+            set({ blinks: [] })
+            resolve()
+        }, 1000))
+    },
     setBestMoves: (bestMoves) => set({ bestMoves }),
-
     resetStates: () => set((state) => ({
         moves: [],
         players: {
