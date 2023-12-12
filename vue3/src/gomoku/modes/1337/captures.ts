@@ -1,6 +1,6 @@
-import type { Nb, TColor, TMtx, TPoint } from "../gomoku.type"
-import { MoveDirection, directions } from "./directions"
-import { ScrapDirection, Standarize, cloneMatrix } from "./shared"
+import type { Nb, TColor, TMtx, TPoint } from "../../types/gomoku.type"
+import { MoveDirection, directions } from "../../common/directions"
+import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils"
 
  
 export function IsCapture(matrix: TMtx, x: Nb, y: Nb) {
@@ -8,7 +8,7 @@ export function IsCapture(matrix: TMtx, x: Nb, y: Nb) {
     const allCaptures = [];
     for (let i = 0; i < directions.length; i++) {
         const dir = directions[i];
-        const rawPath = ScrapDirection(matrix, 0, 3, x, y, dir);
+        const rawPath = ScrapLine(matrix, 0, 3, x, y, dir);
         const path = Standarize(matrix[x][y] == 1 ? "b" : "w", rawPath);
 
         if (path == "XOOX") {

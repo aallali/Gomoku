@@ -1,4 +1,4 @@
-import type { TDirection } from "./common/directions"
+import type { TDirection } from "../common/directions"
 
 export type TMtx = (0 | 1 | 2)[][]
 export type Nb = number

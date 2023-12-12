@@ -4,7 +4,7 @@
 import { type Ref } from "vue"
 import * as IMG from "@/assets/images"
 import { useGame, type IGameStore } from "@/store";
-import { isValidMoveFor1337Mode } from "@/gomoku/common/moveValidity"
+import { isValidMoveFor1337Mode } from "@/gomoku/modes/1337/moveValidity"
 import makeMove from "@/gomoku/makeMove";
 const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 

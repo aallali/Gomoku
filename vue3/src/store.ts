@@ -1,6 +1,5 @@
 import create from "zustand-vue";
-import { check5Win } from "./gomoku/utils";
-import type { TMtx, TPoint } from "./gomoku/gomoku.type";
+import type { TMtx, TPoint } from "./gomoku/types/gomoku.type";
 import * as R from "ramda"
 
 export interface IGameStore {

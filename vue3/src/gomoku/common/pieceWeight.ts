@@ -1,13 +1,18 @@
-import { DirectionMirror, directions, MoveDirection, type TDirection } from "./common/directions";
-import { validXY } from "./common/moveValidity";
-import type { Nb, PartialBy, TColor, TMtx, TPoint, TRepport } from "./gomoku.type";
+import { validXY } from "../modes/1337/moveValidity";
+import type { TMtx, Nb, TColor, TRepport, TPoint, PartialBy } from "../types/gomoku.type";
+import { directions, type TDirection, MoveDirection, DirectionMirror } from "./directions";
 
 /**
- * 
- * @returns Return a score for given Point based on its consecutives and bounds
- * this score is helpful to know the best move in 5-In-Row-win mode
+ * Evaluates the score for a given point based on consecutives and bounds.
+ * The score helps determine the best move in a 5-In-Row-win mode.
+ *
+ * @param matrix - The game matrix.
+ * @param x - The x-coordinate of the point.
+ * @param y - The y-coordinate of the point.
+ * @param player - The player color ('b' or 'w').
+ * @returns A repport object containing the score and additional information.
  */
-function EvalPiece(matrix: TMtx, x: Nb, y: Nb, player: TColor) {
+export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, player: TColor) {
     const turn = player == "b" ? 1 : 2
     const size = matrix.length;
     const repport = { score: 0 } as TRepport
@@ -76,9 +81,23 @@ function EvalPiece(matrix: TMtx, x: Nb, y: Nb, player: TColor) {
 }
 
 /**
- * @description return score based on total of consecutives and bounds
+ * Calculates the score based on the number of consecutive pieces and bounds.
+ *
+ * @param {number} count - The number of consecutive pieces (1 to 4).
+ * @param {number} bound - The number of bounds (0 or 1).
+ * @returns {number} The calculated score.
+ * 
+ * @example
+ * // Example 1: Calculate score for 3 consecutive pieces with 1 bound.
+ * const scoreExample1 = GetScore(3, 1);
+ * console.log(scoreExample1); // Output: 500
+ * 
+ * @example
+ * // Example 2: Calculate score for 2 consecutive pieces with no bounds.
+ * const scoreExample2 = GetScore(2, 0);
+ * console.log(scoreExample2); // Output: 500
  */
-function GetScore(count: Nb, bound: Nb) {
+function GetScore(count: Nb, bound: Nb): number {
     let score = 0
     if (count >= 4) {
         if (bound > 0)
@@ -105,40 +124,4 @@ function GetScore(count: Nb, bound: Nb) {
             score += 200;
     }
     return score
-}
-
-/**
- * @description get best move by score for normal mode (5 in row win)
- */
-export function BestMove_NormalMode(matrix: TMtx, player: TColor, validMoves: TPoint[]) {
-    const opponent = player == "b" ? "w" : "b"
-    const myBestMove = {} as TPoint
-    const enemyBestMove = {} as TPoint
-
-    myBestMove.score = -1;
-    enemyBestMove.score = -1
-
-    for (let i = 0; i < validMoves.length; i++) {
-        const { x, y } = validMoves[i];
-
-        const offensiveMove = EvalPiece(matrix, x, y, player);
-        const deffensiveMove = EvalPiece(matrix, x, y, opponent);
-
-        if (offensiveMove.isWin)
-            return { x, y, score: offensiveMove.score }
-
-        if (offensiveMove.score > myBestMove.score) {
-            myBestMove.x = x
-            myBestMove.y = y
-            myBestMove.score = offensiveMove.score
-        }
-
-        if (deffensiveMove.score > enemyBestMove.score) {
-            enemyBestMove.x = x
-            enemyBestMove.y = y
-            enemyBestMove.score = deffensiveMove.score
-        }
-    }
-
-    return myBestMove.score >= enemyBestMove.score ? myBestMove : enemyBestMove
 }

@@ -10,7 +10,9 @@ lerna-debug.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-/.changelog
+.changelog
 .npm/
 package-lock.json
 yarn.lock
+.npmrc
+pnpm-lock.yaml
