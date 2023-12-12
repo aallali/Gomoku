@@ -113,10 +113,6 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     setPlayerScore: (player, score) => set(state => ({})),
     addPlayerCapture: (turn, totalCaptures) => {
         const currentPlayer = turn == "b" ? "black" : "white"
-        // console.log(R.over(R.lensPath(["players", currentPlayer, "captures"])))
-        // const players = get().players
-        // players[currentPlayer].captures += totalCaptures
-        // set({ players: JSON.parse(JSON.stringify(players)) })
         set(R.over(R.lensPath(["players", currentPlayer, "captures"]), (c) => c + totalCaptures))
     },
     setTurn: (player) => set({ turn: player }),
@@ -130,7 +126,6 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         set({ matrix: [...matrix] })
         const addPlayerCapture = useGame((state) => state.addPlayerCapture)
         addPlayerCapture(get().turn, Math.ceil((captures.length / 2)))
-        // console.log(get().players[get().turn == "b" ? "black" : "white"])
         return get().players[get().turn == "b" ? "black" : "white"].captures
     },
 
