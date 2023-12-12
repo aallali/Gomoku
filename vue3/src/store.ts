@@ -1,6 +1,5 @@
 import create from "zustand-vue";
-import { check5Win } from "./gomoku/utils";
-import type { TMtx, TPoint } from "./gomoku/gomoku.type";
+import type { TMtx, TPoint } from "./gomoku/types/gomoku.type";
 import * as R from "ramda"
 
 export interface IGameStore {
@@ -46,7 +45,7 @@ interface IGameActions {
     setMoves: (moves: string[]) => void
     setWinner: (winner: IPlayerColor) => void
 
-    setBlinkCapt: (captures: TPoint[]) => void
+    setBlinkCapt: (captures: TPoint[]) => Promise<void>
     setBestMoves: (bestMoves: TPoint[]) => void
 
     resetStates: () => void
@@ -111,13 +110,10 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         players[player === "b" ? "black" : "white"].type = type
         set({ players: { ...players } })
     },
+    //TODO: add logic
     setPlayerScore: (player, score) => set(state => ({})),
     addPlayerCapture: (turn, totalCaptures) => {
         const currentPlayer = turn == "b" ? "black" : "white"
-        // console.log(R.over(R.lensPath(["players", currentPlayer, "captures"])))
-        // const players = get().players
-        // players[currentPlayer].captures += totalCaptures
-        // set({ players: JSON.parse(JSON.stringify(players)) })
         set(R.over(R.lensPath(["players", currentPlayer, "captures"]), (c) => c + totalCaptures))
     },
     setTurn: (player) => set({ turn: player }),
@@ -131,7 +127,6 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         set({ matrix: [...matrix] })
         const addPlayerCapture = useGame((state) => state.addPlayerCapture)
         addPlayerCapture(get().turn, Math.ceil((captures.length / 2)))
-        // console.log(get().players[get().turn == "b" ? "black" : "white"])
         return get().players[get().turn == "b" ? "black" : "white"].captures
     },
 
@@ -139,9 +134,14 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     setGoldenStones: (stones) => set({ goldenStones: stones }),
     setMoves: (moves) => set({ moves }),
     setWinner: (winner) => set({ winner }),
-    setBlinkCapt: (captures) => set({ blinks: captures }),
+    setBlinkCapt: (captures): Promise<void> => {
+        set({ blinks: captures })
+        return new Promise((resolve) => setTimeout(() => {
+            set({ blinks: [] })
+            resolve()
+        }, 1000))
+    },
     setBestMoves: (bestMoves) => set({ bestMoves }),
-
     resetStates: () => set((state) => ({
         moves: [],
         players: {

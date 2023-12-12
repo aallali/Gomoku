@@ -1,6 +1,6 @@
-import type { Nb } from "../gomoku.type";
+import type { Nb } from "../types/gomoku.type";
 
-export const DirectionMirror = {
+const DirectionMirrorTemplate = {
     "top": "bot",
     "diagTopRight": "diagBotLeft",
     "right": "left",
@@ -11,29 +11,50 @@ export const DirectionMirror = {
     "left": "right",
     "diagTopLeft": "diagBotRight",
     "diagBotLeft": "diagTopRight"
-}
-export const directions = Object.keys(DirectionMirror) as TDirection[]
-export type TDirection = keyof typeof DirectionMirror;
+};
 
+export const directions = Object.keys(DirectionMirrorTemplate) as TDirection[];
+
+export type TDirection = keyof typeof DirectionMirrorTemplate;
+
+
+export const DirectionMirror = DirectionMirrorTemplate as { [key in TDirection]: TDirection }
+/**
+ * Moves in a specified direction from the given coordinates.
+ *
+ * @param dir - The direction to move.
+ * @param x - The current x-coordinate.
+ * @param y - The current y-coordinate.
+ * @returns New coordinates after moving in the specified direction.
+ */
 export function MoveDirection(dir: TDirection, x: Nb, y: Nb) {
     switch (dir) {
         case "right":
-            return { x, y: y + 1 }
+            // Move to the right by increasing the y-coordinate
+            return { x, y: y + 1 };
         case "left":
-            return { x, y: y - 1 }
+            // Move to the left by decreasing the y-coordinate
+            return { x, y: y - 1 };
         case "top":
-            return { x: x - 1, y }
+            // Move to the top by decreasing the x-coordinate
+            return { x: x - 1, y };
         case "bot":
-            return { x: x + 1, y }
+            // Move to the bottom by increasing the x-coordinate
+            return { x: x + 1, y };
         case "diagTopRight":
-            return { x: x - 1, y: y + 1 }
+            // Move diagonally to the top-right
+            return { x: x - 1, y: y + 1 };
         case "diagTopLeft":
-            return { x: x - 1, y: y - 1 }
+            // Move diagonally to the top-left
+            return { x: x - 1, y: y - 1 };
         case "diagBotRight":
-            return { x: x + 1, y: y + 1 }
+            // Move diagonally to the bottom-right
+            return { x: x + 1, y: y + 1 };
         case "diagBotLeft":
-            return { x: x + 1, y: y - 1 }
+            // Move diagonally to the bottom-left
+            return { x: x + 1, y: y - 1 };
         default:
-            return { x, y }
+            // No valid direction specified, stay in the current position
+            return { x, y };
     }
 }
