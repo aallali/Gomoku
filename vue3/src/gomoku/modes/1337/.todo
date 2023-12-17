@@ -1,0 +1,35 @@
+- [ ] extract all priority moves
+    - [x] setup capture 
+    - [x] will be captured 
+    - [x] block capture
+    - move will make another spot forbidden for enemy
+    - [x] free three
+    - [x] free four
+    - [x] block free there
+    - [x] block free four
+    - [x] aligned with another peer piece
+    - win move (5 in row)
+    - win move (5th capture)
+
+- [] give each move a score based on their priority
+- [] sort all the previous moves by priority
+
+- create a limited in depth Mini-Max to sort the top 3 moves + the multiple move
+
+
+
+Orders of moves that i would play in real life:
+
+- 5th capture
+- non brekable 5 in row
+
+- block 5th capture of enemy
+- block 5 in row of enemy 
+
+- open four
+- block open four
+
+- capture
+- block capture
+
+- setup capture
