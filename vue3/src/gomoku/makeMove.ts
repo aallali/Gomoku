@@ -3,11 +3,13 @@ import { check5Win } from "./modes/normal/mode-normal";
 import { findValidSpots } from "./modes/1337/moveValidity";
 import { IsCapture, extractCaptures, isLineBreakableByAnyCapture } from "./modes/1337/captures";
 import { BestMove_NormalMode } from "./modes/normal/mode-normal";
+import type { P } from "./types/gomoku.type";
+import { whatIsTheBestMove } from "./modes/1337/bestmove";
 
 export default async function makeMove(x: number, y: number) {
     // call methods from the store
     const {
-        matrix, turn, mode,
+        matrix, turn, mode, players,
         fillCell, setWinner, endTheGame, applyCaptures,
         setTurn,
         setGoldenStones,
@@ -19,6 +21,8 @@ export default async function makeMove(x: number, y: number) {
     // declare the appropriate color for each player
     const otherPlayer = turn == 'b' ? 'w' : 'b'
     const cellValue = turn == "b" ? 1 : 2
+    let totalCaptures = players[cellValue === 1 ? "black" : "white"].captures
+    let totalCapturesOpponent = players[cellValue === 2 ? "black" : "white"].captures
 
     // fill the target cell first
     fillCell(x, y)
@@ -28,7 +32,7 @@ export default async function makeMove(x: number, y: number) {
 
 
     // collect captures if any (in '1337' moed only)
-    let totalCaptures = 0
+
     if (mode === "1337") {
         const captures = IsCapture(matrix, x, y)
         if (captures) {
@@ -38,9 +42,9 @@ export default async function makeMove(x: number, y: number) {
     }
     // before declare a win by 5 in row, we have to check that enemy have no capture move that collects one of pieces forming the win row
     // - extract all oponent's valid moves
-    const oponentValidMoves = findValidSpots(matrix, otherPlayer, mode)
+    const oponentValidMoves = findValidSpots(matrix, cellValue, mode)
     // - extract all possible  oponnent's captures moves  if any
-    const capturesOfEnemy = extractCaptures(matrix, oponentValidMoves, otherPlayer)
+    const capturesOfEnemy = extractCaptures(matrix, oponentValidMoves, cellValue)
     // - check breakable line only if captures mode is activated + if there is a win stones row.
     const breakableRow = winStones && mode == "1337" && isLineBreakableByAnyCapture(capturesOfEnemy, winStones)
     const isWinBy5 = winStones && !breakableRow
@@ -65,7 +69,17 @@ export default async function makeMove(x: number, y: number) {
         // set the move and go next turn
     } else {
         setTurn(otherPlayer)
-        const bestMove = BestMove_NormalMode(matrix, otherPlayer, oponentValidMoves)
-        setBestMoves([bestMove])
+        // const bestMove = BestMove_NormalMode(matrix, 3 - cellValue as P, oponentValidMoves)
+        // setBestMoves([bestMove])
+
+        if (3 - cellValue === 2) {
+            console.time("BestMoveExecutionTime:")
+            setBestMoves([whatIsTheBestMove(matrix, 3 - cellValue as P, totalCaptures, totalCapturesOpponent)])
+            console.timeEnd("BestMoveExecutionTime:")
+        } else { setBestMoves([]) }
     }
 }
+
+
+// to fix:
+// J8,I7,I9,K7,H10,J7,H7,I6,I5,I8,H9,G9,K6
