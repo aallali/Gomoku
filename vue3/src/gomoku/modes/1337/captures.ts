@@ -1,15 +1,15 @@
-import type { Nb, TColor, TMtx, TPoint } from "../../types/gomoku.type"
+import type { Nb, P, TColor, TMtx, TPoint } from "../../types/gomoku.type"
 import { MoveDirection, directions } from "../../common/directions"
 import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils"
 
- 
+
 export function IsCapture(matrix: TMtx, x: Nb, y: Nb) {
 
     const allCaptures = [];
     for (let i = 0; i < directions.length; i++) {
         const dir = directions[i];
         const rawPath = ScrapLine(matrix, 0, 3, x, y, dir);
-        const path = Standarize(matrix[x][y] == 1 ? "b" : "w", rawPath);
+        const path = Standarize(matrix[x][y] as P, rawPath);
 
         if (path == "XOOX") {
             let coord = MoveDirection(dir, x, y);
@@ -25,12 +25,12 @@ export function IsCapture(matrix: TMtx, x: Nb, y: Nb) {
  * 
  * @description loop through all valid spots for given player and get available captures for him.
  */
-export function extractCaptures(matrix: TMtx, moves: TPoint[], player: TColor): TPoint[][] {
+export function extractCaptures(matrix: TMtx, moves: TPoint[], player: P): TPoint[][] {
     const cloneMtx = cloneMatrix(matrix)
     return moves.map(move => {
         const { x, y } = move
 
-        cloneMtx[x][y] = player == "b" ? 1 : 2
+        cloneMtx[x][y] = player
         const capts = IsCapture(cloneMtx, move.x, move.y)
         cloneMtx[x][y] = 0
 
