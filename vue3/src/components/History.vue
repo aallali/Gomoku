@@ -12,10 +12,20 @@ export default {
             moves: moves
         }
     },
-    created() {
-        // this.moves = this.movesRaw.match(/([A-S][0-9]{1,2})/g) || []
-    },
+    methods: {
+        async copyToClipboard(txt2Cpy: string) {
+            try {
+                await navigator.clipboard.writeText(txt2Cpy);
+                alert('Text successfully copied to clipboard');
+            } catch (error: any) {
+
+                console.error('Unable to copy text to clipboard', error);
+                alert('Unable to copy text to clipboard: ' + error.message)
+            }
+        }
+    }
 }
+
 </script>
 <template>
     <div class="moves_container" v-if="moves.length">
@@ -27,19 +37,21 @@ export default {
                     <td v-for="(_move, idx) in moves?.filter((_l, i) => i % 2 == 0)" :key="idx">{{ idx + 1 }}</td>
                 </tr>
                 <tr>
-                    <th rowspan="2" style="border: none;"><button class="btn-copy">Copy</button></th>
-                    <th style=""> <img :src='IMG_BlackStone' class='circle-black'></th>
+                    <th rowspan="2" style="border: none;"><button class="btn-copy"
+                            @click="copyToClipboard(moves.join(','))">Copy</button></th>
+                    <th style=""> <img :src='IMG_BlackStone' class='circle-black' style="width: 20px;"></th>
                     <td v-for="move in moves?.filter((_l, i) => i % 2 == 0)" :key="move">{{ move }}</td>
                 </tr>
 
                 <tr>
-                    <th style=""><img :src='IMG_WhiteStone' class='circle-white'></th>
+                    <th style=""><img :src='IMG_WhiteStone' class='circle-white' style="width: 20px;"></th>
                     <td v-for="move in moves?.filter((_l, i) => i % 2 != 0)" :key="move">{{ move }}</td>
                 </tr>
                 <tr>
-                    <th rowspan="2" style="border: none;"><button>Import</button></th>
+                    <th rowspan="2" style="border: none;"><button onclick="alert('Method not yet defined')">Import</button>
+                    </th>
                     <td :colspan="(moves?.length || 0) + 1" style="padding:1px;">
-                        <input type="text">
+                        <input type="text" :value="moves.join(',')">
                     </td>
                 </tr>
 
@@ -97,7 +109,7 @@ td {
 }
 
 td {
-    width: 35px;
+    /* width: 30px; */
     text-align: center;
     font-weight: bold;
     min-width: 50px;
@@ -105,8 +117,6 @@ td {
 }
 
 th {
-    min-width: 50px;
     text-align: center;
 }
-
 </style>
