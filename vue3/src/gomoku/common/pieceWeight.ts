@@ -1,5 +1,5 @@
 import { validXY } from "../modes/1337/moveValidity";
-import type { TMtx, Nb, TColor, TRepport, TPoint, PartialBy } from "../types/gomoku.type";
+import type { TMtx, Nb, TColor, TRepport, TPoint, PartialBy, P } from "../types/gomoku.type";
 import { directions, type TDirection, MoveDirection, DirectionMirror } from "./directions";
 
 /**
@@ -12,8 +12,7 @@ import { directions, type TDirection, MoveDirection, DirectionMirror } from "./d
  * @param player - The player color ('b' or 'w').
  * @returns A repport object containing the score and additional information.
  */
-export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, player: TColor) {
-    const turn = player == "b" ? 1 : 2
+export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, turn: P) {
     const size = matrix.length;
     const repport = { score: 0 } as TRepport
 
@@ -42,6 +41,7 @@ export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, player: TColor) {
             }
 
             repport.directions[dir].consecutives++;
+ 
             coord = MoveDirection(dir, coord.x, coord.y)
         }
 
@@ -64,14 +64,18 @@ export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, player: TColor) {
         }
         const consecutives = repport.directions[dir].consecutives;
         const bounds = repport.directions[dir].bounds;
-
+ 
         if (consecutives >= 4) {
             repport.isWin = true;
             repport.score = 111110 /* 10 000*/
             break
         }
-        if (consecutives >= 3 && bounds == 0)
-            repport.isOpenFour = true;
+        if (bounds == 0) {
+            if (consecutives >= 3)
+                repport.isOpenFour = true;
+            else if (consecutives >= 2)
+                repport.isOpenThree = true
+        }
 
         repport.score += GetScore(consecutives, bounds);
     }
