@@ -6,6 +6,8 @@ import * as IMG from "@/assets/images"
 import { useGame, type IGameStore } from "@/store";
 import { isValidMoveFor1337Mode } from "@/gomoku/modes/1337/moveValidity"
 import makeMove from "@/gomoku/makeMove";
+import { MoveRepport } from "@/gomoku/modes/1337/prior_moves";
+import type { TPoint } from "@/gomoku/types/gomoku.type";
 const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 interface IBoardData {
@@ -81,8 +83,38 @@ export default {
         },
         isBestMove(x: number, y: number) {
             return this.bestMoves?.find(p => p.x == (x) && p.y == (y))
-        }
+        },
+        showSates({ x, y }: TPoint) {
+            const mvr = new MoveRepport()
+            mvr.setMatrix(this.matrix)
+            mvr.setPoint({ x, y })
+            mvr.setTurn(this.turn === "b" ? 1 : 2)
+            const analyse = mvr.repport()
+            function formatAsTable(lines: string[][]): string {
+                // Find the length of the longest label
+                const maxLabelLength = lines.reduce((max, line) => {
 
+                    return Math.max(max, line[0].trim().length);
+                }, 0);
+
+                const formattedLines = lines.map((line) => {
+                    const [label, value] = [line[0], line[1]]
+                    const paddedLabel = label.trim().padEnd(maxLabelLength + 1);
+                    return `${paddedLabel}: ${value.trim()}`
+                });
+
+                return formattedLines.join('\n');
+            }
+
+            useGame.getState().setAnalyse(formatAsTable(analyse))
+        },
+        isNearBy({ x, y }: TPoint) {
+            const mvr = new MoveRepport()
+            mvr.setMatrix(this.matrix)
+            mvr.setPoint({ x, y })
+            mvr.setTurn(this.turn === "b" ? 1 : 2)
+            return mvr.isNearBy()
+        }
     },
     created() {
     }
@@ -101,18 +133,21 @@ export default {
                     <div v-else-if="i == 0 && j <= boardSize" class='slug margin-bottom'>{{ j - 1 }}</div>
                     <div v-else></div>
                 </template>
-
+                <!-- (turn === "b" ? 1 : 2) -->
                 <template v-else-if="matrix[i - 1]?.[j - 1] !== undefined">
-                    <div @click="(e: any) => makeMove(e, i - 1, j - 1)"
-                        :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, turn, i - 1, j - 1) : true"
+                    <div @click="(e: any) => makeMove(e, i - 1, j - 1)" @mouseover="() => showSates({ x: i - 1, y: j - 1 })"
+                        :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, (turn === 'b' ? 1 : 2), i - 1, j - 1) : true"
                         :data-is-valid-spot="isValidSpot"
                         :class='"cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
                         <!-- <img :src='images.goldenStone' v-if="isGoldenStone(i - 1, j - 1)" class='golden-stone' /> -->
 
                         <img :src='images.blackStone' v-if="matrix[i - 1][j - 1] == 1" class='circle-black'>
+
                         <img :src='images.whiteStone' v-if="matrix[i - 1][j - 1] == 2" class='circle-white' />
                         <img :src='images.forbiddenMark' v-if="!isValidSpot" class='golden-stone' />
                         <img :src='images.checkMark' v-if="isBestMove(i - 1, j - 1)" class='circle-green' />
+                        <img v-else-if="matrix[i - 1][j - 1] === 0 && isNearBy({ x: i - 1, y: j - 1 })" class='circle-black'
+                            src="https://clipart-library.com/img1/1036545.png" alt="" style="width:7px;margin-bottom: 5px;">
                         <span class="tooltiptext">{{ alpha[i - 1] }}{{ j - 1 }} ({{ i - 1 }},{{ j - 1 }})</span>
                     </div>
                 </template>
