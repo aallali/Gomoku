@@ -97,31 +97,23 @@ function isDoubleFreeThree(matrix: TMtx, turn: TColor, x: Nb, y: Nb): boolean {
  *   - Valid spots are added to the result array.
  * 
  */
-export function findValidSpots(matrix: TMtx, turn: TColor, mode: TMode): TPoint[] {
+export function findValidSpots(matrix: TMtx, turn: P, mode: TMode): TPoint[] {
     const cells: { x: Nb, y: Nb }[] = [];
     const boardSize = matrix.length
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
 
             if (matrix[i][j] == 0) {
-
-                for (let k = 0; k < directions.length; k++) {
-                    const dir = directions[k];
-                    let coord = MoveDirection(dir, i, j);
-
-                    if (validXY(boardSize, coord.x, coord.y) && matrix[coord.x][coord.y] != 0) {
-                        let valid = true
-
-                        if (mode == "1337")
-                            if (!(isValidMoveFor1337Mode(matrix, turn, i, j)))
-                                valid = false
-                        if (valid)
-                            cells.push({ x: i, y: j })
-                        break
-                    }
+                if (validXY(boardSize, i, j) && matrix[i][j] === 0) {
+                    let valid = true
+                    if (mode == "1337")
+                        if (!(isValidMoveFor1337Mode(matrix, turn, i, j)))
+                            valid = false
+                    if (valid)
+                        cells.push({ x: i, y: j })
                 }
             }
-        }
-    }
+        } // J / column loop
+    } // I / row loop
     return cells
 }
