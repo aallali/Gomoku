@@ -4,10 +4,6 @@ import type { TMtx, Nb, P, TColor, TPoint } from "../../types/gomoku.type";
 import { EvalPiece } from "@/gomoku/common/pieceWeight";
 
 
-export function isDoubleFreeThree() {
-
-}
-
 /**
  * Checks if the current move results in a win with 5 in a row for the given player.
  * Returns the array of stones forming the winning sequence, or undefined if no win.
@@ -25,7 +21,7 @@ export function check5Win(matrix: TMtx, player: P, x: Nb, y: Nb) {
     // Iterate over each direction
     for (const dir of allDirs) {
         // Check for a winning sequence in the current direction
-        const goldenStones = checkDirection(matrix, player, x, y, dir);
+        const goldenStones = checkWinInDirection(matrix, player, x, y, dir);
 
         // If a winning sequence is found and it's long enough
         if (goldenStones && goldenStones.length >= 4) {
@@ -52,7 +48,7 @@ export function check5Win(matrix: TMtx, player: P, x: Nb, y: Nb) {
  * @param dir - The direction to check.
  * @returns The array of stones forming the winning sequence, or undefined if no win in this direction.
  */
-function checkDirection(matrix: TMtx, player: P, x: Nb, y: Nb, dir: TDirection) {
+function checkWinInDirection(matrix: TMtx, player: P, x: Nb, y: Nb, dir: TDirection) {
     // Get the mirror direction for symmetry
     const mirrorDir = DirectionMirror[dir] as TDirection;
     // Array to store stones forming the winning sequence
@@ -84,20 +80,22 @@ function checkDirection(matrix: TMtx, player: P, x: Nb, y: Nb, dir: TDirection) 
  * @param validMoves - Array of valid moves to evaluate.
  * @returns The best move with its score.
  */
-export function BestMove_NormalMode(matrix: TMtx, player: TColor, validMoves: TPoint[]): TPoint {
+export function BestMove_NormalMode(matrix: TMtx, turn: P, validMoves: TPoint[]): TPoint {
     // Determine the opponent's color
-    const opponent = player === "b" ? "w" : "b";
+    const opponent = (3 - turn) as P
 
     // Initialize objects to store the best moves for the player and the opponent
     let myBestMove = { x: -1, y: -1, score: -1 };
     let enemyBestMove = { x: -1, y: -1, score: -1 };
 
+    let allScores = []
+
     // Iterate through the valid moves to evaluate
     for (const { x, y } of validMoves) {
         // Evaluate the move for the current player and the opponent
-        const offensiveMove = EvalPiece(matrix, x, y, player);
+        const offensiveMove = EvalPiece(matrix, x, y, turn);
         const defensiveMove = EvalPiece(matrix, x, y, opponent);
-
+        allScores.push({ x, y, s: offensiveMove.score, os: defensiveMove.score })
         // Update the best move for the current player if the current move has a higher score
         if (offensiveMove.score > myBestMove.score) {
             myBestMove = { x, y, score: offensiveMove.score };
@@ -113,7 +111,20 @@ export function BestMove_NormalMode(matrix: TMtx, player: TColor, validMoves: TP
             return myBestMove;
         }
     }
+ 
 
+    if (myBestMove.score >= enemyBestMove.score) {
+        return myBestMove
+    } else {
+        const customSort = allScores.filter(l => l.os === enemyBestMove.score).sort((a, b) => {
+            if (a.s > b.s) return -1
+            if (a.s < b.s) return 1
+            if (a.os > b.os) return -1
+            if (b.os > a.os) return 1
+            return 0
+        })
+        return customSort[0]
+    }
     // Return the best move, preferring the current player's move if the scores are equal
-    return myBestMove.score >= enemyBestMove.score ? myBestMove : enemyBestMove
+    // return myBestMove.score >= enemyBestMove.score ? myBestMove : enemyBestMove
 }
