@@ -41,7 +41,7 @@ export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, turn: P) {
             }
 
             repport.directions[dir].consecutives++;
- 
+
             coord = MoveDirection(dir, coord.x, coord.y)
         }
 
@@ -64,17 +64,22 @@ export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, turn: P) {
         }
         const consecutives = repport.directions[dir].consecutives;
         const bounds = repport.directions[dir].bounds;
- 
+
         if (consecutives >= 4) {
             repport.isWin = true;
             repport.score = 111110 /* 10 000*/
             break
         }
+
         if (bounds == 0) {
             if (consecutives >= 3)
                 repport.isOpenFour = true;
             else if (consecutives >= 2)
                 repport.isOpenThree = true
+        } else {
+            if (consecutives >= 3) {
+                repport.isBounded4 = true
+            }
         }
 
         repport.score += GetScore(consecutives, bounds);
