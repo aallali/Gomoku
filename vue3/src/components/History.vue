@@ -65,7 +65,7 @@ export default {
 .moves_container {
     font-size: 17px;
     margin: 50px;
-    background-image: url(src/assets/images/wood.jpeg);
+    background-image: url(@/assets/images/wood.jpeg);
     background-repeat: repeat;
     padding: 5px;
     border-radius: 5px;
