@@ -27,6 +27,7 @@ interface IBoardData {
     mvr: MoveRepport
 }
 
+
 export default {
     data(): IBoardData {
         return {
@@ -38,7 +39,8 @@ export default {
                 checkMark: IMG.CheckMark,
                 blackStone: IMG.BlackStone,
                 greenCircle: IMG.GreenCircle,
-                forbiddenMark: IMG.Forbidden
+                forbiddenMark: IMG.Forbidden,
+                lowCheckmark: IMG.CheckMarkLow
             },
             boardSize: useGame((state) => state.boardSize),
             matrix: useGame((state) => state.matrix),
@@ -53,12 +55,6 @@ export default {
             isValidMoveFor1337Mode,
             mvr: new MoveRepport()
         }
-    },
-
-    watch: {
-        running: function (val) {
-            // console.log(this.running, val)
-        },
     },
     methods: {
         isBoardCorner(i: number, j: number) {
@@ -111,11 +107,11 @@ export default {
             useGame.getState().setAnalyse(formatAsTable(analyse))
         },
         isNearBy({ x, y }: TPoint) {
+            if (this.matrix[x][y] !== 0)
+                return false
             return this.mvr.isNearBy(this.matrix, { x, y })
         }
     },
-    created() {
-    }
 }
 </script>
 
@@ -131,22 +127,22 @@ export default {
                     <div v-else-if="i == 0 && j <= boardSize" class='slug margin-bottom'>{{ j - 1 }}</div>
                     <div v-else></div>
                 </template>
-                <!-- (turn === "b" ? 1 : 2) -->
+
                 <template v-else-if="matrix[i - 1]?.[j - 1] !== undefined">
                     <div @click="(e: any) => makeMove(e, i - 1, j - 1)" @mouseover="() => showSates({ x: i - 1, y: j - 1 })"
                         :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, (turn === 'b' ? 1 : 2), i - 1, j - 1) : true"
                         :data-is-valid-spot="isValidSpot"
                         :class='"cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
-                        <!-- <img :src='images.goldenStone' v-if="isGoldenStone(i - 1, j - 1)" class='golden-stone' /> -->
 
-                        <img :src='images.blackStone' v-if="matrix[i - 1][j - 1] == 1" class='circle-black'>
+                        <div v-if="matrix[i - 1][j - 1] == 1" class="piece-black-flat" />
+                        <div v-if="matrix[i - 1][j - 1] == 2" class="piece-white-flat" />
+                        <div v-if="!isValidSpot" class="forbidden-sign" />
+                        <img v-if="isBestMove(i - 1, j - 1)" :src='images.lowCheckmark' class='circle-green' />
 
-                        <img :src='images.whiteStone' v-if="matrix[i - 1][j - 1] == 2" class='circle-white' />
-                        <img :src='images.forbiddenMark' v-if="!isValidSpot" class='golden-stone' />
-                        <img :src='images.checkMark' v-if="isBestMove(i - 1, j - 1)" class='circle-green' />
-                        <img v-else-if="matrix[i - 1][j - 1] === 0 && isNearBy({ x: i - 1, y: j - 1 })" class='circle-black'
-                            src="https://clipart-library.com/img1/1036545.png" alt="" style="width:7px;margin-bottom: 5px;">
-                        <span class="tooltiptext">{{ alpha[i - 1] }}{{ j - 1 }} ({{ i - 1 }},{{ j - 1 }})</span>
+                        <div v-else-if="isNearBy({ x: i - 1, y: j - 1 })" class="nearby-dot" />
+                        <span class="tooltiptext">
+                            {{ alpha[i - 1] }}{{ j - 1 }} ({{ i - 1 }},{{ j - 1 }})
+                        </span>
                     </div>
                 </template>
             </template>
@@ -284,5 +280,75 @@ export default {
 
 .margin-bottom {
     margin-bottom: 4px;
+}
+
+
+
+.piece-black-flat,
+.piece-white-flat {
+    position: relative;
+    border-radius: 50%;
+    width: 90%;
+    height: 90%;
+    margin: auto;
+}
+
+.piece-black-flat::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: inherit;
+    background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.piece-black-flat {
+    background-color: black;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.piece-white-flat {
+    background-color: white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    border: 0px solid #000000;
+}
+
+.nearby-dot {
+    position: relative;
+    border-radius: 50%;
+    width: 20%;
+    height: 20%;
+    margin: auto;
+    background-color: rgb(76, 95, 114);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.forbidden-sign {
+    position: relative;
+    height: 100%;
+    height: 100%;
+}
+
+.forbidden-sign::before,
+.forbidden-sign::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 3px;
+    background-color: red;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.forbidden-sign::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.forbidden-sign::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
 }
 </style>
