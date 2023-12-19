@@ -24,6 +24,7 @@ interface IBoardData {
     bestMoves: Ref<IGameStore["bestMoves"]>
     isValidSpot?: boolean
     isValidMoveFor1337Mode: typeof isValidMoveFor1337Mode
+    mvr: MoveRepport
 }
 
 export default {
@@ -50,6 +51,7 @@ export default {
             bestMoves: useGame((state) => state.bestMoves),
             alpha,
             isValidMoveFor1337Mode,
+            mvr: new MoveRepport()
         }
     },
 
@@ -109,11 +111,7 @@ export default {
             useGame.getState().setAnalyse(formatAsTable(analyse))
         },
         isNearBy({ x, y }: TPoint) {
-            const mvr = new MoveRepport()
-            mvr.setMatrix(this.matrix)
-            mvr.setPoint({ x, y })
-            mvr.setTurn(this.turn === "b" ? 1 : 2)
-            return mvr.isNearBy()
+            return this.mvr.isNearBy(this.matrix, { x, y })
         }
     },
     created() {
