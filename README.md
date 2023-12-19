@@ -2,16 +2,38 @@
 This project involves creating, in the language of your choice, a Gomoku game integrating an AI player capable of beating a human player the fastest way possible. To do this, you will implement a min-max algorithm but also do research, trial and error to find the most adapted heuristics. This will not be as easy as checkers. 
 
 ---
-**30/06/2023 (second day of AÏD AL ADHAA):**
 
-I started this project 1 years ago (Mars, 2022 i think) as a school project, started it as a simple react app, tried to implement the solver inside, been running through performance issues ofc (you can't apply hardcore MiniMax in the browser hhhh 😆 ), Well, I worked on it for a month or 2, then put it on hold, since no solution was clear then, 
+### update 17/12/2023 :
+- Migrated the app to TypeScript/Vue 3.
+- Still under construction 🚧 (60% of the work done).
+- Optimization is progressing well so far, but there's room for more improvement.
+- Wrote a move sorting algorithm based on properties calculated from the `MoveReport` class, such as `capture, block capture, open 4, block 3, alignment with other peers,... etc`. (still needs improvement).
 
-Lately, I came back to the project again, this time writing the solver engine with GO language, for its speed, (and it was), applied many algorithms and strategies, learned a lot actually, but the results wasn't as expected, since the Algorithm have to find the best move in under half of a second, and my code wasn't well organized, so i gave up on it, but
+- live here : https://gomoku.allali.me/
+- Ai Analayse text area currentl contains only basic details. (will be updated)
+- TODO:
+    - Include a scenario where:
+        - There are three pieces in a row.
+        - The fourth position is a forbidden cell for the opponent.
+        - Place the fourth piece/move in the fifth position, which may be allowed for the opponent.
+        - By doing so, we are one move away from achieving a five-in-a-row win, and the opponent cannot prevent it.
+    - Implement limited-depth Minimax to check for any potential unhandled cases.
 
-I learned a lot about a method called NES (Natural Evolution Strategy) where you study the board for any threats or offensive moves, it WORKS PERFECT for the mode (5 in a row rule), but in our case we have custom rules (captures, forbidden in capture move, forbidden move performing double free three shape), 
-I had to invent a solution for that, managed to write the first version of it that took me 1000s of retries and tests before comming to ideal combination of this algorithm (still improve it by playing more games against the AI)
 
-The algorithm fully writen in JS in the browser with the UI you can see in the picture (html/css/js only, no frameworks), it applies a modified NES algorithm, it chooses good moves actually, and still can be improved more.
+<img src="./ressources/gomoku-ts-v1.png">
+
+---
+### 30/06/2023 (second day of AÏD AL ADHAA):
+
+I started this project 1 year ago (March 2022, I think) as a school project. I began with a simple React app and attempted to implement the solver within it. I encountered performance issues, of course (you can't apply hardcore MiniMax in the browser, haha 😆). 
+Well, I worked on it for a month or two, then put it on hold since no solution was clear at that time.
+
+
+Recently, I revisited the project, this time developing the solver engine in the Go language for its speed, which proved to be quite fast. I implemented numerous algorithms and strategies, gaining valuable insights along the way. Unfortunately, the outcomes did not meet expectations. The algorithm was required to identify the optimal move in less than half a second, and my code lacked organization, coupled with subpar and inefficient heuristics. Faced with these challenges, I decided to abandon the project. 
+ 
+But, i gained significant insights into a technique known as NES (Natural Evolution Strategy). This method involves analyzing the board for potential threats or offensive moves. It works flawlessly for the standard "5 in a row" rule. However, in our scenario with custom rules (such as captures, restrictions on capturing moves, and the prohibition of moves forming a double free three shape), I had to devise a solution. After numerous retries and tests, I managed to develop the initial version. It took thousands of attempts to arrive at the optimal combination for this algorithm. I continue to refine it by playing more games against the AI.
+
+The JavaScript algorithm operates in the browser with an accompanying UI shown in the image. Implemented using only HTML, CSS, and JavaScript—no frameworks—it utilizes a customized NES algorithm to efficiently choose optimal moves. Although the current functionality is strong, there's potential for further enhancements.
 
 **13:34PM 32% Battery , i can hear the ADHAN (call for the prayer), by**
 
@@ -34,3 +56,4 @@ Todo:
 - [x] : blink the captured pieces before removing them from board for more visibility
 - [ ] : add board score calculation function and implement it to UI
 - [ ] : fix the cases mentioned in history file 
+
