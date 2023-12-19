@@ -143,7 +143,7 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         return new Promise((resolve) => setTimeout(() => {
             set({ blinks: [] })
             resolve()
-        }, 1000))
+        }, 700))
     },
     setBestMoves: (bestMoves) => set({ bestMoves }),
     resetStates: () => set((state) => ({
