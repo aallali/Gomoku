@@ -2,6 +2,7 @@ import type { P, TMtx } from "@/gomoku/types/gomoku.type";
 import { findValidSpots } from "./moveValidity";
 import { MoveRepport } from "./prior_moves";
 
+
 export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captrues: number, player2Captures: number) {
 
     const repporter = new MoveRepport()
@@ -44,8 +45,11 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captrues: number
         'open4', 'blockOpen4',
         'isCapture', 'captureSetup',
         'blockCapture',
+        'isBounded4',
         'open3', 'blockOpen3',
         'isAlginedWithPeer',
+        'score',
+        'o_score'
     ];
 
     if (player1Captrues === 4)
@@ -53,18 +57,21 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captrues: number
     else if (player2Captures === 4)
         fieldPriority = changePosition(fieldPriority, 'blockCapture', 0);
 
-
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
-            if (field === 'score') {
-                return b[field] - a[field]
+            if (field === 'score' || field === 'o_score') {
+                if (b[field] !== a[field])
+                    return b[field] - a[field]
             }
             if (field === 'isAlginedWithPeer') {
                 if (a[field][0] === b[field][0])
-                    return a[field][1] - b[field][1]
-                return b[field][0] - a[field][0]
+                    if (a[field][1] !== b[field][1])
+                        return a[field][1] - b[field][1]
+                if (b[field][0] !== a[field][0])
+                    return b[field][0] - a[field][0]
             }
+
             const aValue = a[field] ? 1 : 0;
             const bValue = b[field] ? 1 : 0;
 
@@ -78,6 +85,16 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captrues: number
 
     const sortedArray = [...availableSpots].sort(compareFunction);
 
+    console.log(`Total sorted moves: ${sortedArray.length}`)
+    const chunk = (sortedArray.slice(0, 5))
+    chunk.forEach(el => {
+        for (const k in el) {
+            if (el.hasOwnProperty(k) && el[k as keyof typeof el] === false) {
+                delete el[k as keyof typeof el];
+            }
+        }
+        console.log(el)
+    })
 
     return sortedArray[0]
 }

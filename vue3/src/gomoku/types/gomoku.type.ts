@@ -21,6 +21,7 @@ export interface TRepport {
     }
     isWin?: boolean
     score: number
+    isBounded4?: boolean
     isOpenFour?: boolean
     isOpenThree?: boolean
 }

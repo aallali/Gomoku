@@ -300,7 +300,8 @@ export class MoveRepport {
 
             isAlginedWithPeer: this.isAlginedWithPeer(),
             score: this.weight?.score || 0,
-            opponentScore: this.o_weight?.score || 0,
+            isBounded4: !!this.weight?.isBounded4,
+            o_score: this.o_weight?.score || 0,
 
             isWinBy5: this.weight?.isWin || 0,
             blockWinBy5: this.o_weight?.isWin || false,
