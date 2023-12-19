@@ -1,4 +1,4 @@
-import type { TMtx, Nb, TColor, TPoint } from "../types/gomoku.type";
+import type { TMtx, Nb, TColor, TPoint, P } from "../types/gomoku.type";
 import { validXY } from "../modes/1337/moveValidity";
 import { DirectionMirror, MoveDirection, type TDirection } from "./directions";
 
@@ -21,7 +21,7 @@ export function ScrapLine(matrix: TMtx, nLeft: Nb, nRight: Nb, x: Nb, y: Nb, dir
     return leftSide.split("").reverse().join("") + matrix[x][y] + rightSide;
 }
 
-function scrapDirection(count: Nb, matrix: TMtx, { x, y }: TPoint, direction: TDirection): string {
+export function scrapDirection(count: Nb, matrix: TMtx, { x, y }: TPoint, direction: TDirection): string {
     count = count == -1 ? matrix.length : count
 
     let rowString = ''
@@ -50,10 +50,10 @@ function scrapDirection(count: Nb, matrix: TMtx, { x, y }: TPoint, direction: TD
  * // If it's player 'w' (white)'s turn:
  * Standarize('w', '122') // Returns 'OXX'
  */
-export function Standarize(turn: TColor, row: string): string {
+export function Standarize(turn: P, row: string): string {
     return row.split("").map(cell => (
-        cell === "1" ? (turn === "b" ? "X" : "O") :
-            cell === "2" ? (turn === "b" ? "O" : "X") :
+        cell === "1" ? (turn === 1 ? "X" : "O") :
+            cell === "2" ? (turn === 1 ? "O" : "X") :
                 "."
     )).join("");
 }

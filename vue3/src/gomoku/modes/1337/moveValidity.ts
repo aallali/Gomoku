@@ -1,5 +1,5 @@
 
-import type { TMtx, Nb, TColor, TMode, TPoint } from "../../types/gomoku.type";
+import type { TMtx, Nb, TMode, TPoint, P } from "../../types/gomoku.type";
 import { MoveDirection, directions } from "../../common/directions";
 import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils";
 
@@ -12,7 +12,7 @@ import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils";
  * @param {Nb} y - The y-coordinate of the move.
  * @returns {boolean} A boolean indicating whether the move is valid in "1337" mode.
  */
-export function isValidMoveFor1337Mode(matrix: TMtx, turn: TColor, x: Nb, y: Nb) {
+export function isValidMoveFor1337Mode(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
     return !isInCapture(cloneMatrix(matrix), turn, x, y) && !isDoubleFreeThree(cloneMatrix(matrix), turn, x, y)
 }
 
@@ -38,14 +38,12 @@ export function validXY(size: Nb, x: Nb, y: Nb): boolean {
  * @param {Nb} y - The y-coordinate to check.
  * @returns {boolean} A boolean indicating whether the move results in a capture.
  */
-function isInCapture(matrix: TMtx, turn: TColor, x: Nb, y: Nb): boolean {
-    matrix[x][y] = turn == "b" ? 1 : 2;
-
+function isInCapture(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
+    matrix[x][y] = turn
     for (let i = 0; i < directions.length; i++) {
         const dir = directions[i];
         const rawPath = ScrapLine(matrix, 2, 1, x, y, dir);
-        const path = Standarize(matrix[x][y] == 1 ? "b" : "w", rawPath);
-
+        const path = Standarize(turn, rawPath);
         if (path == "OXXO")
             return true;
     }
@@ -62,15 +60,15 @@ function isInCapture(matrix: TMtx, turn: TColor, x: Nb, y: Nb): boolean {
  * @param {Nb} y - The y-coordinate to check.
  * @returns {boolean} A boolean indicating whether the move results in a double-free-three pattern.
  */
-function isDoubleFreeThree(matrix: TMtx, turn: TColor, x: Nb, y: Nb): boolean {
+function isDoubleFreeThree(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
     // double free three 1: .XXX.
     // double free three 2: .X.XX.
-    matrix[x][y] = turn == "b" ? 1 : 2;
+    matrix[x][y] = 3 - turn as P
     let count = 0
     for (let i = 0; i < 4; i++) {
         const dir = directions[i];
         const rawPath = ScrapLine(matrix, 5, 5, x, y, dir);
-        const path = Standarize(matrix[x][y] == 1 ? "b" : "w", rawPath);
+        const path = Standarize(turn, rawPath);
 
         if (path.includes(".XXX.") || path.includes(".XX.X.") || path.includes(".X.XX.")) {
             if (++count >= 2)
@@ -97,31 +95,23 @@ function isDoubleFreeThree(matrix: TMtx, turn: TColor, x: Nb, y: Nb): boolean {
  *   - Valid spots are added to the result array.
  * 
  */
-export function findValidSpots(matrix: TMtx, turn: TColor, mode: TMode): TPoint[] {
+export function findValidSpots(matrix: TMtx, turn: P, mode: TMode): TPoint[] {
     const cells: { x: Nb, y: Nb }[] = [];
     const boardSize = matrix.length
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
 
             if (matrix[i][j] == 0) {
-
-                for (let k = 0; k < directions.length; k++) {
-                    const dir = directions[k];
-                    let coord = MoveDirection(dir, i, j);
-
-                    if (validXY(boardSize, coord.x, coord.y) && matrix[coord.x][coord.y] != 0) {
-                        let valid = true
-
-                        if (mode == "1337")
-                            if (!(isValidMoveFor1337Mode(matrix, turn, i, j)))
-                                valid = false
-                        if (valid)
-                            cells.push({ x: i, y: j })
-                        break
-                    }
+                if (validXY(boardSize, i, j) && matrix[i][j] === 0) {
+                    let valid = true
+                    if (mode == "1337")
+                        if (!(isValidMoveFor1337Mode(matrix, turn, i, j)))
+                            valid = false
+                    if (valid)
+                        cells.push({ x: i, y: j })
                 }
             }
-        }
-    }
+        } // J / column loop
+    } // I / row loop
     return cells
 }

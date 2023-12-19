@@ -17,6 +17,7 @@ export interface IGameStore {
     goldenStones: TPoint[] | null
     blinks: TPoint[]
     bestMoves: TPoint[]
+    analyse: string
 }
 
 type IPlayerColor = "b" | "w";
@@ -49,6 +50,8 @@ interface IGameActions {
     setBestMoves: (bestMoves: TPoint[]) => void
 
     resetStates: () => void
+
+    setAnalyse: (analyse: string) => void
 }
 
 const initState: IGameStore = {
@@ -59,12 +62,12 @@ const initState: IGameStore = {
     players: {
         black: {
             type: "h",
-            captures: 3,
+            captures: 0,
             score: 0
         },
         white: {
             type: "ai",
-            captures: 3,
+            captures: 0,
             score: 0
         },
     },
@@ -73,7 +76,8 @@ const initState: IGameStore = {
     ended: false,
     turn: "b",
     blinks: [],
-    bestMoves: []
+    bestMoves: [],
+    analyse: ''
 }
 export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     ...initState,
@@ -162,7 +166,10 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         ended: false,
         blinks: [],
         bestMoves: []
-    }))
+    })),
+    setAnalyse(analyse) {
+        set({ analyse })
+    },
 }))
 
 useGame((state) => state.initMatrix)()
