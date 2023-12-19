@@ -73,6 +73,6 @@ export const blok = (seconds: number): Promise<void> => new Promise(resolve => s
  * 
  * @description clone the board data to avoid original state change
  */
-export function cloneMatrix(matrix: TMtx) {
+export function cloneMatrix(matrix: TMtx): TMtx {
     return matrix.map(row => [...row]);
 }
