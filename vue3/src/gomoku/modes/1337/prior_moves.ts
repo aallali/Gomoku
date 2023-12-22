@@ -331,7 +331,7 @@ export class MoveRepport {
             isBounded4: !!this.weight?.isBounded4,
             o_score: this.o_weight?.score || 0,
 
-            isWinBy5: this.weight?.isWin || 0,
+            isWinBy5: this.weight?.isWin || false,
             blockWinBy5: this.o_weight?.isWin || false,
             cScore: 0
         } as TMvRepport
