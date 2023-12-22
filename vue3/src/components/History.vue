@@ -68,14 +68,13 @@ export default {
 <style scoped>
 .moves_container {
     font-size: 17px;
-    margin: 50px;
+    color: black;
     background-image: url(@/assets/images/wood.jpeg);
     background-repeat: repeat;
     padding: 5px;
     border-radius: 5px;
     overflow: hidden;
     overflow-x: auto;
-    /* position: absolute; */
 }
 
 input {
