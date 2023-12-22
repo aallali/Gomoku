@@ -9,7 +9,8 @@ export default {
         return {
             IMG_BlackStone,
             IMG_WhiteStone,
-            moves: moves
+            moves: moves,
+            movesInput: ""
         }
     },
     methods: {
@@ -22,13 +23,16 @@ export default {
                 console.error('Unable to copy text to clipboard', error);
                 alert('Unable to copy text to clipboard: ' + error.message)
             }
+        },
+        importFromInput() {
+            useGame((state) => state.importMove)(this.movesInput)
         }
     }
 }
 
 </script>
 <template>
-    <div class="moves_container" v-if="moves.length">
+    <div class="moves_container">
         <table>
             <thead>
                 <tr>
@@ -48,10 +52,10 @@ export default {
                     <td v-for="move in moves?.filter((_l, i) => i % 2 != 0)" :key="move">{{ move }}</td>
                 </tr>
                 <tr>
-                    <th rowspan="2" style="border: none;"><button onclick="alert('Method not yet defined')">Import</button>
+                    <th rowspan="2" style="border: none;"><button @click="importFromInput()">Import</button>
                     </th>
                     <td :colspan="(moves?.length || 0) + 1" style="padding:1px;">
-                        <input type="text" :value="moves.join(',')">
+                        <input type="text" v-model="movesInput">
                     </td>
                 </tr>
 
