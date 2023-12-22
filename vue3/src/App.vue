@@ -43,9 +43,9 @@ export default {
 
 <template>
   <div class="title-container">
-    <div class="line"/>
+    <div class="line" />
     <div class="title">Gomoku </div>
-    <div class="line"/>
+    <div class="line" />
   </div>
 
 
