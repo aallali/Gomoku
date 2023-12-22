@@ -52,6 +52,7 @@ export class MoveRepport {
     p: P = 1 // player's cell value
     op: P = 2 // opponent's cell value
 
+    willBreakOpen3: boolean = false
     weight?: Omit<TRepport, "directions">
     o_weight?: Omit<TRepport, "directions">
 
@@ -116,7 +117,25 @@ export class MoveRepport {
     }
     isCapture() {
         this.matrix[this.x][this.y] = this.p
-        return !!IsCapture(this.matrix, this.x, this.y)
+        const captures = IsCapture(this.matrix, this.x, this.y)
+        const [matrix, p, op] = [this.matrix, this.p, this.op]
+        if (!captures)
+            return false
+        for (let i = 0; i < captures.length; i++) {
+            const open3Found = forEachDirection(function (dir) {
+                const rawPath = ScrapLine(matrix, 3, 3, captures[i].x, captures[i].y, dir);
+                const ddd = new RegExp(`0${op}${op}${op}0`)
+                if (ddd.test(rawPath)) {
+                    // return true
+                    return true
+                }
+            })
+            if (open3Found) {
+                this.willBreakOpen3 = true
+                break
+            }
+        }
+        return true
     }
     // - block capture [x]
     isBlockCapture() {
@@ -303,7 +322,7 @@ export class MoveRepport {
             open3: this.isOpenThree(),
             blockOpen3: this.isOpenThreeBlock(),
             open4: this.isOpenFour(),
-            blockOpen4: this.isOpenFourBlock(),
+            blockOpen4: this.isOpenFourBlock() || this.willBreakOpen3,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
 
