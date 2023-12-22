@@ -6,7 +6,7 @@ import { applyCapturesIfAny } from "./captures";
 
 const { log } = console
 
-export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captrues: number, player2Captures: number) {
+export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number, player2Captures: number) {
 
     const repporter = new MoveRepport()
     repporter.setMatrix(matrix)
@@ -27,7 +27,7 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captrues: number
         }
     }
 
-    return movesSorter(availableSpots, turn, player1Captrues, player2Captures)
+    return movesSorter(availableSpots, turn, player1Captures, player2Captures)
 }
 
 /**
@@ -52,7 +52,7 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
     return array;
 }
 
-function movesSorter(moves: TMvRepport[], player: P, player1Captrues: number, player2Captures: number) {
+function movesSorter(moves: TMvRepport[], player: P, player1Captures: number, player2Captures: number) {
     // Define the order of priority for fields
     let fieldPriority: string[] = [
         'isWinBy5',
@@ -67,7 +67,7 @@ function movesSorter(moves: TMvRepport[], player: P, player1Captrues: number, pl
         'isBounded4',
     ];
 
-    if (player1Captrues === 4)
+    if (player1Captures === 4)
         fieldPriority = changePosition(fieldPriority, 'isCapture', 0);
     else if (player2Captures === 4)
         fieldPriority = changePosition(fieldPriority, 'blockCapture', 0);
@@ -110,12 +110,14 @@ function movesSorter(moves: TMvRepport[], player: P, player1Captrues: number, pl
     })
     return chunk
 }
+
 //  TODO: refactor
 export function miniMax(moves: TPoint[], player: P, matrix: TMtx) {
     console.clear()
     const opponent = 3 - player as P;
     let mmMoves = []
     let mvMap = new Map()
+
     for (let i = 0; i < moves.length; i++) {
         const { x, y } = moves[i]
         let cloneMtx = cloneMatrix(matrix)
