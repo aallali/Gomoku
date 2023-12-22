@@ -1,6 +1,6 @@
 import { MoveDirection, directions, type TDirection } from "@/gomoku/common/directions";
 import { ScrapLine, Standarize, cloneMatrix, scrapDirection } from "@/gomoku/common/shared-utils";
-import type { P, TColor, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
+import type { P, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
 import { findValidSpots, isValidMoveFor1337Mode, validXY } from "./moveValidity";
 import { EvalPiece } from "@/gomoku/common/pieceWeight";
 import { IsCapture, extractCaptures, isLineBreakableByAnyCapture } from "./captures";

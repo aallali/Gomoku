@@ -1,4 +1,4 @@
-import type { Nb, P, TColor, TMtx, TPoint } from "../../types/gomoku.type"
+import type { Nb, P, TMtx, TPoint } from "../../types/gomoku.type"
 import { MoveDirection, directions } from "../../common/directions"
 import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils"
 

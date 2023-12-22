@@ -1,4 +1,4 @@
-import type { TMtx, Nb, TColor, TPoint, P } from "../types/gomoku.type";
+import type { TMtx, Nb, TPoint, P } from "../types/gomoku.type";
 import { validXY } from "../modes/1337/moveValidity";
 import { DirectionMirror, MoveDirection, type TDirection } from "./directions";
 

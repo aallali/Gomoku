@@ -1,6 +1,6 @@
 import { DirectionMirror, MoveDirection, type TDirection } from "../../common/directions";
 import { validXY } from "../1337/moveValidity";
-import type { TMtx, Nb, P, TColor, TPoint } from "../../types/gomoku.type";
+import type { TMtx, Nb, P, TPoint } from "../../types/gomoku.type";
 import { EvalPiece } from "@/gomoku/common/pieceWeight";
 
 

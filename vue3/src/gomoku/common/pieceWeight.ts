@@ -1,5 +1,5 @@
 import { validXY } from "../modes/1337/moveValidity";
-import type { TMtx, Nb, TColor, TRepport, TPoint, PartialBy, P } from "../types/gomoku.type";
+import type { TMtx, Nb, TRepport, PartialBy, P } from "../types/gomoku.type";
 import { directions, type TDirection, MoveDirection, DirectionMirror } from "./directions";
 
 /**

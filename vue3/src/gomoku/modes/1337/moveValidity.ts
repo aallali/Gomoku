@@ -7,7 +7,7 @@ import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils";
  * Determines if a move is valid in the "1337" mode, considering capture and double-free-three conditions.
  * 
  * @param {TMtx} matrix - The game matrix representing the current state.
- * @param {TColor} turn - The player's color ("b" for black, "w" for white).
+ * @param {P} turn - The player's color ("b" for black, "w" for white).
  * @param {Nb} x - The x-coordinate of the move.
  * @param {Nb} y - The y-coordinate of the move.
  * @returns {boolean} A boolean indicating whether the move is valid in "1337" mode.
@@ -33,7 +33,7 @@ export function validXY(size: Nb, x: Nb, y: Nb): boolean {
  * Determines if placing a piece at the specified position results in a capture for the opponent.
  * 
  * @param {TMtx} matrix - The game matrix representing the current state.
- * @param {TColor} turn - The player's color ("b" for black, "w" for white).
+ * @param {P} turn - The player's color ("b" for black, "w" for white).
  * @param {Nb} x - The x-coordinate to check.
  * @param {Nb} y - The y-coordinate to check.
  * @returns {boolean} A boolean indicating whether the move results in a capture.
@@ -55,7 +55,7 @@ function isInCapture(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
  * Determines if placing a piece at the specified position results in a double-free-three pattern.
  * 
  * @param {TMtx} matrix - The game matrix representing the current state.
- * @param {TColor} turn - The player's color ("b" for black, "w" for white).
+ * @param {P} turn - The player's color ("b" for black, "w" for white).
  * @param {Nb} x - The x-coordinate to check.
  * @param {Nb} y - The y-coordinate to check.
  * @returns {boolean} A boolean indicating whether the move results in a double-free-three pattern.
@@ -84,7 +84,7 @@ function isDoubleFreeThree(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
  * Finds all valid spots for the current player to make a move on the game board.
  * 
  * @param {TMtx} matrix - The game matrix representing the current state.
- * @param {TColor} turn - The player's color ("b" for black, "w" for white).
+ * @param {P} turn - The player's color ("b" for black, "w" for white).
  * @param {TMode} mode - The game mode ("1337" or other).
  * @returns {TPoint[]} An array of coordinates representing valid spots for the player to make a move.
  * 
