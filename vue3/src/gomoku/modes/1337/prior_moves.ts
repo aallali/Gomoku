@@ -55,6 +55,7 @@ export class MoveRepport {
     weight?: Omit<TRepport, "directions">
     o_weight?: Omit<TRepport, "directions">
 
+    finalRepport = {} as TMvRepport
     constructor(matrix?: TMtx, cell?: TPoint, turn?: P) {
         matrix && this.setMatrix(cloneMatrix(matrix));
         cell && this.setPoint(cell)
@@ -282,37 +283,17 @@ export class MoveRepport {
     }
     // Punchline
     repport() {
-        this.evaluateMove()
-        // console.clear()
-        const drepport = {
-            isCapture: this.isCapture(),
-            captureSetup: this.isCaptureSetup(),
-            blockCapture: this.isBlockCapture(),
-            willBCaptured: this.isWillCaptured(),
-            // enemyCapture: this.isWillCaptureForEnemy(),
-            open3: this.isOpenThree(),
-            blockOpen3: this.isOpenThreeBlock(),
-            open4: this.isOpenFour(),
-            blockOpen4: this.isOpenFourBlock(),
-            isAlginedWithPeer: this.isAlginedWithPeer(),
-            forbiddenOpponent: this.isForbiddenForOpponent(),
-            isNearBy: this.isNearBy(),
-            score: this.weight?.score || 0,
-            isWinBy5: this.weight?.isWin || 0,
-            blockWinBy5: this.o_weight?.isWin || false,
-            opponentScore: this.o_weight?.score || 0
-        }
-        // console.clear()
+        this.repportObj()
         let rawTxtRepport = []
         rawTxtRepport.push([`X: ${this.x} | Y: ${this.y}`, ''])
-        Object.keys(drepport).forEach((key) => {
-            rawTxtRepport.push([`${key}`, `${drepport[key as keyof typeof drepport]}`]);
+        Object.keys(this.finalRepport).forEach((key) => {
+            rawTxtRepport.push([`${key}`, `${this.finalRepport[key as keyof typeof this.finalRepport]}`]);
         });
         return rawTxtRepport
     }
     repportObj() {
         this.evaluateMove()
-        const drepport = {
+        this.finalRepport = {
             isCapture: this.isCapture(),
             captureSetup: this.isCaptureSetup(),
             blockCapture: this.isBlockCapture(),
@@ -333,6 +314,8 @@ export class MoveRepport {
 
             isWinBy5: this.weight?.isWin || 0,
             blockWinBy5: this.o_weight?.isWin || false,
+            cScore: 0
+        } as TMvRepport
 
         this.finalRepport.cScore = this.scoreIt(this.finalRepport)
         return this.finalRepport
