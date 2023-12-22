@@ -54,4 +54,22 @@ export function isLineBreakableByAnyCapture(captures: TPoint[][], stonesLine: TP
                 .map(l => l.x.toString() + '.' + l.y)
                 .join(",")
                 .includes(c.x + '.' + c.y))).length
+
+/**
+ * Applies captures if any at the specified position in the matrix.
+ * @param matrix - The game matrix.
+ * @param point - The position coordinates { x, y }.
+ * @returns An object containing the updated matrix and the total number of captures.
+ */
+export function applyCapturesIfAny(matrix: TMtx, { x, y }: TPoint): { matrix: TMtx; total: number } {
+    // Check for captures at the specified position
+    const captures = IsCapture(matrix, x, y);
+
+    // Apply captures to the matrix if found
+    captures?.forEach((cell) => {
+        matrix[cell.x][cell.y] = 0;
+    });
+
+    // Return the updated matrix and the total number of captures
+    return { matrix, total: captures?.length || 0 };
 }
