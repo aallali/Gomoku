@@ -307,8 +307,29 @@ export class MoveRepport {
             isWinBy5: this.weight?.isWin || 0,
             blockWinBy5: this.o_weight?.isWin || false,
 
-        }
+        this.finalRepport.cScore = this.scoreIt(this.finalRepport)
+        return this.finalRepport
+    }
+    scoreIt(repport: ReturnType<typeof this.repportObj>) {
+        let score = 0
+        if (repport.isWinBy5)
+            score += 10000
 
-        return drepport as typeof drepport
+        if (repport.isCapture)
+            score += 700
+
+        if (repport.open4)
+            score += 600
+
+        if (repport.captureSetup)
+            score += 500
+
+        if (repport.open3)
+            score += 400
+
+        if (repport.blockCapture)
+            score += 300
+
+        return score
     }
 }
