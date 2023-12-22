@@ -8,6 +8,9 @@ import AiAnalayse from "./components/AiAnalayse.vue"
 import Players from "./components/Players.vue"
 import Stats from "./components/Stats.vue"
 import Winner from "./components/Winner.vue"
+import { useGame } from "./store";
+
+const undo = useGame((state) => state.undoMove)
 // inline component with JSX
 // 'Droid Sans Mono', 'monospace', monospace
 const StartButton = defineComponent({
@@ -17,7 +20,7 @@ const StartButton = defineComponent({
   render() {
     return (
       <fieldset>
-        <button class="startBtn">Start</button>
+        <button class="startBtn" onClick={undo}>Undo</button>
       </fieldset>
     )
   }
