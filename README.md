@@ -5,7 +5,7 @@ This project involves creating, in the language of your choice, a Gomoku game in
 
 ### update 17/12/2023 :
 - Migrated the app to TypeScript/Vue 3.
-- Still under construction 🚧 (60% of the work done).
+- Still under construction 🚧 (70% of the work done).
 - Optimization is progressing well so far, but there's room for more improvement.
 - Wrote a move sorting algorithm based on properties calculated from the `MoveReport` class, such as `capture, block capture, open 4, block 3, alignment with other peers,... etc`. (still needs improvement).
 
@@ -22,7 +22,7 @@ This project involves creating, in the language of your choice, a Gomoku game in
     - [x] implement moves import
     - [x] implement Undo move
     - [x] detect if the capture move will also break an open4/open3
-    - [ ] `[fix]` : all the moves considered "will be captured" are ignore even if a fifth (winning) capture move is there, adapt script to bypass this one
+    - [x] `[fix]` : all the moves considered "will be captured" are ignore even if a fifth (winning) capture move is there, adapt script to bypass this one
 <img src="./ressources/gomoku-ts-v1.png">
 
 ---
