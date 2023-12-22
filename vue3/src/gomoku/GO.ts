@@ -91,7 +91,7 @@ class GO {
         }
     }
     importMoves(moves: string[]): void {
-        this.moves = []
+        this.resetStates()
         for (let i = 0; i < moves.length; i++) {
             const { x, y } = this.translateMove(moves[i])
             this.move({ x, y })

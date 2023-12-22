@@ -42,3 +42,5 @@ Orders of moves that i would play in real life:
 // `I9,H8,J8,H10,K7,H9,H7,H11,H12,I10,J11,G8,G12,I12,F12,J9,I11,K11,I11,F7,E6,G13` should have went for 5ith piece
 // `I9,H8,J8,K7,H10,H7,H6,H9,I11,J12,G9,J11,J13,J10,I12,I13,H14,H11,K11,J12,K14,J9,I7,G5,I14,G14,K12,H15,I16,F13,L15,M16,J15,L13,J14,K16,K10,G12,E14,G13,G11,E12,F12` that was intense game with minimax (depth=1), the last move will be considered
 // handle the case of : "when the opponent play a breakable 5 in row" you have to break it
+// AI lost vs me `I9,H8,H9,G9,F10,J9,I7,I8,H7,J7,G7,K10,J6,H8,G8,K5,J8,G9,G6,F9,I6,F5,K6,F7,H6,J6,J5,J6,K4,I7,H7,I8,H7`
+// there is a fifth capture where but didnt chose it , because it  was  in a "will be captured" position, so it got ignored, adapt logic about this. 

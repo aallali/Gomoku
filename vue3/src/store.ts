@@ -49,6 +49,7 @@ interface IGameActions {
 
     setAnalyse: (analyse: string) => void
     undoMove: () => void
+    importMove: (rawMoves: string) => void
 }
 
 const initState: IGameStore = {
@@ -138,7 +139,7 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
             blinks: [],
             bestMoves: go.bestMoves
         })
- 
+
         return
     },
     setAnalyse(analyse) {
@@ -148,9 +149,11 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         go.undo()
         get().updateStates()
     },
-    importMove(rawMoves:string) {
+    importMove(rawMoves: string) {
         const movesList = rawMoves.split(',')
         go.importMoves(movesList)
+        go.findBestMove()
+        get().updateStates()
     },
     addPlayerCapture: (turn, totalCaptures) => {
         const colors = {

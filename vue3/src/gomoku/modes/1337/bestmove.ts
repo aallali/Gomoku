@@ -6,28 +6,39 @@ import { applyCapturesIfAny } from "./captures";
 
 const { log } = console
 
-export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captrues: number, player2Captures: number) {
+export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number, player2Captures: number) {
 
     const repporter = new MoveRepport()
-    repporter.setMatrix(matrix)
-    repporter.setTurn(turn)
-    let availableSpots = []
+    repporter.setMatrix(matrix);
+    repporter.setTurn(turn);
+
+    const availableSpots: TMvRepport[] = []
     const validSpots = findValidSpots(matrix, turn, "1337")
 
     for (let i = 0; i < validSpots.length; i++) {
-        const move = validSpots[i]
-        const { x, y } = move
-        repporter.setPoint({ x: move.x, y: move.y });
+        const { x, y } = validSpots[i]
+        repporter.setPoint({ x, y });
+
         if (repporter.isNearBy()) {
             const repport = repporter.repportObj()
-            if (!repport.willBCaptured)
-                availableSpots.push({ ...repport, x, y, })
-            else if (repport.isWinBy5 || repport.blockWinBy5)
-                availableSpots.push({ ...repport, x, y, })
+
+            // Check if the current spot is not marked for capture by the opponent,
+            // or if it is part of a winning line of 5 stones, or if it blocks an opponent's potential win.
+            // Also, consider it if it is marked for capture and the current-player captures count is greater than or equal to 4.
+            if (
+                !repport.willBCaptured ||        // Condition: Not marked for capture by the opponent.
+                repport.isWinBy5 ||               // Condition: Part of a winning line of 5 stones.
+                repport.blockWinBy5 ||            // Condition: Blocks an opponent's potential win.
+                (repport.isCapture && player1Captures >= 4)  // Condition: Marked for capture and current-player captures count >= 4.
+            ) {
+                // If any of the conditions is true, add the current spot to the available spots.
+                availableSpots.push({ ...repport, x, y });
+            }
+
         }
     }
 
-    return movesSorter(availableSpots, turn, player1Captrues, player2Captures)
+    return movesSorter(availableSpots, turn, player1Captures, player2Captures)
 }
 
 /**
@@ -52,7 +63,7 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
     return array;
 }
 
-function movesSorter(moves: TMvRepport[], player: P, player1Captrues: number, player2Captures: number) {
+function movesSorter(moves: TMvRepport[], player: P, player1Captures: number, player2Captures: number) {
     // Define the order of priority for fields
     let fieldPriority: string[] = [
         'isWinBy5',
@@ -67,7 +78,7 @@ function movesSorter(moves: TMvRepport[], player: P, player1Captrues: number, pl
         'isBounded4',
     ];
 
-    if (player1Captrues === 4)
+    if (player1Captures === 4)
         fieldPriority = changePosition(fieldPriority, 'isCapture', 0);
     else if (player2Captures === 4)
         fieldPriority = changePosition(fieldPriority, 'blockCapture', 0);
@@ -110,12 +121,14 @@ function movesSorter(moves: TMvRepport[], player: P, player1Captrues: number, pl
     })
     return chunk
 }
+
 //  TODO: refactor
 export function miniMax(moves: TPoint[], player: P, matrix: TMtx) {
     console.clear()
     const opponent = 3 - player as P;
     let mmMoves = []
     let mvMap = new Map()
+
     for (let i = 0; i < moves.length; i++) {
         const { x, y } = moves[i]
         let cloneMtx = cloneMatrix(matrix)

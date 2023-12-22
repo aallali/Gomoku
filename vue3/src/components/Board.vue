@@ -129,7 +129,7 @@ export default {
                     <div @click="(e: any) => makeMove(e, i - 1, j - 1)" @mouseover="() => showSates({ x: i - 1, y: j - 1 })"
                         :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, turn, i - 1, j - 1) : true"
                         :data-is-valid-spot="isValidSpot"
-                        :class='"cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
+                        :class='((isValidSpot && !matrix[i - 1][j - 1] && "hoverable") || "")+" cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
 
                         <div v-if="matrix[i - 1][j - 1] == 1" class="piece-black-flat" />
                         <div v-if="matrix[i - 1][j - 1] == 2" class="piece-white-flat" />
@@ -219,10 +219,14 @@ export default {
     border-color: rgb(76, 95, 114) transparent transparent transparent;
 }
 
-.cross:hover {
+.hoverable:hover {
     background-image: none;
     border-color: transparent;
     background-color: rgb(76, 95, 114);
+}
+
+.cross:hover> :not(.piece-black-flat):not(.piece-white-flat):not(.forbidden-sign):not(.tooltiptext) {
+    display: none;
 }
 
 .slug {
