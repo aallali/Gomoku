@@ -22,7 +22,7 @@ This project involves creating, in the language of your choice, a Gomoku game in
     - [x] implement moves import
     - [x] implement Undo move
     - [x] detect if the capture move will also break an open4/open3
-
+    - [ ] `[fix]` : all the moves considered "will be captured" are ignore even if a fifth (winning) capture move is there, adapt script to bypass this one
 <img src="./ressources/gomoku-ts-v1.png">
 
 ---
