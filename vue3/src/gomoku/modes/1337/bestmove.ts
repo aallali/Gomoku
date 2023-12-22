@@ -21,10 +21,20 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number
 
         if (repporter.isNearBy()) {
             const repport = repporter.repportObj()
-            if (!repport.willBCaptured)
-                availableSpots.push({ ...repport, x, y, })
-            else if (repport.isWinBy5 || repport.blockWinBy5)
-                availableSpots.push({ ...repport, x, y, })
+
+            // Check if the current spot is not marked for capture by the opponent,
+            // or if it is part of a winning line of 5 stones, or if it blocks an opponent's potential win.
+            // Also, consider it if it is marked for capture and the current-player captures count is greater than or equal to 4.
+            if (
+                !repport.willBCaptured ||        // Condition: Not marked for capture by the opponent.
+                repport.isWinBy5 ||               // Condition: Part of a winning line of 5 stones.
+                repport.blockWinBy5 ||            // Condition: Blocks an opponent's potential win.
+                (repport.isCapture && player1Captures >= 4)  // Condition: Marked for capture and current-player captures count >= 4.
+            ) {
+                // If any of the conditions is true, add the current spot to the available spots.
+                availableSpots.push({ ...repport, x, y });
+            }
+
         }
     }
 
