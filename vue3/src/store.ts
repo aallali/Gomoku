@@ -136,7 +136,7 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
             mode: go.mode,
             winner: go.winner || null,
             goldenStones: go.winStones,
-            blinks: [],
+            blinks: go.winStones,
             bestMoves: go.bestMoves
         })
 

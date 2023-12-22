@@ -111,9 +111,8 @@ class GO {
         // 2- if collected atleast 5 captures.
         if (isWinBy5 || this.players[this.turn].captures >= 5) {
             // hover over win stones if there is.
-            // TODO: impl winstones
-            // if (winStones)
-            //     useGame.getState().setGoldenStones(winStones)
+            if (winStones)
+                this.winStones = winStones
             // declare winner and end the game
             this.winner = this.turn
         }
