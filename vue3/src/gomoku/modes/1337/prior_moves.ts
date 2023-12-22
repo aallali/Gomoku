@@ -16,6 +16,33 @@ function forEachDirection(cb: (dir: TDirection) => any) {
     return false
 }
 
+export interface TMvRepport {
+    x: number
+    y: number
+    isCapture: boolean,
+    captureSetup: boolean,
+    blockCapture: boolean
+    willBCaptured: boolean
+    // enemyCapture: this.isWillCaptureForEnemy(),
+
+    open3: boolean
+    blockOpen3: boolean
+    open4: boolean
+    blockOpen4: boolean
+
+    forbiddenOpponent: boolean
+
+    isAlginedWithPeer: [number, number, number],
+    score: number
+    cScore: number
+
+    isBounded4: boolean
+    o_score: number,
+
+    isWinBy5: boolean
+    blockWinBy5: boolean
+}
+
 export class MoveRepport {
     matrix: TMtx = []
     backupMatrix: TMtx = []
