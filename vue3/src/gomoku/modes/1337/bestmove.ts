@@ -9,15 +9,16 @@ const { log } = console
 export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number, player2Captures: number) {
 
     const repporter = new MoveRepport()
-    repporter.setMatrix(matrix)
-    repporter.setTurn(turn)
-    let availableSpots = []
+    repporter.setMatrix(matrix);
+    repporter.setTurn(turn);
+
+    const availableSpots: TMvRepport[] = []
     const validSpots = findValidSpots(matrix, turn, "1337")
 
     for (let i = 0; i < validSpots.length; i++) {
-        const move = validSpots[i]
-        const { x, y } = move
-        repporter.setPoint({ x: move.x, y: move.y });
+        const { x, y } = validSpots[i]
+        repporter.setPoint({ x, y });
+
         if (repporter.isNearBy()) {
             const repport = repporter.repportObj()
             if (!repport.willBCaptured)
