@@ -1,6 +1,6 @@
 import { MoveDirection, directions, type TDirection } from "@/gomoku/common/directions";
 import { ScrapLine, Standarize, cloneMatrix, scrapDirection } from "@/gomoku/common/shared-utils";
-import type { P, TColor, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
+import type { P, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
 import { findValidSpots, isValidMoveFor1337Mode, validXY } from "./moveValidity";
 import { EvalPiece } from "@/gomoku/common/pieceWeight";
 import { IsCapture, extractCaptures, isLineBreakableByAnyCapture } from "./captures";
@@ -16,6 +16,33 @@ function forEachDirection(cb: (dir: TDirection) => any) {
     return false
 }
 
+export interface TMvRepport {
+    x: number
+    y: number
+    isCapture: boolean,
+    captureSetup: boolean,
+    blockCapture: boolean
+    willBCaptured: boolean
+    // enemyCapture: this.isWillCaptureForEnemy(),
+
+    open3: boolean
+    blockOpen3: boolean
+    open4: boolean
+    blockOpen4: boolean
+
+    forbiddenOpponent: boolean
+
+    isAlginedWithPeer: [number, number, number],
+    score: number
+    cScore: number
+
+    isBounded4: boolean
+    o_score: number,
+
+    isWinBy5: boolean
+    blockWinBy5: boolean
+}
+
 export class MoveRepport {
     matrix: TMtx = []
     backupMatrix: TMtx = []
@@ -25,9 +52,11 @@ export class MoveRepport {
     p: P = 1 // player's cell value
     op: P = 2 // opponent's cell value
 
+    willBreakOpen3: boolean = false
     weight?: Omit<TRepport, "directions">
     o_weight?: Omit<TRepport, "directions">
 
+    finalRepport = {} as TMvRepport
     constructor(matrix?: TMtx, cell?: TPoint, turn?: P) {
         matrix && this.setMatrix(cloneMatrix(matrix));
         cell && this.setPoint(cell)
@@ -88,7 +117,25 @@ export class MoveRepport {
     }
     isCapture() {
         this.matrix[this.x][this.y] = this.p
-        return !!IsCapture(this.matrix, this.x, this.y)
+        const captures = IsCapture(this.matrix, this.x, this.y)
+        const [matrix, p, op] = [this.matrix, this.p, this.op]
+        if (!captures)
+            return false
+        for (let i = 0; i < captures.length; i++) {
+            const open3Found = forEachDirection(function (dir) {
+                const rawPath = ScrapLine(matrix, 3, 3, captures[i].x, captures[i].y, dir);
+                const ddd = new RegExp(`0${op}${op}${op}0`)
+                if (ddd.test(rawPath)) {
+                    // return true
+                    return true
+                }
+            })
+            if (open3Found) {
+                this.willBreakOpen3 = true
+                break
+            }
+        }
+        return true
     }
     // - block capture [x]
     isBlockCapture() {
@@ -255,37 +302,17 @@ export class MoveRepport {
     }
     // Punchline
     repport() {
-        this.evaluateMove()
-        // console.clear()
-        const drepport = {
-            isCapture: this.isCapture(),
-            captureSetup: this.isCaptureSetup(),
-            blockCapture: this.isBlockCapture(),
-            willBCaptured: this.isWillCaptured(),
-            // enemyCapture: this.isWillCaptureForEnemy(),
-            open3: this.isOpenThree(),
-            blockOpen3: this.isOpenThreeBlock(),
-            open4: this.isOpenFour(),
-            blockOpen4: this.isOpenFourBlock(),
-            isAlginedWithPeer: this.isAlginedWithPeer(),
-            forbiddenOpponent: this.isForbiddenForOpponent(),
-            isNearBy: this.isNearBy(),
-            score: this.weight?.score || 0,
-            isWinBy5: this.weight?.isWin || 0,
-            blockWinBy5: this.o_weight?.isWin || false,
-            opponentScore: this.o_weight?.score || 0
-        }
-        // console.clear()
+        this.repportObj()
         let rawTxtRepport = []
         rawTxtRepport.push([`X: ${this.x} | Y: ${this.y}`, ''])
-        Object.keys(drepport).forEach((key) => {
-            rawTxtRepport.push([`${key}`, `${drepport[key as keyof typeof drepport]}`]);
+        Object.keys(this.finalRepport).forEach((key) => {
+            rawTxtRepport.push([`${key}`, `${this.finalRepport[key as keyof typeof this.finalRepport]}`]);
         });
         return rawTxtRepport
     }
     repportObj() {
         this.evaluateMove()
-        const drepport = {
+        this.finalRepport = {
             isCapture: this.isCapture(),
             captureSetup: this.isCaptureSetup(),
             blockCapture: this.isBlockCapture(),
@@ -295,7 +322,7 @@ export class MoveRepport {
             open3: this.isOpenThree(),
             blockOpen3: this.isOpenThreeBlock(),
             open4: this.isOpenFour(),
-            blockOpen4: this.isOpenFourBlock(),
+            blockOpen4: this.isOpenFourBlock() || this.willBreakOpen3,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
 
@@ -304,11 +331,34 @@ export class MoveRepport {
             isBounded4: !!this.weight?.isBounded4,
             o_score: this.o_weight?.score || 0,
 
-            isWinBy5: this.weight?.isWin || 0,
+            isWinBy5: this.weight?.isWin || false,
             blockWinBy5: this.o_weight?.isWin || false,
+            cScore: 0
+        } as TMvRepport
 
-        }
+        this.finalRepport.cScore = this.scoreIt(this.finalRepport)
+        return this.finalRepport
+    }
+    scoreIt(repport: ReturnType<typeof this.repportObj>) {
+        let score = 0
+        if (repport.isWinBy5)
+            score += 10000
 
-        return drepport as typeof drepport
+        if (repport.isCapture)
+            score += 700
+
+        if (repport.open4)
+            score += 600
+
+        if (repport.captureSetup)
+            score += 500
+
+        if (repport.open3)
+            score += 400
+
+        if (repport.blockCapture)
+            score += 300
+
+        return score
     }
 }

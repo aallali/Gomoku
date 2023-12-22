@@ -5,7 +5,6 @@ import { type Ref } from "vue"
 import * as IMG from "@/assets/images"
 import { useGame, type IGameStore } from "@/store";
 import { isValidMoveFor1337Mode } from "@/gomoku/modes/1337/moveValidity"
-import makeMove from "@/gomoku/makeMove";
 import { MoveRepport } from "@/gomoku/modes/1337/prior_moves";
 import type { TPoint } from "@/gomoku/types/gomoku.type";
 const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -17,7 +16,6 @@ interface IBoardData {
     turn: Ref<IGameStore["turn"]>
     winner: Ref<IGameStore["winner"]>
     goldenStones: Ref<IGameStore["goldenStones"]>
-    running: Ref<IGameStore["ended"]>
     mode: Ref<IGameStore["mode"]>
     alpha: typeof alpha
     blinks: Ref<IGameStore["blinks"]>
@@ -48,7 +46,6 @@ export default {
             winner: useGame((state) => state.winner),
             goldenStones: useGame((state) => state.goldenStones),
             mode: useGame((state) => state.mode),
-            running: useGame((state) => !state.ended),
             blinks: useGame((state) => state.blinks),
             bestMoves: useGame((state) => state.bestMoves),
             alpha,
@@ -71,10 +68,10 @@ export default {
             if (
                 !this.blinks.length &&
                 !this.matrix[x][y] &&
-                this.running &&
+                !this.winner &&
                 e.target.getAttribute('data-is-valid-spot')
             )
-                makeMove(x, y)
+                useGame.getState().fillCell(x, y)
         },
         isGoldenStone(x: number, y: number) {
             return this.winner && this.goldenStones?.find(p => p.x == (x) && p.y == (y))
@@ -86,7 +83,7 @@ export default {
             const mvr = new MoveRepport()
             mvr.setMatrix(this.matrix)
             mvr.setPoint({ x, y })
-            mvr.setTurn(this.turn === "b" ? 1 : 2)
+            mvr.setTurn(this.turn)
             const analyse = mvr.repport()
             function formatAsTable(lines: string[][]): string {
                 // Find the length of the longest label
@@ -111,7 +108,7 @@ export default {
                 return false
             return this.mvr.isNearBy(this.matrix, { x, y })
         }
-    },
+    }
 }
 </script>
 
@@ -130,7 +127,7 @@ export default {
 
                 <template v-else-if="matrix[i - 1]?.[j - 1] !== undefined">
                     <div @click="(e: any) => makeMove(e, i - 1, j - 1)" @mouseover="() => showSates({ x: i - 1, y: j - 1 })"
-                        :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, (turn === 'b' ? 1 : 2), i - 1, j - 1) : true"
+                        :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, turn, i - 1, j - 1) : true"
                         :data-is-valid-spot="isValidSpot"
                         :class='"cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
 
@@ -305,6 +302,8 @@ export default {
 }
 
 .piece-black-flat {
+    margin-top: 1px;
+    margin-left: 1px;
     background-color: black;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
@@ -318,13 +317,14 @@ export default {
 .nearby-dot {
     position: relative;
     border-radius: 50%;
-    width: 20%;
-    height: 20%;
+    width: 15%;
+    height: 15%;
     margin: auto;
-    background-color: rgb(76, 95, 114);
+    background-color: green;
     top: 50%;
     transform: translateY(-50%);
 }
+
 
 .forbidden-sign {
     position: relative;

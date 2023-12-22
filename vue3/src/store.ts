@@ -1,26 +1,25 @@
 import create from "zustand-vue";
-import type { TMtx, TPoint } from "./gomoku/types/gomoku.type";
+import type { P, TMtx, TPoint } from "./gomoku/types/gomoku.type";
 import * as R from "ramda"
+import go from "./gomoku/GO"
+
 
 export interface IGameStore {
     matrix: TMtx;
     boardSize: number;
     mode: '1337' | 'normal';
     players: {
-        black: IPlayer;
-        white: IPlayer;
+        1: IPlayer;
+        2: IPlayer;
     };
-    ended: boolean;
-    winner: IPlayerColor | null;
-    turn: IPlayerColor;
+    winner: P | 'T' | null;
+    turn: P;
     moves: string[];
     goldenStones: TPoint[] | null
     blinks: TPoint[]
     bestMoves: TPoint[]
     analyse: string
 }
-
-type IPlayerColor = "b" | "w";
 
 export interface IPlayer {
     type: "h" | "ai",
@@ -32,49 +31,46 @@ interface IGameActions {
     setBoardSize: (size: number) => void
     setGameMode: (mode: IGameStore["mode"]) => void
 
-    setPlayerType: (player: IPlayerColor, type: IPlayer["type"]) => void
-    setPlayerScore: (player: IPlayerColor, score: IPlayer["score"]) => void
-    addPlayerCapture: (player: IPlayerColor, totalCaptures: number) => void
+    setPlayerType: (player: P, type: IPlayer["type"]) => void
 
     setGoldenStones: (stones: TPoint[]) => void,
-    setTurn: (plauer: IPlayerColor) => void,
-    applyCaptures: (captures: { x: number, y: number }[]) => number
-    endTheGame: () => void
+    setTurn: (player: P) => void,
+
+    addPlayerCapture: (player: P, totalCaptures: number) => void
+
 
     initMatrix: () => void
     fillCell: (x: number, y: number) => void
-    setMoves: (moves: string[]) => void
-    setWinner: (winner: IPlayerColor) => void
-
+    setWinner: (winner: P | 'T') => void
+    setMtx: (matrix: TMtx) => void
     setBlinkCapt: (captures: TPoint[]) => Promise<void>
-    setBestMoves: (bestMoves: TPoint[]) => void
 
-    resetStates: () => void
+    updateStates: () => void
 
     setAnalyse: (analyse: string) => void
+    undoMove: () => void
 }
 
 const initState: IGameStore = {
-    matrix: [],
+    matrix: go.matrix,
     moves: [],
-    boardSize: 19,
+    boardSize: go.size,
     mode: '1337',
     players: {
-        black: {
+        1: {
             type: "h",
-            captures: 0,
-            score: 0
+            captures: go.players[1].captures,
+            score: go.players[1].score,
         },
-        white: {
-            type: "ai",
-            captures: 0,
-            score: 0
+        2: {
+            type: "h",
+            captures: go.players[2].captures,
+            score: go.players[2].score,
         },
     },
     winner: null,
     goldenStones: null,
-    ended: false,
-    turn: "b",
+    turn: go.turn,
     blinks: [],
     bestMoves: [],
     analyse: ''
@@ -82,94 +78,93 @@ const initState: IGameStore = {
 export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     ...initState,
     setBoardSize: (size) => {
-        set(() => ({ boardSize: size >= 3 && size <= 19 ? size : 19 }))
-        get().initMatrix()
-        get().resetStates()
+        go.setSize(size >= 3 && size <= 19 ? size : 19)
+        go.initMatrix()
+        get().updateStates()
+        return set(() => ({ boardSize: go.size }))
+        // TODO: reset states
     },
-    setGameMode: (mode) => set(() => ({ mode })),
+    setMtx: (matrix: TMtx) => set({ matrix }),
+    setGameMode: (mode) => {
+        go.mode = mode
+        set(() => ({ mode }))
+    },
     initMatrix: () => {
-        const bSize = get().boardSize
-        let matrix: any = []
-        for (let i = 0; i < bSize; i++) {
-            matrix[i] = []
-            for (let j = 0; j < bSize; j++)
-                matrix[i][j] = 0
-        }
-        set({ matrix })
+        go.initMatrix()
+        set({ matrix: [...go.matrix] })
     },
     fillCell: (x, y) => {
-        const alpha = 'ABCDEFGHIJKLMNOPQRS'
-        const matrix = get().matrix
-        const turn = get().turn
-        const cellValue = turn === "b" ? 1 : 2
-        // const newTurn = turn == "b" ? "w" : "b"
-        matrix[x][y] = cellValue;
-        set({
-            matrix: [...matrix],
-            moves: [...get().moves, `${alpha[x]}${y}`],
-        })
+        go.move({ x, y })
+        go.findBestMove()
+        get().updateStates()
     },
     setPlayerType: (player, type) => {
+        go.players[player].isAi = type === "ai"
         const players = get().players
-        players[player === "b" ? "black" : "white"].type = type
+        players[player].type = type
         set({ players: { ...players } })
     },
-    //TODO: add logic
-    setPlayerScore: (player, score) => set(state => ({})),
-    addPlayerCapture: (turn, totalCaptures) => {
-        const currentPlayer = turn == "b" ? "black" : "white"
-        set(R.over(R.lensPath(["players", currentPlayer, "captures"]), (c) => c + totalCaptures))
-    },
+
     setTurn: (player) => set({ turn: player }),
-    applyCaptures: (captures) => {
-        const matrix = get().matrix
-        for (let i = 0; i < captures.length; i++) {
-            const { x, y } = captures[i]
-            matrix[x][y] = 0
-        }
-
-        set({ matrix: [...matrix] })
-        const addPlayerCapture = useGame((state) => state.addPlayerCapture)
-        addPlayerCapture(get().turn, Math.ceil((captures.length / 2)))
-        return get().players[get().turn == "b" ? "black" : "white"].captures
-    },
-
-    endTheGame: () => set({ ended: true }),
     setGoldenStones: (stones) => set({ goldenStones: stones }),
-    setMoves: (moves) => set({ moves }),
     setWinner: (winner) => set({ winner }),
     setBlinkCapt: (captures): Promise<void> => {
         set({ blinks: captures })
         return new Promise((resolve) => setTimeout(() => {
             set({ blinks: [] })
             resolve()
-        }, 700))
+        }, 300))
     },
-    setBestMoves: (bestMoves) => set({ bestMoves }),
-    resetStates: () => set((state) => ({
-        moves: [],
-        players: {
-            black: {
-                type: 'h',
-                captures: 0,
-                score: 0
+    updateStates: () => {
+        set({
+            matrix: go.matrix,
+            moves: [...go.moves],
+            players: {
+                1: {
+                    type: go.players[1].isAi ? "ai" : "h",
+                    captures: go.players[1].captures,
+                    score: go.players[1].score
+                },
+                2: {
+                    type: go.players[2].isAi ? "ai" : "h",
+                    captures: go.players[2].captures,
+                    score: go.players[2].score
+                },
             },
-            white: {
-                type: 'h',
-                captures: 0,
-                score: 0
-            },
-        },
-        mode: "normal",
-        winner: null,
-        goldenStones: null,
-        ended: false,
-        blinks: [],
-        bestMoves: []
-    })),
+            turn: go.turn,
+            mode: go.mode,
+            winner: go.winner || null,
+            goldenStones: go.winStones,
+            blinks: [],
+            bestMoves: go.bestMoves
+        })
+ 
+        return
+    },
     setAnalyse(analyse) {
         set({ analyse })
     },
+    undoMove() {
+        go.undo()
+        get().updateStates()
+    },
+    importMove(rawMoves:string) {
+        const movesList = rawMoves.split(',')
+        go.importMoves(movesList)
+    },
+    addPlayerCapture: (turn, totalCaptures) => {
+        const colors = {
+            1: "black",
+            2: "white"
+        }
+        const currentPlayer = colors[turn];
+
+        set(R.over(R.lensPath(["players", currentPlayer, "captures"]), (c) => c + totalCaptures))
+    },
 }))
 
-useGame((state) => state.initMatrix)()
+
+
+go.setSize(19)
+
+useGame((state) => state.updateStates)()

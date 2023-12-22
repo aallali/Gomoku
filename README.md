@@ -11,14 +11,17 @@ This project involves creating, in the language of your choice, a Gomoku game in
 
 - live here : https://gomoku.allali.me/
 - Ai Analayse text area currentl contains only basic details. (will be updated)
-- TODO:
-    - Include a scenario where:
+- **TODO**:
+    - [ ] Include a scenario where:
         - There are three pieces in a row.
         - The fourth position is a forbidden cell for the opponent.
         - Place the fourth piece/move in the fifth position, which may be allowed for the opponent.
         - By doing so, we are one move away from achieving a five-in-a-row win, and the opponent cannot prevent it.
-    - Implement limited-depth Minimax to check for any potential unhandled cases.
-
+    - [ ] Implement limited-depth Minimax to check for any potential unhandled cases.
+        - [x] experiment it a little bit
+    - [x] implement moves import
+    - [x] implement Undo move
+    - [x] detect if the capture move will also break an open4/open3
 
 <img src="./ressources/gomoku-ts-v1.png">
 

@@ -1,4 +1,4 @@
-import type { TMtx, Nb, TColor, TPoint, P } from "../types/gomoku.type";
+import type { TMtx, Nb, TPoint, P } from "../types/gomoku.type";
 import { validXY } from "../modes/1337/moveValidity";
 import { DirectionMirror, MoveDirection, type TDirection } from "./directions";
 
@@ -73,6 +73,6 @@ export const blok = (seconds: number): Promise<void> => new Promise(resolve => s
  * 
  * @description clone the board data to avoid original state change
  */
-export function cloneMatrix(matrix: TMtx) {
+export function cloneMatrix(matrix: TMtx): TMtx {
     return matrix.map(row => [...row]);
 }

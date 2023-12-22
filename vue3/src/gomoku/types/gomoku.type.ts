@@ -8,7 +8,6 @@ export type Nb = number
  * - 2 stands for White
  */
 export type P = 1 | 2
-export type TColor = "b" | "w"
 export type TPoint = { x: Nb, y: Nb, score?: Nb }
 export type TMode = "1337" | "normal"
 
