@@ -3,18 +3,19 @@
         <div>
             <h4 class="option-title">Black is:</h4>
             <SwitcheButton v-bind:options="['Ai', 'Human']" :selected="players.black === 'ai' ? 'Ai' : 'Human'"
-                :onChangeHandler="(event: Event) => handleChange('b', event)" />
+                :onChangeHandler="(event: Event) => handleChange(1, event)" />
         </div>
         <hr>
         <div>
             <h4 class="option-title">White is:</h4>
             <SwitcheButton v-bind:options="['Ai', 'Human']" :selected="players.white === 'ai' ? 'Ai' : 'Human'"
-                :onChangeHandler="(event: Event) => handleChange('w', event)" />
+                :onChangeHandler="(event: Event) => handleChange(2, event)" />
         </div>
     </fieldset>
 </template>
 
 <script lang="ts">
+import type { P } from "@/gomoku/types/gomoku.type";
 import SwitcheButton from "./common/SwitcheButton.vue";
 import { useGame } from '@/store';
 
@@ -27,13 +28,13 @@ export default {
     data() {
         return {
             players: {
-                black: useGame((state) => state.players.black.type),
-                white: useGame((state) => state.players.white.type),
+                black: useGame((state) => state.players[1].type),
+                white: useGame((state) => state.players[2].type),
             }
         }
     },
     methods: {
-        handleChange(player: "b" | "w", e: Event) {
+        handleChange(player: P, e: Event) {
             const trg = e.target as HTMLInputElement
             const playerType = trg.value as 'Ai' | 'Human'
             updatePlayerType(player, /ai/.test(playerType) ? "ai" : "h")

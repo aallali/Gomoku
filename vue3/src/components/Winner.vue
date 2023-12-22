@@ -12,6 +12,6 @@ export default {
 <template>
     <!-- <h3 style="color: transparent">_</h3> -->
     <fieldset v-if="winner">
-        <label>Winner: <b>{{ winner == "b" ? "Black" : "White" }}</b></label>
+        <label>Winner: <b>{{ winner == 1 ? "Black" : "White" }}</b></label>
     </fieldset>
 </template>
