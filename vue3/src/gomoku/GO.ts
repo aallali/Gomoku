@@ -141,7 +141,7 @@ class GO {
     }
 
     findBestMove() {
-        if (this.turn === 1) {
+        if (!this.players[this.turn].isAi) {
             this.bestMoves = []
             return
         }
