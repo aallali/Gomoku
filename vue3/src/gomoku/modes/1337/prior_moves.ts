@@ -338,8 +338,7 @@ export class MoveRepport {
             o_score: this.o_weight?.score || 0,
 
             isWinBy5: this.weight?.isWin || false,
-            blockWinBy5: this.o_weight?.isWin || false,
-            cScore: 0
+            blockWinBy5: this.o_weight?.isWin || false
         } as TMvRepport
 
         this.finalRepport.cScore = this.scoreIt(this.finalRepport)
