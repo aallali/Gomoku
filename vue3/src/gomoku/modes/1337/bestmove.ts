@@ -38,7 +38,7 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number
         }
     }
 
-    return movesSorter(availableSpots, turn, player1Captures, player2Captures)
+    return movesSorter(availableSpots, player1Captures, player2Captures)
 }
 
 /**
@@ -63,7 +63,7 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
     return array;
 }
 
-function movesSorter(moves: TMvRepport[], player: P, player1Captures: number, player2Captures: number) {
+function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number) {
     // Define the order of priority for fields
     let fieldPriority: string[] = [
         'isWinBy5',
