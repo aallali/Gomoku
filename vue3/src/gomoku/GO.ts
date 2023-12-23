@@ -69,7 +69,7 @@ class GO {
             this.matrix = captures.matrix
             this.moves.push(alpha[x] + y)
             if (captures.total) {
-                this.players[this.turn].captures += captures.total / 2
+                this.players[this.turn].captures += captures.total
             }
         } else
             throw "Invalid move: forbidden"
