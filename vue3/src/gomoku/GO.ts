@@ -121,7 +121,6 @@ class GO {
         this.moves.pop()
         const movesCopy = [...this.moves]
         this.resetStates()
-
         this.importMoves(movesCopy)
     }
     resetStates() {
@@ -155,12 +154,8 @@ class GO {
             this.bestMoves = [bestMoves[0]]
             // const mmScore = miniMax(bestMoves.slice(0, 10), this.turn, this.matrix);
             return
-        } else {
-            return
         }
     }
-
-
 }
 const go = new GO()
 
