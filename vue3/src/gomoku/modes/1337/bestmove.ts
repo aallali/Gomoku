@@ -78,10 +78,14 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         'isBounded4',
     ];
 
-    if (player1Captures === 4)
+    if (player1Captures === 4 && moves.find(l => l.isCapture)) {
         fieldPriority = changePosition(fieldPriority, 'isCapture', 0);
-    else if (player2Captures === 4)
+    }
+    
+    else if (player2Captures >= 4) {
         fieldPriority = changePosition(fieldPriority, 'blockCapture', 0);
+    }
+
 
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
