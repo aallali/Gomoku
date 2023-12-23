@@ -148,26 +148,26 @@ export class MoveRepport {
         return !!IsCapture(this.matrix, this.x, this.y)
     }
     // - will be captured move, if played [x]
-    isWillCaptured() {
-        const [matrix, x, y, p] = [cloneMatrix(this.matrix), this.x, this.y, this.p]
+    isWillCaptured(coord?: TPoint) {
+        let [matrix, x, y, p] = [cloneMatrix(this.matrix), coord?.x || this.x, coord?.y || this.y, this.p]
         matrix[x][y] = p;
-        // TODO: find and apply captures
-        for (let i = 0; i < directions.length; i++) {
+        targetLoop: for (let i = 0; i < directions.length; i++) {
             const dir = directions[i];
             const rawPath = ScrapLine(matrix, 2, 1, x, y, dir);
             const path = Standarize(p, rawPath);
+
             if (/(OXX\.)|(\.XXO)/.test(path)) {
                 if (/OXX\./.test(path)) {
                     let coord = MoveDirection(dir, x, y)
                     if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y)) {
-                        continue
+                        continue targetLoop
                     }
                 } else {
                     let coord = { x, y }
-                    MoveDirection(dir, coord.x, coord.y)
-                    MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
                     if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y)) {
-                        continue
+                        continue targetLoop
                     }
                 }
                 return true;
