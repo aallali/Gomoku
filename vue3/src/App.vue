@@ -11,6 +11,8 @@ import Winner from "./components/Winner.vue"
 import { useGame } from "./store";
 
 const undo = useGame((state) => state.undoMove)
+const moves = useGame((state) => state.moves)
+
 // inline component with JSX
 // 'Droid Sans Mono', 'monospace', monospace
 const StartButton = defineComponent({
@@ -20,7 +22,7 @@ const StartButton = defineComponent({
   render() {
     return (
       <fieldset>
-        <button class="startBtn" onClick={undo}>Undo</button>
+        <button class="startBtn" onClick={undo}>Undo move</button>
       </fieldset>
     )
   }
@@ -28,7 +30,9 @@ const StartButton = defineComponent({
 
 export default {
   data(): any {
-    return {}
+    return {
+      moves
+    }
   },
   components: {
     Grid,
@@ -53,7 +57,6 @@ export default {
 
 
   <div class="grid-container">
-
     <!-- Board  -->
     <Grid>
       <Board />
@@ -62,20 +65,14 @@ export default {
     <Grid>
       <AiAnalayse />
     </Grid>
-
     <!-- Game settings -->
     <Grid>
+      <Stats />
       <Winner />
       <Players />
-      <GameMode />
+      <GameMode v-if="!moves.length"/>
+      <StartButton v-if="moves.length"/>
     </Grid>
-
-    <!-- Players Stats -->
-    <Grid>
-      <Stats />
-      <StartButton />
-    </Grid>
-
   </div>
 
   <!-- Moves history during game -->
