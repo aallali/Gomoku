@@ -3,7 +3,7 @@ import { ScrapLine, Standarize, cloneMatrix, scrapDirection } from "@/gomoku/com
 import type { P, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
 import { findValidSpots, isValidMoveFor1337Mode, validXY } from "./moveValidity";
 import { EvalPiece } from "@/gomoku/common/pieceWeight";
-import { IsCapture, extractCaptures, isLineBreakableByAnyCapture } from "./captures";
+import { IsCapture, applyCapturesIfAny, extractCaptures, isLineBreakableByAnyCapture } from "./captures";
 import { check5Win } from "../normal/mode-normal";
 
 function forEachDirection(cb: (dir: TDirection) => any) {
@@ -41,6 +41,8 @@ export interface TMvRepport {
 
     isWinBy5: boolean
     blockWinBy5: boolean
+
+    totalCaptures: number
 }
 
 export class MoveRepport {
@@ -73,6 +75,9 @@ export class MoveRepport {
         this.setMatrix(this.backupMatrix)
         this.matrix = cloneMatrix(this.backupMatrix)
         this.matrix[x][y] = this.p
+        const { matrix, total: totalCaptures } = applyCapturesIfAny(this.matrix, { x, y })
+        this.matrix = matrix
+        this.finalRepport.totalCaptures = totalCaptures
     }
 
     setTurn(turn: P) {
