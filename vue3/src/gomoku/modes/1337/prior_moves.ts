@@ -58,6 +58,7 @@ export class MoveRepport {
     weight?: Omit<TRepport, "directions">
     o_weight?: Omit<TRepport, "directions">
 
+
     finalRepport = {} as TMvRepport
     constructor(matrix?: TMtx, cell?: TPoint, turn?: P) {
         matrix && this.setMatrix(cloneMatrix(matrix));
@@ -130,11 +131,10 @@ export class MoveRepport {
             const open3Found = forEachDirection(function (dir) {
                 const rawPath = ScrapLine(matrix, 3, 3, captures[i].x, captures[i].y, dir);
                 const ddd = new RegExp(`0${op}${op}${op}0`)
-                if (ddd.test(rawPath)) {
-                    // return true
+                if (ddd.test(rawPath))
                     return true
-                }
             })
+            // TODO: review this
             if (open3Found) {
                 this.willBreakOpen3 = true
                 break
