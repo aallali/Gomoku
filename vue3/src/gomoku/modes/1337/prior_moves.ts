@@ -1,4 +1,4 @@
-import { MoveDirection, directions, type TDirection } from "@/gomoku/common/directions";
+import { MoveDirection, directions, type TDirection, DirectionMirror } from "@/gomoku/common/directions";
 import { ScrapLine, Standarize, cloneMatrix, scrapDirection } from "@/gomoku/common/shared-utils";
 import type { P, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
 import { findValidSpots, isValidMoveFor1337Mode, validXY } from "./moveValidity";
@@ -209,30 +209,70 @@ export class MoveRepport {
     isCellBlock() { }
     // - free three
     isOpenThree(turn?: P): boolean {
-        // TODO: collect it from Eval
-        // const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
-        // this.matrix[x][y] = p;
-        // for (let i = 0; i < 4; i++) {
-        //     const dir = directions[i];
-        //     const rawPath = ScrapLine(matrix, 5, 5, x, y, dir);
-        //     const path = Standarize(p, rawPath);
-        //     const patterns = [
-        //         /\.\.XXX\./, // eg: [__BBB_]
-        //         /\.XXX\.\./, // eg: [_BBB__]
-        //         /\.X\.XX\./, // eg: [_B_BB_]
-        //         /\.XX\.X\./  // eg: [_BB_B_]
-        //     ];
-        //     const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
+        const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
+        this.matrix[x][y] = p;
 
-        //     if (combinedRegex.test(path)) {
-        //         return true;
-        //     }
-        // }
+        for (let i = 0; i < directions.length; i++) {
+            const dir = directions[i];
+            let leftSide = 4
+            let rightSide = 2
+            const rawPath = ScrapLine(matrix, leftSide, rightSide, x, y, dir).split("").reverse().join("");
+            const path = Standarize(p, rawPath)
+            const patterns = [
+                /\.\.XXX\./, // eg: [__BBB_]
+                /\.XXX\.\./, // eg: [_BBB__]
+                /\.X\.XX\./, // eg: [_B_BB_]
+                /\.XX\.X\./  // eg: [_BB_B_]
+            ];
+            const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
+            const match = combinedRegex.exec(path);
+            if (match) {
+                let coordList = []
+                let counter = 0
+                let coord = { x, y }
 
-        // return false
-        if (!this.weight)
-            this.evaluateMove()
-        return this.weight?.isOpenThree || false
+                breakme: while (counter++ < leftSide) {
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                coordList = coordList.reverse()
+                coord = { x, y }
+                counter = 0
+
+                breakme: while (counter++ < rightSide) {
+                    coord = MoveDirection(dir, coord.x, coord.y)
+                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
+                let isPerfectOpen3 = true
+
+                targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
+                    const { x: ex, y: ey } = exactMatchCoordinations[idx]
+
+                    if (this.matrix[ex][ey] === 0) {
+                        if (!isValidMoveFor1337Mode(matrix, this.p, ex, ey)) {
+                            isPerfectOpen3 = false
+                            break targetLoop
+                        }
+                    } else {
+                        if (this.isWillCaptured({ x: ex, y: ey })) {
+                            isPerfectOpen3 = false
+                            break
+                        }
+                    }
+                }
+                if (isPerfectOpen3) {
+                    return true
+                }
+            }
+        }
+        return false
     }
     // - block open there
     isOpenThreeBlock(): boolean {
