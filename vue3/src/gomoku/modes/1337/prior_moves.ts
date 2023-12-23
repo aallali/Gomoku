@@ -318,6 +318,7 @@ export class MoveRepport {
     repportObj() {
         this.evaluateMove()
         this.finalRepport = {
+            ...this.finalRepport,
             isCapture: this.isCapture(),
             captureSetup: this.isCaptureSetup(),
             blockCapture: this.isBlockCapture(),
