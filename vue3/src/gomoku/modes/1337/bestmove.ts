@@ -38,7 +38,7 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number
         }
     }
 
-    return movesSorter(availableSpots, turn, player1Captures, player2Captures)
+    return movesSorter(availableSpots, player1Captures, player2Captures)
 }
 
 /**
@@ -63,7 +63,7 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
     return array;
 }
 
-function movesSorter(moves: TMvRepport[], player: P, player1Captures: number, player2Captures: number) {
+function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number) {
     // Define the order of priority for fields
     let fieldPriority: string[] = [
         'isWinBy5',
@@ -78,10 +78,14 @@ function movesSorter(moves: TMvRepport[], player: P, player1Captures: number, pl
         'isBounded4',
     ];
 
-    if (player1Captures === 4)
+    if (player1Captures === 4 && moves.find(l => l.isCapture)) {
         fieldPriority = changePosition(fieldPriority, 'isCapture', 0);
-    else if (player2Captures === 4)
+    }
+    
+    else if (player2Captures >= 4) {
         fieldPriority = changePosition(fieldPriority, 'blockCapture', 0);
+    }
+
 
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {

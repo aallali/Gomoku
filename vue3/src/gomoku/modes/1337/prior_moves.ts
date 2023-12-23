@@ -1,9 +1,9 @@
-import { MoveDirection, directions, type TDirection } from "@/gomoku/common/directions";
+import { MoveDirection, directions, type TDirection, DirectionMirror } from "@/gomoku/common/directions";
 import { ScrapLine, Standarize, cloneMatrix, scrapDirection } from "@/gomoku/common/shared-utils";
 import type { P, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
 import { findValidSpots, isValidMoveFor1337Mode, validXY } from "./moveValidity";
 import { EvalPiece } from "@/gomoku/common/pieceWeight";
-import { IsCapture, extractCaptures, isLineBreakableByAnyCapture } from "./captures";
+import { IsCapture, applyCapturesIfAny, extractCaptures, isLineBreakableByAnyCapture } from "./captures";
 import { check5Win } from "../normal/mode-normal";
 
 function forEachDirection(cb: (dir: TDirection) => any) {
@@ -41,6 +41,8 @@ export interface TMvRepport {
 
     isWinBy5: boolean
     blockWinBy5: boolean
+
+    totalCaptures: number
 }
 
 export class MoveRepport {
@@ -55,6 +57,7 @@ export class MoveRepport {
     willBreakOpen3: boolean = false
     weight?: Omit<TRepport, "directions">
     o_weight?: Omit<TRepport, "directions">
+
 
     finalRepport = {} as TMvRepport
     constructor(matrix?: TMtx, cell?: TPoint, turn?: P) {
@@ -73,6 +76,9 @@ export class MoveRepport {
         this.setMatrix(this.backupMatrix)
         this.matrix = cloneMatrix(this.backupMatrix)
         this.matrix[x][y] = this.p
+        const { matrix, total: totalCaptures } = applyCapturesIfAny(this.matrix, { x, y })
+        this.matrix = matrix
+        this.finalRepport.totalCaptures = totalCaptures
     }
 
     setTurn(turn: P) {
@@ -125,11 +131,10 @@ export class MoveRepport {
             const open3Found = forEachDirection(function (dir) {
                 const rawPath = ScrapLine(matrix, 3, 3, captures[i].x, captures[i].y, dir);
                 const ddd = new RegExp(`0${op}${op}${op}0`)
-                if (ddd.test(rawPath)) {
-                    // return true
+                if (ddd.test(rawPath))
                     return true
-                }
             })
+            // TODO: review this
             if (open3Found) {
                 this.willBreakOpen3 = true
                 break
@@ -143,26 +148,26 @@ export class MoveRepport {
         return !!IsCapture(this.matrix, this.x, this.y)
     }
     // - will be captured move, if played [x]
-    isWillCaptured() {
-        const [matrix, x, y, p] = [cloneMatrix(this.matrix), this.x, this.y, this.p]
+    isWillCaptured(coord?: TPoint) {
+        let [matrix, x, y, p] = [cloneMatrix(this.matrix), coord?.x || this.x, coord?.y || this.y, this.p]
         matrix[x][y] = p;
-        // TODO: find and apply captures
-        for (let i = 0; i < directions.length; i++) {
+        targetLoop: for (let i = 0; i < directions.length; i++) {
             const dir = directions[i];
             const rawPath = ScrapLine(matrix, 2, 1, x, y, dir);
             const path = Standarize(p, rawPath);
+
             if (/(OXX\.)|(\.XXO)/.test(path)) {
                 if (/OXX\./.test(path)) {
                     let coord = MoveDirection(dir, x, y)
                     if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y)) {
-                        continue
+                        continue targetLoop
                     }
                 } else {
                     let coord = { x, y }
-                    MoveDirection(dir, coord.x, coord.y)
-                    MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
                     if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y)) {
-                        continue
+                        continue targetLoop
                     }
                 }
                 return true;
@@ -204,30 +209,70 @@ export class MoveRepport {
     isCellBlock() { }
     // - free three
     isOpenThree(turn?: P): boolean {
-        // TODO: collect it from Eval
-        // const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
-        // this.matrix[x][y] = p;
-        // for (let i = 0; i < 4; i++) {
-        //     const dir = directions[i];
-        //     const rawPath = ScrapLine(matrix, 5, 5, x, y, dir);
-        //     const path = Standarize(p, rawPath);
-        //     const patterns = [
-        //         /\.\.XXX\./, // eg: [__BBB_]
-        //         /\.XXX\.\./, // eg: [_BBB__]
-        //         /\.X\.XX\./, // eg: [_B_BB_]
-        //         /\.XX\.X\./  // eg: [_BB_B_]
-        //     ];
-        //     const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
+        const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
+        this.matrix[x][y] = p;
 
-        //     if (combinedRegex.test(path)) {
-        //         return true;
-        //     }
-        // }
+        for (let i = 0; i < directions.length; i++) {
+            const dir = directions[i];
+            let leftSide = 4
+            let rightSide = 2
+            const rawPath = ScrapLine(matrix, leftSide, rightSide, x, y, dir).split("").reverse().join("");
+            const path = Standarize(p, rawPath)
+            const patterns = [
+                /\.\.XXX\./, // eg: [__BBB_]
+                /\.XXX\.\./, // eg: [_BBB__]
+                /\.X\.XX\./, // eg: [_B_BB_]
+                /\.XX\.X\./  // eg: [_BB_B_]
+            ];
+            const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
+            const match = combinedRegex.exec(path);
+            if (match) {
+                let coordList = []
+                let counter = 0
+                let coord = { x, y }
 
-        // return false
-        if (!this.weight)
-            this.evaluateMove()
-        return this.weight?.isOpenThree || false
+                breakme: while (counter++ < leftSide) {
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                coordList = coordList.reverse()
+                coord = { x, y }
+                counter = 0
+
+                breakme: while (counter++ < rightSide) {
+                    coord = MoveDirection(dir, coord.x, coord.y)
+                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
+                let isPerfectOpen3 = true
+
+                targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
+                    const { x: ex, y: ey } = exactMatchCoordinations[idx]
+
+                    if (this.matrix[ex][ey] === 0) {
+                        if (!isValidMoveFor1337Mode(matrix, this.p, ex, ey)) {
+                            isPerfectOpen3 = false
+                            break targetLoop
+                        }
+                    } else {
+                        if (this.isWillCaptured({ x: ex, y: ey })) {
+                            isPerfectOpen3 = false
+                            break
+                        }
+                    }
+                }
+                if (isPerfectOpen3) {
+                    return true
+                }
+            }
+        }
+        return false
     }
     // - block open there
     isOpenThreeBlock(): boolean {
@@ -294,7 +339,7 @@ export class MoveRepport {
     isNearBy(_matrix?: TMtx, cell?: TPoint) {
         const [matrix, _x, _y] = [_matrix || this.matrix, cell?.x || this.x, cell?.y || this.y]
         return forEachDirection((dir) => {
-            const rawPath = ScrapLine(matrix, 0, 1, _x, _y, dir);
+            const rawPath = ScrapLine(matrix, 0, 2, _x, _y, dir);
             if (/1|2/.test(rawPath.substring(1))) {
                 return true
             }
@@ -313,6 +358,7 @@ export class MoveRepport {
     repportObj() {
         this.evaluateMove()
         this.finalRepport = {
+            ...this.finalRepport,
             isCapture: this.isCapture(),
             captureSetup: this.isCaptureSetup(),
             blockCapture: this.isBlockCapture(),
@@ -332,8 +378,7 @@ export class MoveRepport {
             o_score: this.o_weight?.score || 0,
 
             isWinBy5: this.weight?.isWin || false,
-            blockWinBy5: this.o_weight?.isWin || false,
-            cScore: 0
+            blockWinBy5: this.o_weight?.isWin || false
         } as TMvRepport
 
         this.finalRepport.cScore = this.scoreIt(this.finalRepport)

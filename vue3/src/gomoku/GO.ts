@@ -111,9 +111,8 @@ class GO {
         // 2- if collected atleast 5 captures.
         if (isWinBy5 || this.players[this.turn].captures >= 5) {
             // hover over win stones if there is.
-            // TODO: impl winstones
-            // if (winStones)
-            //     useGame.getState().setGoldenStones(winStones)
+            if (winStones)
+                this.winStones = winStones
             // declare winner and end the game
             this.winner = this.turn
         }
@@ -122,7 +121,6 @@ class GO {
         this.moves.pop()
         const movesCopy = [...this.moves]
         this.resetStates()
-
         this.importMoves(movesCopy)
     }
     resetStates() {
@@ -142,7 +140,7 @@ class GO {
     }
 
     findBestMove() {
-        if (this.turn === 1) {
+        if (!this.players[this.turn].isAi) {
             this.bestMoves = []
             return
         }
@@ -156,12 +154,8 @@ class GO {
             this.bestMoves = [bestMoves[0]]
             // const mmScore = miniMax(bestMoves.slice(0, 10), this.turn, this.matrix);
             return
-        } else {
-            return
         }
     }
-
-
 }
 const go = new GO()
 

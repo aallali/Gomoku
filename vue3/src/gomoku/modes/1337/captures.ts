@@ -75,5 +75,5 @@ export function applyCapturesIfAny(matrix: TMtx, { x, y }: TPoint): { matrix: TM
     });
 
     // Return the updated matrix and the total number of captures
-    return { matrix, total: captures?.length || 0 };
+    return { matrix, total: (captures?.length || 0) / 2 };
 }

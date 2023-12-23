@@ -22,8 +22,22 @@ This project involves creating, in the language of your choice, a Gomoku game in
     - [x] implement moves import
     - [x] implement Undo move
     - [x] detect if the capture move will also break an open4/open3
-    - [x] `[fix]` : all the moves considered "will be captured" are ignore even if a fifth (winning) capture move is there, adapt script to bypass this one
-<img src="./ressources/gomoku-ts-v1.png">
+    - [x] `[fix]` : all the moves considered "will be captured" are ignored even if a fifth (winning) capture move is there, adapt script to bypass this one
+    - [ ] `[fix]` : set open3/open4 only if all the pieces forming it are not in to-be-capture position
+        - scenario: `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4`
+        - [x] fix it for open3
+        - [ ] fix it for open4
+        - [ ] fix it for block_open3
+        - [ ] fix it for block_open4
+    - [ ] `[fix]` : correct move for black is `H7` but it chosed to block fifth move in open 4, which is lost any way
+        - explanation: 
+        - scenario : `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5,H7`
+    - [ ] `[fix]` : a perfect capture setup is when the capture spot is valid move for me
+        - update capture setup field with 2 fields :
+            - `captureSetupPerfect`
+            - `captureSetupImperfect`
+
+<img src="./ressources/gomoku-ts-v1.2.png">
 
 ---
 ### 30/06/2023 (second day of AÏD AL ADHAA):
