@@ -1,6 +1,6 @@
 import type { P, TMtx, TPoint } from "@/gomoku/types/gomoku.type";
 import { findValidSpots } from "./moveValidity";
-import { MoveRepport, type TMvRepport } from "./prior_moves";
+import { MoveRepport, type TMvRepport } from "./MoveRepport";
 import { cloneMatrix } from "@/gomoku/common/shared-utils";
 import { applyCapturesIfAny } from "./captures";
 
@@ -8,16 +8,13 @@ const { log } = console
 
 export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number, player2Captures: number) {
 
-    const repporter = new MoveRepport()
-    repporter.setMatrix(matrix);
-    repporter.setTurn(turn);
 
     const availableSpots: TMvRepport[] = []
     const validSpots = findValidSpots(matrix, turn, "1337")
 
     for (let i = 0; i < validSpots.length; i++) {
-        const { x, y } = validSpots[i]
-        repporter.setPoint({ x, y });
+        const { x, y } = validSpots[i];
+        const repporter = new MoveRepport(matrix, { x, y }, turn)
 
         if (repporter.isNearBy()) {
             const repport = repporter.repportObj()
@@ -26,15 +23,15 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number
             // or if it is part of a winning line of 5 stones, or if it blocks an opponent's potential win.
             // Also, consider it if it is marked for capture and the current-player captures count is greater than or equal to 4.
             if (
-                !repport.willBCaptured ||        // Condition: Not marked for capture by the opponent.
-                repport.isWinBy5 ||               // Condition: Part of a winning line of 5 stones.
-                repport.blockWinBy5 ||            // Condition: Blocks an opponent's potential win.
-                (repport.isCapture && player1Captures >= 4)  // Condition: Marked for capture and current-player captures count >= 4.
+                !repport.captured ||        // Condition: Not marked for capture by the opponent.
+                repport.win5 ||             // Condition: Part of a winning line of 5 stones.
+                repport.win5Block ||        // Condition: Blocks an opponent's potential win.
+                repport.winBreak ||         // Condition: break his 5 win   
+                (repport.capture && player1Captures >= 4)  // Condition: Marked for capture and current-player captures count >= 4.
             ) {
                 // If any of the conditions is true, add the current spot to the available spots.
                 availableSpots.push({ ...repport, x, y });
             }
-
         }
     }
 
@@ -64,43 +61,46 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
 }
 
 function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number) {
+    moves[0].capture
     // Define the order of priority for fields
-    let fieldPriority: string[] = [
-        'isWinBy5',
-        'blockWinBy5',
-        'open4', 'blockOpen4',
-        'isCapture', 'captureSetup',
-        'blockCapture',
-        'open3', 'blockOpen3',
-        'isAlginedWithPeer',
+    let fieldPriority: (keyof TMvRepport)[] = [
+        'winBreak',
+        'win5',
+        'win5Block',
+        'open4', 'open4Block',
+        'capture', 'captureSetup',
+        'captureBlock',
+        'open3', 'open3Block',
+        'aligned_siblings',
         'score',
-        'o_score',
-        'isBounded4',
+        'score_opponent',
+        'open4Bounded',
     ];
 
-    if (player1Captures === 4 && moves.find(l => l.isCapture)) {
-        fieldPriority = changePosition(fieldPriority, 'isCapture', 0);
-    }
-    
-    else if (player2Captures >= 4) {
-        fieldPriority = changePosition(fieldPriority, 'blockCapture', 0);
+    if (player1Captures === 4 && moves.find(l => l.capture)) {
+        fieldPriority = changePosition(fieldPriority, 'capture', 0);
     }
 
+    else if (player2Captures >= 4) {
+        fieldPriority = changePosition(fieldPriority, 'captureBlock', 0);
+    }
 
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
-            if (field === 'score' || field === 'o_score') {
-                if (b[field] !== a[field])
+            if (field === 'score' || field === 'score_opponent' || field === 'winBreak') {
+                if (b[field] !== a[field]) {
                     return b[field] - a[field]
+                }
             }
-            if (field === 'isAlginedWithPeer') {
+            if (field === 'aligned_siblings') {
                 if (a[field][0] === b[field][0])
                     if (a[field][1] !== b[field][1])
                         return a[field][1] - b[field][1]
                 if (b[field][0] !== a[field][0])
                     return b[field][0] - a[field][0]
             }
+
 
             const aValue = a[field] ? 1 : 0;
             const bValue = b[field] ? 1 : 0;

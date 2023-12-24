@@ -69,7 +69,7 @@ class GO {
             this.matrix = captures.matrix
             this.moves.push(alpha[x] + y)
             if (captures.total) {
-                this.players[this.turn].captures += captures.total / 2
+                this.players[this.turn].captures += captures.total
             }
         } else
             throw "Invalid move: forbidden"
@@ -99,10 +99,16 @@ class GO {
     }
     checkWinner() {
         const { x, y } = this.translateMove(this.moves[this.moves.length - 1])
+        // get the opponent's cell value (1 or 2) by simple math, 3 - (1|2) = 1|2 
+        const o_turn = 3 - this.turn as P
+        // check if there is 5 in row pieces
         const winStones = check5Win(this.matrix, this.turn, x, y)
-        const oponentValidMoves = findValidSpots(this.matrix, this.turn, this.mode)
+        if (!winStones)
+            return
+        // - extract all valid oponnent's moves
+        const oponentValidMoves = findValidSpots(this.matrix, o_turn, this.mode)
         // - extract all possible  oponnent's captures moves  if any
-        const capturesOfEnemy = extractCaptures(this.matrix, oponentValidMoves, 3 - this.turn as P)
+        const capturesOfEnemy = extractCaptures(this.matrix, oponentValidMoves, o_turn)
         // - check breakable line only if captures mode is activated + if there is a win stones row.
         const breakableRow = winStones && this.mode === "1337" && isLineBreakableByAnyCapture(capturesOfEnemy, winStones)
         const isWinBy5 = winStones && !breakableRow

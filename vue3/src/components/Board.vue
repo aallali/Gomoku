@@ -5,7 +5,7 @@ import { type Ref } from "vue"
 import * as IMG from "@/assets/images"
 import { useGame, type IGameStore } from "@/store";
 import { isValidMoveFor1337Mode } from "@/gomoku/modes/1337/moveValidity"
-import { MoveRepport } from "@/gomoku/modes/1337/prior_moves";
+import { MoveRepport } from "@/gomoku/modes/1337/MoveRepport";
 import type { TPoint } from "@/gomoku/types/gomoku.type";
 const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 

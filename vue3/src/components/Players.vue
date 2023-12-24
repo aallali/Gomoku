@@ -2,13 +2,13 @@
     <fieldset>
         <div>
             <h4 class="option-title">Black is:</h4>
-            <SwitcheButton v-bind:options="['Ai', 'Human']" :selected="players.black === 'ai' ? 'Ai' : 'Human'"
+            <SwitcheButton v-bind:options="['ai', 'human']" :selected="players.black === 'ai' ? 'ai' : 'human'"
                 :onChangeHandler="(event: Event) => handleChange(1, event)" />
         </div>
         <hr>
         <div>
             <h4 class="option-title">White is:</h4>
-            <SwitcheButton v-bind:options="['Ai', 'Human']" :selected="players.white === 'ai' ? 'Ai' : 'Human'"
+            <SwitcheButton v-bind:options="['ai', 'human']" :selected="players.white === 'ai' ? 'ai' : 'human'"
                 :onChangeHandler="(event: Event) => handleChange(2, event)" />
         </div>
     </fieldset>
@@ -36,8 +36,8 @@ export default {
     methods: {
         handleChange(player: P, e: Event) {
             const trg = e.target as HTMLInputElement
-            const playerType = trg.value as 'Ai' | 'Human'
-            updatePlayerType(player, /ai/.test(playerType) ? "ai" : "h")
+            const playerType = trg.value as 'ai' | 'human'
+            updatePlayerType(player, /ai/i.test(playerType) ? "h" : "ai")
         }
     },
 }

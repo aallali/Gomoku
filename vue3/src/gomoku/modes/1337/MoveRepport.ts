@@ -6,10 +6,10 @@ import { EvalPiece } from "@/gomoku/common/pieceWeight";
 import { IsCapture, applyCapturesIfAny, extractCaptures, isLineBreakableByAnyCapture } from "./captures";
 import { check5Win } from "../normal/mode-normal";
 
-function forEachDirection(cb: (dir: TDirection) => any) {
+function forEachDirection(cb: (dir: TDirection, iterator: number) => any) {
     for (let i = 0; i < directions.length; i++) {
         const dir = directions[i];
-        const cbReturn = cb(dir)
+        const cbReturn = cb(dir, i)
         if (cbReturn === true)
             return cbReturn
     }
@@ -19,28 +19,29 @@ function forEachDirection(cb: (dir: TDirection) => any) {
 export interface TMvRepport {
     x: number
     y: number
-    isCapture: boolean,
+    capture: boolean,
     captureSetup: boolean,
-    blockCapture: boolean
-    willBCaptured: boolean
+    captureBlock: boolean
+    captured: boolean
     // enemyCapture: this.isWillCaptureForEnemy(),
 
     open3: boolean
-    blockOpen3: boolean
+    open3Block: number
     open4: boolean
-    blockOpen4: boolean
+    open4Block: number
 
     forbiddenOpponent: boolean
 
-    isAlginedWithPeer: [number, number, number],
+    aligned_siblings: [number, number, number],
     score: number
     cScore: number
 
-    isBounded4: boolean
-    o_score: number,
+    open4Bounded: boolean
+    score_opponent: number,
 
-    isWinBy5: boolean
-    blockWinBy5: boolean
+    win5: boolean
+    winBreak: number
+    win5Block: boolean
 
     totalCaptures: number
 }
@@ -62,13 +63,13 @@ export class MoveRepport {
     finalRepport = {} as TMvRepport
     constructor(matrix?: TMtx, cell?: TPoint, turn?: P) {
         matrix && this.setMatrix(cloneMatrix(matrix));
-        cell && this.setPoint(cell)
-        turn && this.setTurn(turn)
+        turn && this.setTurn(turn);
+        cell && this.setPoint(cell);
     }
 
     setMatrix(matrix: TMtx) {
         this.matrix = cloneMatrix(matrix)
-        this.backupMatrix = matrix
+        this.backupMatrix = cloneMatrix(matrix)
     }
 
     setPoint({ x, y }: TPoint) {
@@ -122,24 +123,36 @@ export class MoveRepport {
         return false;
     }
     isCapture() {
-        this.matrix[this.x][this.y] = this.p
-        const captures = IsCapture(this.matrix, this.x, this.y)
-        const [matrix, p, op] = [this.matrix, this.p, this.op]
+        const [matrix, op] = [cloneMatrix(this.backupMatrix), this.op]
+
+        matrix[this.x][this.y] = this.p
+        const captures = IsCapture(matrix, this.x, this.y)
+
         if (!captures)
             return false
-        for (let i = 0; i < captures.length; i++) {
-            const open3Found = forEachDirection(function (dir) {
-                const rawPath = ScrapLine(matrix, 3, 3, captures[i].x, captures[i].y, dir);
-                const ddd = new RegExp(`0${op}${op}${op}0`)
-                if (ddd.test(rawPath))
-                    return true
+
+        captures.forEach((capture, i) => {
+            forEachDirection((dir) => {
+                const rawPath = ScrapLine(matrix, 5, 3, capture.x, capture.y, dir);
+                const open3Rgx = new RegExp(`0${op}${op}${op}0`);
+                const open4Rgx = new RegExp(`0${op}${op}${op}${op}0`);
+                const win5Rgx = new RegExp(`${op}${op}${op}${op}${op}`);
+
+                if (open4Rgx.test(rawPath))
+                    this.finalRepport.open3Block
+                        = (this.finalRepport.open3Block ?? 0) + 1;
+
+                if (open3Rgx.test(rawPath))
+                    this.finalRepport.open4Block
+                        = (this.finalRepport.open4Block ?? 0) + 1;
+
+                if (win5Rgx.test(rawPath)) {
+                    this.finalRepport.winBreak
+                        = (this.finalRepport.winBreak ?? 0) + 1
+                }
             })
-            // TODO: review this
-            if (open3Found) {
-                this.willBreakOpen3 = true
-                break
-            }
-        }
+        }, this)
+
         return true
     }
     // - block capture [x]
@@ -359,26 +372,27 @@ export class MoveRepport {
         this.evaluateMove()
         this.finalRepport = {
             ...this.finalRepport,
-            isCapture: this.isCapture(),
+            capture: this.isCapture(),
             captureSetup: this.isCaptureSetup(),
-            blockCapture: this.isBlockCapture(),
-            willBCaptured: this.isWillCaptured(),
+            captureBlock: this.isBlockCapture(),
+            captured: this.isWillCaptured(),
             // enemyCapture: this.isWillCaptureForEnemy(),
 
             open3: this.isOpenThree(),
-            blockOpen3: this.isOpenThreeBlock(),
+            open3Block: this.isOpenThreeBlock() || this.finalRepport.open3Block || 0,
             open4: this.isOpenFour(),
-            blockOpen4: this.isOpenFourBlock() || this.willBreakOpen3,
+            open4Block: this.isOpenFourBlock() || this.willBreakOpen3 || this.finalRepport.open4Block || 0,
+            open4Bounded: !!this.weight?.isBounded4,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
 
-            isAlginedWithPeer: this.isAlginedWithPeer(),
+            aligned_siblings: this.isAlginedWithPeer(),
             score: this.weight?.score || 0,
-            isBounded4: !!this.weight?.isBounded4,
-            o_score: this.o_weight?.score || 0,
+            score_opponent: this.o_weight?.score || 0,
 
-            isWinBy5: this.weight?.isWin || false,
-            blockWinBy5: this.o_weight?.isWin || false
+            win5: this.weight?.isWin || false,
+            win5Block: this.o_weight?.isWin || false,
+            winBreak: this.finalRepport.winBreak || 0
         } as TMvRepport
 
         this.finalRepport.cScore = this.scoreIt(this.finalRepport)
@@ -386,10 +400,10 @@ export class MoveRepport {
     }
     scoreIt(repport: ReturnType<typeof this.repportObj>) {
         let score = 0
-        if (repport.isWinBy5)
+        if (repport.win5)
             score += 10000
 
-        if (repport.isCapture)
+        if (repport.capture)
             score += 700
 
         if (repport.open4)
@@ -401,7 +415,7 @@ export class MoveRepport {
         if (repport.open3)
             score += 400
 
-        if (repport.blockCapture)
+        if (repport.captureBlock)
             score += 300
 
         return score
