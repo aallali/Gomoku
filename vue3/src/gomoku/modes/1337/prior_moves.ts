@@ -63,8 +63,8 @@ export class MoveRepport {
     finalRepport = {} as TMvRepport
     constructor(matrix?: TMtx, cell?: TPoint, turn?: P) {
         matrix && this.setMatrix(cloneMatrix(matrix));
-        cell && this.setPoint(cell)
-        turn && this.setTurn(turn)
+        turn && this.setTurn(turn);
+        cell && this.setPoint(cell);
     }
 
     setMatrix(matrix: TMtx) {
