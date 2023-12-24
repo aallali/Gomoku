@@ -122,7 +122,7 @@ export class MoveRepport {
                 return true;
             }
         }
-        return false;
+        return totalSetups;
     }
     isCapture(): number {
         const [matrix, x, y, p, op] = [cloneMatrix(this.backupMatrix), this.x, this.y, this.p, this.op]
