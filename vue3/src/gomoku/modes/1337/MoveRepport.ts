@@ -89,7 +89,7 @@ export class MoveRepport {
     }
 
     evaluateMove() {
-        const [matrix, x, y, p, op] = [this.matrix, this.x, this.y, this.p, this.op]
+        const [matrix, x, y, p, op] = [cloneMatrix(this.backupMatrix), this.x, this.y, this.p, this.op]
         this.weight = EvalPiece(matrix, x, y, p)
         this.o_weight = EvalPiece(matrix, x, y, op)
     }
