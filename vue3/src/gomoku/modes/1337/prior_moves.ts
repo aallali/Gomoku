@@ -19,28 +19,29 @@ function forEachDirection(cb: (dir: TDirection) => any) {
 export interface TMvRepport {
     x: number
     y: number
-    isCapture: boolean,
+    capture: boolean,
     captureSetup: boolean,
-    blockCapture: boolean
-    willBCaptured: boolean
+    captureBlock: boolean
+    captured: boolean
     // enemyCapture: this.isWillCaptureForEnemy(),
 
     open3: boolean
-    blockOpen3: boolean
+    open3Block: number
     open4: boolean
-    blockOpen4: boolean
+    open4Block: number
 
     forbiddenOpponent: boolean
 
-    isAlginedWithPeer: [number, number, number],
+    aligned_siblings: [number, number, number],
     score: number
     cScore: number
 
-    isBounded4: boolean
-    o_score: number,
+    open4Bounded: boolean
+    score_opponent: number,
 
-    isWinBy5: boolean
-    blockWinBy5: boolean
+    win5: boolean
+    winBreak: number
+    win5Block: boolean
 
     totalCaptures: number
 }
@@ -359,26 +360,27 @@ export class MoveRepport {
         this.evaluateMove()
         this.finalRepport = {
             ...this.finalRepport,
-            isCapture: this.isCapture(),
+            capture: this.isCapture(),
             captureSetup: this.isCaptureSetup(),
-            blockCapture: this.isBlockCapture(),
-            willBCaptured: this.isWillCaptured(),
+            captureBlock: this.isBlockCapture(),
+            captured: this.isWillCaptured(),
             // enemyCapture: this.isWillCaptureForEnemy(),
 
             open3: this.isOpenThree(),
-            blockOpen3: this.isOpenThreeBlock(),
+            open3Block: this.isOpenThreeBlock() || this.finalRepport.open3Block || 0,
             open4: this.isOpenFour(),
-            blockOpen4: this.isOpenFourBlock() || this.willBreakOpen3,
+            open4Block: this.isOpenFourBlock() || this.willBreakOpen3 || this.finalRepport.open4Block || 0,
+            open4Bounded: !!this.weight?.isBounded4,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
 
-            isAlginedWithPeer: this.isAlginedWithPeer(),
+            aligned_siblings: this.isAlginedWithPeer(),
             score: this.weight?.score || 0,
-            isBounded4: !!this.weight?.isBounded4,
-            o_score: this.o_weight?.score || 0,
+            score_opponent: this.o_weight?.score || 0,
 
-            isWinBy5: this.weight?.isWin || false,
-            blockWinBy5: this.o_weight?.isWin || false
+            win5: this.weight?.isWin || false,
+            win5Block: this.o_weight?.isWin || false,
+            winBreak: this.finalRepport.winBreak || 0
         } as TMvRepport
 
         this.finalRepport.cScore = this.scoreIt(this.finalRepport)
@@ -386,10 +388,10 @@ export class MoveRepport {
     }
     scoreIt(repport: ReturnType<typeof this.repportObj>) {
         let score = 0
-        if (repport.isWinBy5)
+        if (repport.win5)
             score += 10000
 
-        if (repport.isCapture)
+        if (repport.capture)
             score += 700
 
         if (repport.open4)
@@ -401,7 +403,7 @@ export class MoveRepport {
         if (repport.open3)
             score += 400
 
-        if (repport.blockCapture)
+        if (repport.captureBlock)
             score += 300
 
         return score
