@@ -82,8 +82,8 @@ export default {
         showSates({ x, y }: TPoint) {
             const mvr = new MoveRepport()
             mvr.setMatrix(this.matrix)
-            mvr.setPoint({ x, y })
             mvr.setTurn(this.turn)
+            mvr.setPoint({ x, y })
             const analyse = mvr.repport()
             function formatAsTable(lines: string[][]): string {
                 // Find the length of the longest label
