@@ -157,9 +157,12 @@ export class MoveRepport {
         return captures.length / 2
     }
     // - block capture [x]
-    isBlockCapture() {
-        this.matrix[this.x][this.y] = this.op
-        return !!IsCapture(this.matrix, this.x, this.y)
+    isBlockCapture(): number {
+        const copyBoard = cloneMatrix(this.backupMatrix)
+        if (!isValidMoveFor1337Mode(copyBoard, this.op, this.x, this.y))
+            return 0
+        copyBoard[this.x][this.y] = this.op
+        return (IsCapture(copyBoard, this.x, this.y)?.length ?? 0) / 2
     }
     // - will be captured move, if played [x]
     isWillCaptured(coord?: TPoint, turn?: P): number {
@@ -222,7 +225,7 @@ export class MoveRepport {
     // - move will make another spot forbidden for enemy
     isCellBlock() { }
     // - free three
-    isOpenThree(turn?: P): boolean {
+    isOpenThree(turn?: P): number {
         const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
         this.matrix[x][y] = p;
 
@@ -236,7 +239,9 @@ export class MoveRepport {
                 /\.\.XXX\./, // eg: [__BBB_]
                 /\.XXX\.\./, // eg: [_BBB__]
                 /\.X\.XX\./, // eg: [_B_BB_]
-                /\.XX\.X\./  // eg: [_BB_B_]
+                /XX\.XX\./, // eg: [BB_BB_]
+                /\.XX\.X\./,  // eg: [_BB_B_]
+                /\.XX\.X/  // eg: [_BB_BB]
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
@@ -258,7 +263,7 @@ export class MoveRepport {
 
                 breakme: while (counter++ < rightSide) {
                     coord = MoveDirection(dir, coord.x, coord.y)
-                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                    if (!validXY(matrix.length, coord.x, coord.y))
                         break breakme
                     coordList.push(coord)
                 }
@@ -270,11 +275,11 @@ export class MoveRepport {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
 
                     if (this.matrix[ex][ey] === 0) {
-                        if (!isValidMoveFor1337Mode(matrix, this.p, ex, ey)) {
+                        if (!isValidMoveFor1337Mode(matrix, p, ex, ey)) {
                             isPerfectOpen3 = false
                             break targetLoop
                         }
-                    } else if (this.isWillCaptured({ x: ex, y: ey }, chosenTurn)) {
+                    } else if (this.isWillCaptured({ x: ex, y: ey }, p)) {
                         isPerfectOpen3 = false
                         break
                     }
@@ -288,22 +293,81 @@ export class MoveRepport {
         return 0
     }
     // - block open there
-    isOpenThreeBlock(): boolean {
-        if (!this.o_weight)
-            this.evaluateMove()
-        return this.o_weight?.isOpenThree || false
+    isOpenThreeBlock(): number {
+        return this.isOpenThree(this.op)
     }
     // - free four
-    isOpenFour(): boolean {
-        if (!this.weight)
-            this.evaluateMove()
-        return this.weight?.isOpenFour || false
+    isOpenFour(turn?: P): number {
+        const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
+        this.matrix[x][y] = p;
+
+        for (let i = 0; i < directions.length; i++) {
+            const dir = directions[i];
+            let leftSide = 4
+            let rightSide = 3
+            const rawPath = ScrapLine(matrix, leftSide, rightSide, x, y, dir).split("").reverse().join("");
+            const path = Standarize(p, rawPath)
+            const patterns = [
+                /\.XXXX\./, // eg: [_BBBB_]
+                // /X\.XXX/, // eg: [B_BBB]
+                /XX\.XX\./, // eg: [BB_BB_]
+                /\.XX\.XX/, // eg: [_BB_BB]
+                // /XXX\.X/,  // eg: [BBB_B]
+            ];
+            const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
+            const match = combinedRegex.exec(path);
+            if (match) {
+                console.log(path, rawPath, match[0])
+                let coordList = []
+                let counter = 0
+                let coord = { x, y }
+
+                breakme: while (counter++ < leftSide) {
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                coordList = coordList.reverse()
+                coord = { x, y }
+                counter = 0
+
+                breakme: while (counter++ < rightSide) {
+                    coord = MoveDirection(dir, coord.x, coord.y)
+                    if (!validXY(matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
+                let isPerfectOpen4 = true
+
+                targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
+                    const { x: ex, y: ey } = exactMatchCoordinations[idx]
+
+                    if (this.matrix[ex][ey] === 0) {
+                        if (!isValidMoveFor1337Mode(matrix, p, ex, ey)) {
+                            isPerfectOpen4 = false
+                            break targetLoop
+                        }
+                    } else if (this.isWillCaptured({ x: ex, y: ey }, p) && idx !== exactMatchCoordinations.length && idx !== 0) {
+                        isPerfectOpen4 = false
+                        break
+                    }
+                }
+
+                if (isPerfectOpen4) {
+       
+                    return 1
+                }
+            }
+        }
+        return 0
     }
     // - block open four
-    isOpenFourBlock(): boolean {
-        if (!this.o_weight)
-            this.evaluateMove()
-        return this.o_weight?.isOpenFour || false
+    isOpenFourBlock(): number {
+        return this.isOpenFour(this.op)
     }
     // - is aligned with another 
     /**
