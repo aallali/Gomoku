@@ -123,9 +123,11 @@ export class MoveRepport {
         return false;
     }
     isCapture() {
-        this.matrix[this.x][this.y] = this.p
-        const captures = IsCapture(this.matrix, this.x, this.y)
-        const [matrix, p, op] = [this.matrix, this.p, this.op]
+        const [matrix, op] = [cloneMatrix(this.backupMatrix), this.op]
+
+        matrix[this.x][this.y] = this.p
+        const captures = IsCapture(matrix, this.x, this.y)
+
         if (!captures)
             return false
 
