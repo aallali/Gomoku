@@ -6,10 +6,10 @@ import { EvalPiece } from "@/gomoku/common/pieceWeight";
 import { IsCapture, applyCapturesIfAny, extractCaptures, isLineBreakableByAnyCapture } from "./captures";
 import { check5Win } from "../normal/mode-normal";
 
-function forEachDirection(cb: (dir: TDirection) => any) {
+function forEachDirection(cb: (dir: TDirection, iterator: number) => any) {
     for (let i = 0; i < directions.length; i++) {
         const dir = directions[i];
-        const cbReturn = cb(dir)
+        const cbReturn = cb(dir, i)
         if (cbReturn === true)
             return cbReturn
     }
