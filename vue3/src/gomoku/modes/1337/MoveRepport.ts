@@ -113,13 +113,13 @@ export class MoveRepport {
                 // **[2]**
                 // ***[3]*
                 let lp = 3;
-                while (lp--) {
+                while (lp--)
                     MoveDirection(dir, coord.x, coord.y)
-                }
-                if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y)) {
-                    return false
-                }
-                return true;
+
+                if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y))
+                    continue
+
+                totalSetups++
             }
         }
         return totalSetups;
