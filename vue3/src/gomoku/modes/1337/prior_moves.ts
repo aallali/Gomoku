@@ -69,7 +69,7 @@ export class MoveRepport {
 
     setMatrix(matrix: TMtx) {
         this.matrix = cloneMatrix(matrix)
-        this.backupMatrix = matrix
+        this.backupMatrix = cloneMatrix(matrix)
     }
 
     setPoint({ x, y }: TPoint) {
