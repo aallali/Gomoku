@@ -19,16 +19,17 @@ function forEachDirection(cb: (dir: TDirection, iterator: number) => any) {
 export interface TMvRepport {
     x: number
     y: number
-    capture: boolean,
-    captureSetup: boolean,
-    captureBlock: boolean
-    captured: boolean
+    capture: number,
+    captureSetup: number,
+    captureBlock: number
+    captured: number
     // enemyCapture: this.isWillCaptureForEnemy(),
 
-    open3: boolean
+    open3: number
     open3Block: number
-    open4: boolean
+    open4: number
     open4Block: number
+    open4BoundedBlock: number,
 
     forbiddenOpponent: boolean
 
@@ -36,12 +37,12 @@ export interface TMvRepport {
     score: number
     cScore: number
 
-    open4Bounded: boolean
+    open4Bounded: number
     score_opponent: number,
 
-    win5: boolean
+    win5: number
     winBreak: number
-    win5Block: boolean
+    win5Block: number
 
     totalCaptures: number
 }
@@ -55,7 +56,6 @@ export class MoveRepport {
     p: P = 1 // player's cell value
     op: P = 2 // opponent's cell value
 
-    willBreakOpen3: boolean = false
     weight?: Omit<TRepport, "directions">
     o_weight?: Omit<TRepport, "directions">
 
@@ -78,6 +78,7 @@ export class MoveRepport {
         this.matrix = cloneMatrix(this.backupMatrix)
         this.matrix[x][y] = this.p
         const { matrix, total: totalCaptures } = applyCapturesIfAny(this.matrix, { x, y })
+
         this.matrix = matrix
         this.finalRepport.totalCaptures = totalCaptures
     }
@@ -88,14 +89,15 @@ export class MoveRepport {
     }
 
     evaluateMove() {
-        const [matrix, x, y, p, op] = [this.matrix, this.x, this.y, this.p, this.op]
+        const [matrix, x, y, p, op] = [cloneMatrix(this.backupMatrix), this.x, this.y, this.p, this.op]
         this.weight = EvalPiece(matrix, x, y, p)
         this.o_weight = EvalPiece(matrix, x, y, op)
     }
     // - setup capture [x]
-    isCaptureSetup(turn?: P) {
+    isCaptureSetup(turn?: P): number {
         const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
-        this.matrix[x][y] = p;
+        matrix[x][y] = p;
+        let totalSetups = 0
         // loop through all directions and try to find this path "XOO."
         // X : current player
         // O : opponent player
@@ -111,25 +113,24 @@ export class MoveRepport {
                 // **[2]**
                 // ***[3]*
                 let lp = 3;
-                while (lp--) {
+                while (lp--)
                     MoveDirection(dir, coord.x, coord.y)
-                }
-                if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y)) {
-                    return false
-                }
-                return true;
+
+                if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y))
+                    continue
+
+                totalSetups++
             }
         }
-        return false;
+        return totalSetups;
     }
-    isCapture() {
-        const [matrix, op] = [cloneMatrix(this.backupMatrix), this.op]
-
-        matrix[this.x][this.y] = this.p
-        const captures = IsCapture(matrix, this.x, this.y)
+    isCapture(): number {
+        const [matrix, x, y, p, op] = [cloneMatrix(this.backupMatrix), this.x, this.y, this.p, this.op]
+        matrix[x][y] = p
+        const captures = IsCapture(matrix, x, y)
 
         if (!captures)
-            return false
+            return 0
 
         captures.forEach((capture, i) => {
             forEachDirection((dir) => {
@@ -153,16 +154,19 @@ export class MoveRepport {
             })
         }, this)
 
-        return true
+        return captures.length / 2
     }
     // - block capture [x]
-    isBlockCapture() {
-        this.matrix[this.x][this.y] = this.op
-        return !!IsCapture(this.matrix, this.x, this.y)
+    isBlockCapture(): number {
+        const copyBoard = cloneMatrix(this.backupMatrix)
+        if (!isValidMoveFor1337Mode(copyBoard, this.op, this.x, this.y))
+            return 0
+        copyBoard[this.x][this.y] = this.op
+        return (IsCapture(copyBoard, this.x, this.y)?.length ?? 0) / 2
     }
     // - will be captured move, if played [x]
-    isWillCaptured(coord?: TPoint) {
-        let [matrix, x, y, p] = [cloneMatrix(this.matrix), coord?.x || this.x, coord?.y || this.y, this.p]
+    isWillCaptured(coord?: TPoint, turn?: P): number {
+        let [matrix, x, y, p] = [cloneMatrix(this.matrix), coord?.x || this.x, coord?.y || this.y, turn || this.p]
         matrix[x][y] = p;
         targetLoop: for (let i = 0; i < directions.length; i++) {
             const dir = directions[i];
@@ -183,12 +187,13 @@ export class MoveRepport {
                         continue targetLoop
                     }
                 }
-                return true;
+                return 1;
             }
         }
 
-        return false;
+        return 0;
     }
+
     _isWillCaptureForEnemy() {
         const [matrix, x, y, op] = [cloneMatrix(this.matrix), this.x, this.y, this.op]
         matrix[x][y] = op;
@@ -217,11 +222,10 @@ export class MoveRepport {
 
         return false;
     }
-
     // - move will make another spot forbidden for enemy
     isCellBlock() { }
     // - free three
-    isOpenThree(turn?: P): boolean {
+    isOpenThree(turn?: P): number {
         const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
         this.matrix[x][y] = p;
 
@@ -235,7 +239,9 @@ export class MoveRepport {
                 /\.\.XXX\./, // eg: [__BBB_]
                 /\.XXX\.\./, // eg: [_BBB__]
                 /\.X\.XX\./, // eg: [_B_BB_]
-                /\.XX\.X\./  // eg: [_BB_B_]
+                /XX\.XX\./, // eg: [BB_BB_]
+                /\.XX\.X\./,  // eg: [_BB_B_]
+                /\.XX\.X/  // eg: [_BB_BB]
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
@@ -257,7 +263,7 @@ export class MoveRepport {
 
                 breakme: while (counter++ < rightSide) {
                     coord = MoveDirection(dir, coord.x, coord.y)
-                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                    if (!validXY(matrix.length, coord.x, coord.y))
                         break breakme
                     coordList.push(coord)
                 }
@@ -269,41 +275,99 @@ export class MoveRepport {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
 
                     if (this.matrix[ex][ey] === 0) {
-                        if (!isValidMoveFor1337Mode(matrix, this.p, ex, ey)) {
+                        if (!isValidMoveFor1337Mode(matrix, p, ex, ey)) {
                             isPerfectOpen3 = false
                             break targetLoop
                         }
-                    } else {
-                        if (this.isWillCaptured({ x: ex, y: ey })) {
-                            isPerfectOpen3 = false
-                            break
-                        }
+                    } else if (this.isWillCaptured({ x: ex, y: ey }, p)) {
+                        isPerfectOpen3 = false
+                        break
                     }
                 }
+
                 if (isPerfectOpen3) {
-                    return true
+                    return 1
                 }
             }
         }
-        return false
+        return 0
     }
     // - block open there
-    isOpenThreeBlock(): boolean {
-        if (!this.o_weight)
-            this.evaluateMove()
-        return this.o_weight?.isOpenThree || false
+    isOpenThreeBlock(): number {
+        return this.isOpenThree(this.op)
     }
     // - free four
-    isOpenFour(): boolean {
-        if (!this.weight)
-            this.evaluateMove()
-        return this.weight?.isOpenFour || false
+    isOpenFour(turn?: P): number {
+        const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
+        this.matrix[x][y] = p;
+
+        for (let i = 0; i < directions.length; i++) {
+            const dir = directions[i];
+            let leftSide = 4
+            let rightSide = 3
+            const rawPath = ScrapLine(matrix, leftSide, rightSide, x, y, dir).split("").reverse().join("");
+            const path = Standarize(p, rawPath)
+            const patterns = [
+                /\.XXXX\./, // eg: [_BBBB_]
+                // /X\.XXX/, // eg: [B_BBB]
+                /XX\.XX\./, // eg: [BB_BB_]
+                /\.XX\.XX/, // eg: [_BB_BB]
+                // /XXX\.X/,  // eg: [BBB_B]
+            ];
+            const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
+            const match = combinedRegex.exec(path);
+            if (match) {
+                console.log(path, rawPath, match[0])
+                let coordList = []
+                let counter = 0
+                let coord = { x, y }
+
+                breakme: while (counter++ < leftSide) {
+                    coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+                    if (!validXY(this.matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                coordList = coordList.reverse()
+                coord = { x, y }
+                counter = 0
+
+                breakme: while (counter++ < rightSide) {
+                    coord = MoveDirection(dir, coord.x, coord.y)
+                    if (!validXY(matrix.length, coord.x, coord.y))
+                        break breakme
+                    coordList.push(coord)
+                }
+
+                const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
+                let isPerfectOpen4 = true
+
+                targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
+                    const { x: ex, y: ey } = exactMatchCoordinations[idx]
+
+                    if (this.matrix[ex][ey] === 0) {
+                        if (!isValidMoveFor1337Mode(matrix, p, ex, ey)) {
+                            isPerfectOpen4 = false
+                            break targetLoop
+                        }
+                    } else if (this.isWillCaptured({ x: ex, y: ey }, p) && idx !== exactMatchCoordinations.length && idx !== 0) {
+                        isPerfectOpen4 = false
+                        break
+                    }
+                }
+
+                if (isPerfectOpen4) {
+       
+                    return 1
+                }
+            }
+        }
+        return 0
     }
     // - block open four
-    isOpenFourBlock(): boolean {
-        if (!this.o_weight)
-            this.evaluateMove()
-        return this.o_weight?.isOpenFour || false
+    isOpenFourBlock(): number {
+        return this.isOpenFour(this.op)
     }
     // - is aligned with another 
     /**
@@ -376,13 +440,14 @@ export class MoveRepport {
             captureSetup: this.isCaptureSetup(),
             captureBlock: this.isBlockCapture(),
             captured: this.isWillCaptured(),
-            // enemyCapture: this.isWillCaptureForEnemy(),
 
             open3: this.isOpenThree(),
             open3Block: this.isOpenThreeBlock() || this.finalRepport.open3Block || 0,
+
             open4: this.isOpenFour(),
-            open4Block: this.isOpenFourBlock() || this.willBreakOpen3 || this.finalRepport.open4Block || 0,
-            open4Bounded: !!this.weight?.isBounded4,
+            open4Block: this.isOpenFourBlock() || this.finalRepport.open4Block || 0,
+            open4Bounded: this.weight?.isBounded4 ? 1 : 0,
+            open4BoundedBlock: this.o_weight?.isBounded4 ? 1 : 0,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
 
@@ -390,8 +455,8 @@ export class MoveRepport {
             score: this.weight?.score || 0,
             score_opponent: this.o_weight?.score || 0,
 
-            win5: this.weight?.isWin || false,
-            win5Block: this.o_weight?.isWin || false,
+            win5: this.weight?.isWin ? 1 : 0,
+            win5Block: this.o_weight?.isWin ? 1 : 0,
             winBreak: this.finalRepport.winBreak || 0
         } as TMvRepport
 

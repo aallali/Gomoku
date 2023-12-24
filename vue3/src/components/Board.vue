@@ -82,8 +82,8 @@ export default {
         showSates({ x, y }: TPoint) {
             const mvr = new MoveRepport()
             mvr.setMatrix(this.matrix)
-            mvr.setPoint({ x, y })
             mvr.setTurn(this.turn)
+            mvr.setPoint({ x, y })
             const analyse = mvr.repport()
             function formatAsTable(lines: string[][]): string {
                 // Find the length of the longest label
@@ -129,14 +129,18 @@ export default {
                     <div @click="(e: any) => makeMove(e, i - 1, j - 1)" @mouseover="() => showSates({ x: i - 1, y: j - 1 })"
                         :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, turn, i - 1, j - 1) : true"
                         :data-is-valid-spot="isValidSpot"
-                        :class='((isValidSpot && !matrix[i - 1][j - 1] && "hoverable") || "")+" cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
+                        :class='((isValidSpot && !matrix[i - 1][j - 1] && "hoverable") || "") + " cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
 
                         <div v-if="matrix[i - 1][j - 1] == 1" class="piece-black-flat" />
                         <div v-if="matrix[i - 1][j - 1] == 2" class="piece-white-flat" />
-                        <div v-if="!isValidSpot" class="forbidden-sign" />
-                        <img v-if="isBestMove(i - 1, j - 1)" :src='images.lowCheckmark' class='circle-green' />
 
-                        <div v-else-if="isNearBy({ x: i - 1, y: j - 1 })" class="nearby-dot" />
+
+                        <div v-if="!isValidSpot" class="forbidden-sign" />
+                        <template v-else>
+                            <img v-if="isBestMove(i - 1, j - 1)" :src='images.lowCheckmark' class='circle-green' />
+                            <div v-else-if="isNearBy({ x: i - 1, y: j - 1 })" class="nearby-dot" />
+                        </template>
+
                         <span class="tooltiptext">
                             {{ alpha[i - 1] }}{{ j - 1 }} ({{ i - 1 }},{{ j - 1 }})
                         </span>

@@ -33,7 +33,7 @@ export default {
 </script>
 <template>
     <div class="moves_container">
-        <table>
+        <table class="moves_table">
             <thead>
                 <tr>
                     <th style="border: none;"></th>
@@ -51,6 +51,12 @@ export default {
                     <th style=""><img :src='IMG_WhiteStone' class='circle-white' style="width: 20px;"></th>
                     <td v-for="move in moves?.filter((_l, i) => i % 2 != 0)" :key="move">{{ move }}</td>
                 </tr>
+
+
+            </thead>
+        </table>
+        <table class="import_table">
+            <thead>
                 <tr>
                     <th rowspan="2" style="border: none;"><button @click="importFromInput()">Import</button>
                     </th>
@@ -77,17 +83,11 @@ export default {
     overflow-x: auto;
 }
 
-input {
-    font-size: 21px;
-    width: 100%;
-    height: 30px;
-    border: none;
-    box-sizing: border-box;
-}
+
 
 button {
     width: 100%;
-    height: 30px;
+    height: 32px;
     /* border: none; */
     border: dotted 1px black;
     border-radius: 6px;
@@ -104,25 +104,53 @@ button:hover {
     height: 70px;
 }
 
-table {
+.moves_table {
+
+    th,
+    td {
+        width: 40px
+    }
+
+    table,
+    th,
+    td {
+        border: 1px solid rgb(76, 95, 114);
+        /* border-collapse: collapse; */
+        border-radius: 3px;
+    }
+
+    td {
+        /* width: 30px; */
+        text-align: center;
+        font-weight: bold;
+
+    }
+
+    th {
+        text-align: center;
+    }
+}
+
+.import_table {
     width: 100%;
+    table,
+    th,
+    td {
+        border: 1px solid rgb(76, 95, 114);
+        /* border-collapse: collapse; */
+        border-radius: 3px;
+    }
+    th {
+        width: 100px;
+    }
+ 
+    input {
+    font-size: 21px;
+   
+    width: 100%;
+    height: 30px;
+    border: none;
+    box-sizing: border-box;
 }
-table,
-th,
-td {
-    border: 1px solid rgb(76, 95, 114);
-    /* border-collapse: collapse; */
-    border-radius: 3px;
-}
-
-td {
-    /* width: 30px; */
-    text-align: center;
-    font-weight: bold;
-    min-width: 50px;
-}
-
-th {
-    text-align: center;
-}
-</style>
+ 
+}</style>
