@@ -78,6 +78,7 @@ export default {
 }
 
 input {
+    font-size: 21px;
     width: 100%;
     height: 30px;
     border: none;
@@ -103,6 +104,9 @@ button:hover {
     height: 70px;
 }
 
+table {
+    width: 100%;
+}
 table,
 th,
 td {
@@ -116,7 +120,6 @@ td {
     text-align: center;
     font-weight: bold;
     min-width: 50px;
-
 }
 
 th {
