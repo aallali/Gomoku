@@ -56,7 +56,6 @@ export class MoveRepport {
     p: P = 1 // player's cell value
     op: P = 2 // opponent's cell value
 
-    willBreakOpen3: boolean = false
     weight?: Omit<TRepport, "directions">
     o_weight?: Omit<TRepport, "directions">
 
