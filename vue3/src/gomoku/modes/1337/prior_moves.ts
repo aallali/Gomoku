@@ -128,19 +128,29 @@ export class MoveRepport {
         const [matrix, p, op] = [this.matrix, this.p, this.op]
         if (!captures)
             return false
-        for (let i = 0; i < captures.length; i++) {
-            const open3Found = forEachDirection(function (dir) {
-                const rawPath = ScrapLine(matrix, 3, 3, captures[i].x, captures[i].y, dir);
-                const ddd = new RegExp(`0${op}${op}${op}0`)
-                if (ddd.test(rawPath))
-                    return true
+
+        captures.forEach((capture, i) => {
+            forEachDirection((dir) => {
+                const rawPath = ScrapLine(matrix, 5, 3, capture.x, capture.y, dir);
+                const open3Rgx = new RegExp(`0${op}${op}${op}0`);
+                const open4Rgx = new RegExp(`0${op}${op}${op}${op}0`);
+                const win5Rgx = new RegExp(`${op}${op}${op}${op}${op}`);
+
+                if (open4Rgx.test(rawPath))
+                    this.finalRepport.open3Block
+                        = (this.finalRepport.open3Block ?? 0) + 1;
+
+                if (open3Rgx.test(rawPath))
+                    this.finalRepport.open4Block
+                        = (this.finalRepport.open4Block ?? 0) + 1;
+
+                if (win5Rgx.test(rawPath)) {
+                    this.finalRepport.winBreak
+                        = (this.finalRepport.winBreak ?? 0) + 1
+                }
             })
-            // TODO: review this
-            if (open3Found) {
-                this.willBreakOpen3 = true
-                break
-            }
-        }
+        }, this)
+
         return true
     }
     // - block capture [x]
