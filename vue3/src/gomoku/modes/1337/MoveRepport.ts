@@ -19,16 +19,17 @@ function forEachDirection(cb: (dir: TDirection, iterator: number) => any) {
 export interface TMvRepport {
     x: number
     y: number
-    capture: boolean,
-    captureSetup: boolean,
-    captureBlock: boolean
-    captured: boolean
+    capture: number,
+    captureSetup: number,
+    captureBlock: number
+    captured: number
     // enemyCapture: this.isWillCaptureForEnemy(),
 
-    open3: boolean
+    open3: number
     open3Block: number
-    open4: boolean
+    open4: number
     open4Block: number
+    open4BoundedBlock: number,
 
     forbiddenOpponent: boolean
 
@@ -36,12 +37,12 @@ export interface TMvRepport {
     score: number
     cScore: number
 
-    open4Bounded: boolean
+    open4Bounded: number
     score_opponent: number,
 
-    win5: boolean
+    win5: number
     winBreak: number
-    win5Block: boolean
+    win5Block: number
 
     totalCaptures: number
 }
@@ -78,6 +79,7 @@ export class MoveRepport {
         this.matrix = cloneMatrix(this.backupMatrix)
         this.matrix[x][y] = this.p
         const { matrix, total: totalCaptures } = applyCapturesIfAny(this.matrix, { x, y })
+
         this.matrix = matrix
         this.finalRepport.totalCaptures = totalCaptures
     }
@@ -93,9 +95,10 @@ export class MoveRepport {
         this.o_weight = EvalPiece(matrix, x, y, op)
     }
     // - setup capture [x]
-    isCaptureSetup(turn?: P) {
+    isCaptureSetup(turn?: P): number {
         const [matrix, x, y, p] = [this.matrix, this.x, this.y, turn || this.p]
-        this.matrix[x][y] = p;
+        matrix[x][y] = p;
+        let totalSetups = 0
         // loop through all directions and try to find this path "XOO."
         // X : current player
         // O : opponent player
@@ -122,14 +125,13 @@ export class MoveRepport {
         }
         return false;
     }
-    isCapture() {
-        const [matrix, op] = [cloneMatrix(this.backupMatrix), this.op]
-
-        matrix[this.x][this.y] = this.p
-        const captures = IsCapture(matrix, this.x, this.y)
+    isCapture(): number {
+        const [matrix, x, y, p, op] = [cloneMatrix(this.backupMatrix), this.x, this.y, this.p, this.op]
+        matrix[x][y] = p
+        const captures = IsCapture(matrix, x, y)
 
         if (!captures)
-            return false
+            return 0
 
         captures.forEach((capture, i) => {
             forEachDirection((dir) => {
@@ -153,7 +155,7 @@ export class MoveRepport {
             })
         }, this)
 
-        return true
+        return captures.length / 2
     }
     // - block capture [x]
     isBlockCapture() {
@@ -183,12 +185,13 @@ export class MoveRepport {
                         continue targetLoop
                     }
                 }
-                return true;
+                return 1;
             }
         }
 
-        return false;
+        return 0;
     }
+
     _isWillCaptureForEnemy() {
         const [matrix, x, y, op] = [cloneMatrix(this.matrix), this.x, this.y, this.op]
         matrix[x][y] = op;
@@ -273,19 +276,18 @@ export class MoveRepport {
                             isPerfectOpen3 = false
                             break targetLoop
                         }
-                    } else {
-                        if (this.isWillCaptured({ x: ex, y: ey })) {
-                            isPerfectOpen3 = false
-                            break
-                        }
+                    } else if (this.isWillCaptured({ x: ex, y: ey }, chosenTurn)) {
+                        isPerfectOpen3 = false
+                        break
                     }
                 }
+
                 if (isPerfectOpen3) {
-                    return true
+                    return 1
                 }
             }
         }
-        return false
+        return 0
     }
     // - block open there
     isOpenThreeBlock(): boolean {
@@ -381,8 +383,9 @@ export class MoveRepport {
             open3: this.isOpenThree(),
             open3Block: this.isOpenThreeBlock() || this.finalRepport.open3Block || 0,
             open4: this.isOpenFour(),
-            open4Block: this.isOpenFourBlock() || this.willBreakOpen3 || this.finalRepport.open4Block || 0,
-            open4Bounded: !!this.weight?.isBounded4,
+            open4Block: this.isOpenFourBlock() || this.finalRepport.open4Block || 0,
+            open4Bounded: this.weight?.isBounded4 ? 1 : 0,
+            open4BoundedBlock: this.o_weight?.isBounded4 ? 1 : 0,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
 
@@ -390,8 +393,8 @@ export class MoveRepport {
             score: this.weight?.score || 0,
             score_opponent: this.o_weight?.score || 0,
 
-            win5: this.weight?.isWin || false,
-            win5Block: this.o_weight?.isWin || false,
+            win5: this.weight?.isWin ? 1 : 0,
+            win5Block: this.o_weight?.isWin ? 1 : 0,
             winBreak: this.finalRepport.winBreak || 0
         } as TMvRepport
 
