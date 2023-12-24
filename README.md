@@ -23,19 +23,42 @@ This project involves creating, in the language of your choice, a Gomoku game in
     - [x] implement Undo move
     - [x] detect if the capture move will also break an open4/open3
     - [x] `[fix]` : all the moves considered "will be captured" are ignored even if a fifth (winning) capture move is there, adapt script to bypass this one
-    - [ ] `[fix]` : set open3/open4 only if all the pieces forming it are not in to-be-capture position
-        - scenario: `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4`
+    - [x] `[fix]` : set open3/open4 only if all the pieces forming it are not in to-be-capture position
+        - scenario: 
+            - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4`
         - [x] fix it for open3
-        - [ ] fix it for open4
-        - [ ] fix it for block_open3
-        - [ ] fix it for block_open4
-    - [ ] `[fix]` : correct move for black is `H7` but it chosed to block fifth move in open 4, which is lost any way
-        - explanation: 
-        - scenario : `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5,H7`
+        - [x] fix it for open4 
+        - [x] fix it for block_open3
+        - [x] fix it for block_open4
+        - [ ] if you can improve that logic (that do the check above), will be great (`priority:low`)
+    - [ ] `[fix]` : correct move for black is `K10` but it chosed to block fifth move in open 4, which is lost any way, instead setup a capture that will break this win5 row and also make the fifth capture which is winnable
+        - scenario : 
+            - `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5`
+        - solution : 
+            - always prioritize to break a win5 by capture/or setup capture.
+                - can be open4
+                - can be open4 split to 2 (`XX_XX`)
+                - check for block win5 move first, then start check for any capture that will block that
     - [ ] `[fix]` : a perfect capture setup is when the capture spot is valid move for me
         - update capture setup field with 2 fields :
             - `captureSetupPerfect`
             - `captureSetupImperfect`
+    - [ ] `[check]` : still have captures to break the row of 5 but considered white as winner
+        - scenario : 
+            - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,J10,J9,G10,I8`
+            - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,G10,I8,H9,H7`
+            - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,J10,J9,G10,F4,F3,I8`
+    - [ ] `[improve]` : best move is `F5` but chosed `F3`, not a bug actually, but if `F5` played, it will force the black to play F3 because it gonna block the win5, which is an "in-capture" move for him, so we gain a free capture
+        - scenario :
+            - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,F4,E3,J8,I7,F2,B0,C5,A2,D2,E3,A4,D1,A1,E1,F1,F0,B10,B7,B5,D5`
+        - how to solutions: 
+            - try to detect if a move will force bad move for opponent
+            - try to reverse the process by finding the bad move for him, and check if it can be forced by making him play it to block an open4 or win5
+    - [ ] `[fix]` : black aligned  6 in row, the opponent still had to capture the last rock, but even tho, it doesnt break the win 5, so it should declare black as winner directly
+        - scenario:
+            - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,B10,D1,E4,F4,E0,C0,F0,H0,I7,K9,A2,B7,B5,D3,D5,F3,G4,C6,E4,D5,D2,G3,E3,E2,D7,E5,E4,D6,H2,C7,A7,C7,B7`
+        - solution:
+            - when verify if the opoonent's captures are covering the row, we also have to check i the remaining pieces are forming a 5win row.
 
 <img src="./ressources/gomoku-ts-v1.2.png">
 
