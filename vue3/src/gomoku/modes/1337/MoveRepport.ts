@@ -440,10 +440,10 @@ export class MoveRepport {
             captureSetup: this.isCaptureSetup(),
             captureBlock: this.isBlockCapture(),
             captured: this.isWillCaptured(),
-            // enemyCapture: this.isWillCaptureForEnemy(),
 
             open3: this.isOpenThree(),
             open3Block: this.isOpenThreeBlock() || this.finalRepport.open3Block || 0,
+
             open4: this.isOpenFour(),
             open4Block: this.isOpenFourBlock() || this.finalRepport.open4Block || 0,
             open4Bounded: this.weight?.isBounded4 ? 1 : 0,
