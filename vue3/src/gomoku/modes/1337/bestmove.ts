@@ -1,6 +1,6 @@
 import type { P, TMtx, TPoint } from "@/gomoku/types/gomoku.type";
 import { findValidSpots } from "./moveValidity";
-import { MoveRepport, type TMvRepport } from "./prior_moves";
+import { MoveRepport, type TMvRepport } from "./MoveRepport";
 import { cloneMatrix } from "@/gomoku/common/shared-utils";
 import { applyCapturesIfAny } from "./captures";
 
