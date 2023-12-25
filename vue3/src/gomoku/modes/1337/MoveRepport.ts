@@ -238,10 +238,6 @@ export class MoveRepport {
             const patterns = [
                 /\.\.XXX\./, // eg: [__BBB_]
                 /\.XXX\.\./, // eg: [_BBB__]
-                /\.X\.XX\./, // eg: [_B_BB_]
-                /XX\.XX\./, // eg: [BB_BB_]
-                /\.XX\.X\./,  // eg: [_BB_B_]
-                /\.XX\.X/  // eg: [_BB_BB]
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
@@ -317,7 +313,6 @@ export class MoveRepport {
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
             if (match) {
-                console.log(path, rawPath, match[0])
                 let coordList = []
                 let counter = 0
                 let coord = { x, y }
