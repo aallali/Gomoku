@@ -351,14 +351,14 @@ export class MoveRepport {
                             isPerfectOpen4 = false
                             break targetLoop
                         }
-                    } else if (this.isWillCaptured({ x: ex, y: ey }, p) && idx !== exactMatchCoordinations.length && idx !== 0) {
+                    } else if (this.isWillCaptured({ x: ex, y: ey }, p)) {
                         isPerfectOpen4 = false
                         break
                     }
                 }
 
                 if (isPerfectOpen4) {
-       
+
                     return 1
                 }
             }
