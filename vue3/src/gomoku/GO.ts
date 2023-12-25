@@ -103,7 +103,7 @@ class GO {
         const o_turn = 3 - this.turn as P
         // check if there is 5 in row pieces
         const winStones = check5Win(this.matrix, this.turn, x, y)
-        if (!winStones)
+        if (!winStones && this.players[this.turn].captures < 5)
             return
         // - extract all valid oponnent's moves
         const oponentValidMoves = findValidSpots(this.matrix, o_turn, this.mode)
