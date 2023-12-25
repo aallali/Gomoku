@@ -67,63 +67,48 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         'winBreak',
         'win5',
         'win5Block',
-        'open4', 'open4Block',
-        'capture', 'captureSetup',
+        'open4',
+        'open4Block',
+        'totalCaptures',
+        'captureSetup',
         'captureBlock',
-        'open3', 'open3Block',
+        'open3',
+        'open3Block',
         'aligned_siblings',
+        'open4Bounded',
+        'open4BoundedBlock',
         'score',
         'score_opponent',
-        'open4Bounded',
     ];
 
     if (player1Captures === 4 && moves.find(l => l.capture)) {
         fieldPriority = changePosition(fieldPriority, 'capture', 0);
     }
 
-    else if (player2Captures >= 4) {
+    else if (player2Captures >= 4 && !moves.find(l => l.winBreak)) {
         fieldPriority = changePosition(fieldPriority, 'captureBlock', 0);
     }
 
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
-            if (field === 'score' || field === 'score_opponent' || field === 'winBreak') {
-                if (b[field] !== a[field]) {
-                    return b[field] - a[field]
-                }
-            }
             if (field === 'aligned_siblings') {
                 if (a[field][0] === b[field][0])
                     if (a[field][1] !== b[field][1])
                         return a[field][1] - b[field][1]
                 if (b[field][0] !== a[field][0])
                     return b[field][0] - a[field][0]
-            }
-
-
-            const aValue = a[field] ? 1 : 0;
-            const bValue = b[field] ? 1 : 0;
-
-            if (aValue !== bValue) {
-                return bValue - aValue; // Sort in descending order
+            } else {
+                if ((b[field] - a[field]) !== 0)
+                    return b[field] - a[field]; // Sort in descending order
             }
         }
 
         return 0; // Objects are equal based on the specified fields
     };
-
     const sortedArray = [...moves].sort(compareFunction);
 
-    const chunk = sortedArray
-    chunk.forEach(el => {
-        for (const k in el) {
-            if (el.hasOwnProperty(k) && el[k as keyof typeof el] === false) {
-                delete el[k as keyof typeof el];
-            }
-        }
-    })
-    return chunk
+    return sortedArray
 }
 
 //  TODO: refactor
