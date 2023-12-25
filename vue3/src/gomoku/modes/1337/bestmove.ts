@@ -66,6 +66,9 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         'winBreak',
         'win5',
         'win5Block',
+        'captured_opponent',
+        'capture',
+        'captured',
         'open4',
         'open4Block',
         'totalCaptures',
@@ -77,7 +80,7 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         'open4Bounded',
         'open4BoundedBlock',
         'score',
-        'score_opponent',
+        'score_opponent'
     ];
 
     if (player1Captures === 4 && moves.find(l => l.capture)) {
@@ -102,7 +105,11 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
-            if (field === 'aligned_siblings') {
+            if (['captured', 'captured_opponent', 'score_opponent'].includes(field)) {
+                if (b[field] !== a[field]) {
+                    return a[field] - b[field]
+                }
+            } else if (field === 'aligned_siblings') {
                 if (a[field][0] === b[field][0])
                     if (a[field][1] !== b[field][1])
                         return a[field][1] - b[field][1]
