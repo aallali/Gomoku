@@ -43,11 +43,12 @@ This project involves creating, in the language of your choice, a Gomoku game in
         - update capture setup field with 2 fields :
             - `captureSetupPerfect`
             - `captureSetupImperfect`
-    - [ ] `[check]` : still have captures to break the row of 5 but considered white as winner
+    - [x] `[check]` : still have captures to break the row of 5 but considered white as winner
         - scenario : 
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,J10,J9,G10,I8`
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,G10,I8,H9,H7`
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,J10,J9,G10,F4,F3,I8`
+        - checked but nothing look wrong !!
     - [ ] `[improve]` : best move is `F5` but chosed `F3`, not a bug actually, but if `F5` played, it will force the black to play F3 because it gonna block the win5, which is an "in-capture" move for him, so we gain a free capture
         - scenario :
             - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,F4,E3,J8,I7,F2,B0,C5,A2,D2,E3,A4,D1,A1,E1,F1,F0,B10,B7,B5,D5`
@@ -59,6 +60,22 @@ This project involves creating, in the language of your choice, a Gomoku game in
             - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,B10,D1,E4,F4,E0,C0,F0,H0,I7,K9,A2,B7,B5,D3,D5,F3,G4,C6,E4,D5,D2,G3,E3,E2,D7,E5,E4,D6,H2,C7,A7,C7,B7`
         - solution:
             - when verify if the opoonent's captures are covering the row, we also have to check i the remaining pieces are forming a 5win row.
+    - [x] `[fix]` : the white chosed to block 5 in row win, but that position is a capture for white if black played it, and white was one capture away to win, so just ignore him and play my open4.
+        - scenario:
+            - `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5,I4,I10,I9`
+        - solution:
+            - try to find an adapted condition inside the sorter, **otherwise just add custom condition for this case outside the scope**
+            - i excluded this specific move for black, and let the sorter work normally
+            ```ts
+            const badWin5EnemyFilter = (l: TMvRepport) => l.win5Block && l.captured_opponent
+            if (
+                player1Captures === 4 
+                && player2Captures < 5 
+                && moves.find(badWin5EnemyFilter)
+            ){
+                moves = moves.filter(l => !badWin5EnemyFilter(l))
+            }
+            ```
 
 <img src="./ressources/gomoku-ts-v1.2.png">
 

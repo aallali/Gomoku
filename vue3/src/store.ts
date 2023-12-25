@@ -139,8 +139,6 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
             blinks: go.winStones,
             bestMoves: go.bestMoves
         })
-
-        return
     },
     setAnalyse(analyse) {
         set({ analyse })

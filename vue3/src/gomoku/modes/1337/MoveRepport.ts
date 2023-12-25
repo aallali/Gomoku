@@ -23,6 +23,7 @@ export interface TMvRepport {
     captureSetup: number,
     captureBlock: number
     captured: number
+    captured_opponent: number
     // enemyCapture: this.isWillCaptureForEnemy(),
 
     open3: number
@@ -31,7 +32,7 @@ export interface TMvRepport {
     open4Block: number
     open4BoundedBlock: number,
 
-    forbiddenOpponent: boolean
+    forbiddenOpponent: number
 
     aligned_siblings: [number, number, number],
     score: number
@@ -114,7 +115,7 @@ export class MoveRepport {
                 // ***[3]*
                 let lp = 3;
                 while (lp--)
-                    MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(dir, coord.x, coord.y)
 
                 if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y))
                     continue
@@ -210,8 +211,8 @@ export class MoveRepport {
                     }
                 } else {
                     let coord = { x, y }
-                    MoveDirection(dir, coord.x, coord.y)
-                    MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(dir, coord.x, coord.y)
                     if (!isValidMoveFor1337Mode(matrix, op, coord.x, coord.y)) {
                         continue
                     }
@@ -238,10 +239,6 @@ export class MoveRepport {
             const patterns = [
                 /\.\.XXX\./, // eg: [__BBB_]
                 /\.XXX\.\./, // eg: [_BBB__]
-                /\.X\.XX\./, // eg: [_B_BB_]
-                /XX\.XX\./, // eg: [BB_BB_]
-                /\.XX\.X\./,  // eg: [_BB_B_]
-                /\.XX\.X/  // eg: [_BB_BB]
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
@@ -317,7 +314,6 @@ export class MoveRepport {
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
             if (match) {
-                console.log(path, rawPath, match[0])
                 let coordList = []
                 let counter = 0
                 let coord = { x, y }
@@ -351,14 +347,14 @@ export class MoveRepport {
                             isPerfectOpen4 = false
                             break targetLoop
                         }
-                    } else if (this.isWillCaptured({ x: ex, y: ey }, p) && idx !== exactMatchCoordinations.length && idx !== 0) {
+                    } else if (this.isWillCaptured({ x: ex, y: ey }, p)) {
                         isPerfectOpen4 = false
                         break
                     }
                 }
 
                 if (isPerfectOpen4) {
-       
+
                     return 1
                 }
             }
@@ -399,8 +395,8 @@ export class MoveRepport {
         return [totalAligns, distance, totalAligns - distance]
     }
 
-    isForbiddenForOpponent(): boolean {
-        return !isValidMoveFor1337Mode(this.matrix, this.op, this.x, this.y)
+    isForbiddenForOpponent(): number {
+        return !isValidMoveFor1337Mode(this.matrix, this.op, this.x, this.y) ? 1 : 0
     }
     // - win move (5 in row)
     isRowWin(): boolean {
@@ -440,7 +436,7 @@ export class MoveRepport {
             captureSetup: this.isCaptureSetup(),
             captureBlock: this.isBlockCapture(),
             captured: this.isWillCaptured(),
-
+            captured_opponent: this.isWillCaptured({ x: this.x, y: this.y }, this.op),
             open3: this.isOpenThree(),
             open3Block: this.isOpenThreeBlock() || this.finalRepport.open3Block || 0,
 
@@ -465,24 +461,26 @@ export class MoveRepport {
     }
     scoreIt(repport: ReturnType<typeof this.repportObj>) {
         let score = 0
-        if (repport.win5)
-            score += 10000
 
-        if (repport.capture)
-            score += 700
+        score += 100000 * repport.win5
+        
+        score += (100000 - 2) * repport.win5Block 
 
-        if (repport.open4)
-            score += 600
+        score += 99999 * repport.open4
 
-        if (repport.captureSetup)
-            score += 500
+        score += 10000 * repport.totalCaptures
 
-        if (repport.open3)
-            score += 400
+        score += 50001 * repport.open4Block
 
-        if (repport.captureBlock)
-            score += 300
+        score += 40000 * repport.open4Bounded
 
+        score += 30001 * repport.open3Block
+
+        score += 3000 * repport.open3
+
+        score += 15001 * (repport.captureSetup + repport.captureBlock)
+
+        score += 50000 * repport.winBreak
         return score
     }
 }

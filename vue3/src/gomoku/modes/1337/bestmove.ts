@@ -61,69 +61,77 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
 }
 
 function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number) {
-    moves[0].capture
     // Define the order of priority for fields
     let fieldPriority: (keyof TMvRepport)[] = [
         'winBreak',
         'win5',
         'win5Block',
-        'open4', 'open4Block',
-        'capture', 'captureSetup',
+        'captured_opponent',
+        'capture',
+        'captured',
+        'open4',
+        'open4Block',
+        'totalCaptures',
+        'captureSetup',
         'captureBlock',
-        'open3', 'open3Block',
+        'open3',
+        'open3Block',
         'aligned_siblings',
-        'score',
-        'score_opponent',
         'open4Bounded',
+        'open4BoundedBlock',
+        'score',
+        'score_opponent'
     ];
 
-    if (player1Captures === 4 && moves.find(l => l.capture)) {
+    if (player2Captures >= 4) {
+        moves = moves.filter(l => !l.captured)
+    }
+
+    if (player1Captures === 4
+        && moves.find(l => l.capture)) {
         fieldPriority = changePosition(fieldPriority, 'capture', 0);
     }
 
-    else if (player2Captures >= 4) {
+    else if (player2Captures >= 4
+        && !moves.find(l => l.winBreak)
+        && !moves.find(l => l.win5)) {
         fieldPriority = changePosition(fieldPriority, 'captureBlock', 0);
+    }
+
+
+    const badWin5EnemyFilter = (l: TMvRepport) => l.captured_opponent
+
+    if (
+        player1Captures === 4
+        && player2Captures < 5
+        && moves.find(badWin5EnemyFilter)
+    ) {
+        moves = moves.filter(l => !badWin5EnemyFilter(l))
     }
 
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
-            if (field === 'score' || field === 'score_opponent' || field === 'winBreak') {
+            if (['captured', 'captured_opponent', 'score_opponent'].includes(field)) {
                 if (b[field] !== a[field]) {
-                    return b[field] - a[field]
+                    return a[field] - b[field]
                 }
-            }
-            if (field === 'aligned_siblings') {
+            } else if (field === 'aligned_siblings') {
                 if (a[field][0] === b[field][0])
                     if (a[field][1] !== b[field][1])
                         return a[field][1] - b[field][1]
                 if (b[field][0] !== a[field][0])
                     return b[field][0] - a[field][0]
-            }
-
-
-            const aValue = a[field] ? 1 : 0;
-            const bValue = b[field] ? 1 : 0;
-
-            if (aValue !== bValue) {
-                return bValue - aValue; // Sort in descending order
+            } else {
+                if ((b[field] - a[field]) !== 0)
+                    return b[field] - a[field]; // Sort in descending order
             }
         }
 
         return 0; // Objects are equal based on the specified fields
     };
-
     const sortedArray = [...moves].sort(compareFunction);
-
-    const chunk = sortedArray
-    chunk.forEach(el => {
-        for (const k in el) {
-            if (el.hasOwnProperty(k) && el[k as keyof typeof el] === false) {
-                delete el[k as keyof typeof el];
-            }
-        }
-    })
-    return chunk
+    return sortedArray
 }
 
 //  TODO: refactor
