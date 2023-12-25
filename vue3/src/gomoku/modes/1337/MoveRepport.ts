@@ -115,7 +115,7 @@ export class MoveRepport {
                 // ***[3]*
                 let lp = 3;
                 while (lp--)
-                    MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(dir, coord.x, coord.y)
 
                 if (!isValidMoveFor1337Mode(matrix, p, coord.x, coord.y))
                     continue
@@ -211,8 +211,8 @@ export class MoveRepport {
                     }
                 } else {
                     let coord = { x, y }
-                    MoveDirection(dir, coord.x, coord.y)
-                    MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(dir, coord.x, coord.y)
+                    coord = MoveDirection(dir, coord.x, coord.y)
                     if (!isValidMoveFor1337Mode(matrix, op, coord.x, coord.y)) {
                         continue
                     }
