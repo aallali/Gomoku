@@ -77,7 +77,7 @@ export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, turn: P) {
             else if (consecutives >= 2)
                 repport.isOpenThree = true
         } else {
-            if (consecutives >= 3) {
+            if (consecutives >= 3 && bounds == 1) {
                 repport.isBounded4 = true
             }
         }
