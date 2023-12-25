@@ -87,7 +87,9 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         fieldPriority = changePosition(fieldPriority, 'capture', 0);
     }
 
-    else if (player2Captures >= 4 && !moves.find(l => l.winBreak)) {
+    else if (player2Captures >= 4
+        && !moves.find(l => l.winBreak)
+        && !moves.find(l => l.win5)) {
         fieldPriority = changePosition(fieldPriority, 'captureBlock', 0);
     }
 
@@ -124,7 +126,6 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         return 0; // Objects are equal based on the specified fields
     };
     const sortedArray = [...moves].sort(compareFunction);
-
     return sortedArray
 }
 
