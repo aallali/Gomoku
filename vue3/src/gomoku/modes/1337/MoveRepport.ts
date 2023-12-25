@@ -461,24 +461,26 @@ export class MoveRepport {
     }
     scoreIt(repport: ReturnType<typeof this.repportObj>) {
         let score = 0
-        if (repport.win5)
-            score += 10000
 
-        if (repport.capture)
-            score += 700
+        score += 100000 * repport.win5
+        
+        score += (100000 - 2) * repport.win5Block 
 
-        if (repport.open4)
-            score += 600
+        score += 99999 * repport.open4
 
-        if (repport.captureSetup)
-            score += 500
+        score += 10000 * repport.totalCaptures
 
-        if (repport.open3)
-            score += 400
+        score += 50001 * repport.open4Block
 
-        if (repport.captureBlock)
-            score += 300
+        score += 40000 * repport.open4Bounded
 
+        score += 30001 * repport.open3Block
+
+        score += 3000 * repport.open3
+
+        score += 15001 * (repport.captureSetup + repport.captureBlock)
+
+        score += 50000 * repport.winBreak
         return score
     }
 }
