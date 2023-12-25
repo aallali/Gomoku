@@ -61,7 +61,6 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
 }
 
 function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number) {
-    moves[0].capture
     // Define the order of priority for fields
     let fieldPriority: (keyof TMvRepport)[] = [
         'winBreak',
