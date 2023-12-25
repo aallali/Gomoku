@@ -88,6 +88,17 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         fieldPriority = changePosition(fieldPriority, 'captureBlock', 0);
     }
 
+
+    const badWin5EnemyFilter = (l: TMvRepport) => l.captured_opponent
+
+    if (
+        player1Captures === 4
+        && player2Captures < 5
+        && moves.find(badWin5EnemyFilter)
+    ) {
+        moves = moves.filter(l => !badWin5EnemyFilter(l))
+    }
+
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
