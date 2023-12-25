@@ -83,7 +83,12 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         'score_opponent'
     ];
 
-    if (player1Captures === 4 && moves.find(l => l.capture)) {
+    if (player2Captures >= 4) {
+        moves = moves.filter(l => !l.captured)
+    }
+
+    if (player1Captures === 4
+        && moves.find(l => l.capture)) {
         fieldPriority = changePosition(fieldPriority, 'capture', 0);
     }
 
