@@ -31,7 +31,7 @@ export interface TMvRepport {
     open4Block: number
     open4BoundedBlock: number,
 
-    forbiddenOpponent: boolean
+    forbiddenOpponent: number
 
     aligned_siblings: [number, number, number],
     score: number
@@ -399,8 +399,8 @@ export class MoveRepport {
         return [totalAligns, distance, totalAligns - distance]
     }
 
-    isForbiddenForOpponent(): boolean {
-        return !isValidMoveFor1337Mode(this.matrix, this.op, this.x, this.y)
+    isForbiddenForOpponent(): number {
+        return !isValidMoveFor1337Mode(this.matrix, this.op, this.x, this.y) ? 1 : 0
     }
     // - win move (5 in row)
     isRowWin(): boolean {
