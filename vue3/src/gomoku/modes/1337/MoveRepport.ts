@@ -23,6 +23,7 @@ export interface TMvRepport {
     captureSetup: number,
     captureBlock: number
     captured: number
+    captured_opponent: number
     // enemyCapture: this.isWillCaptureForEnemy(),
 
     open3: number
@@ -435,7 +436,7 @@ export class MoveRepport {
             captureSetup: this.isCaptureSetup(),
             captureBlock: this.isBlockCapture(),
             captured: this.isWillCaptured(),
-
+            captured_opponent: this.isWillCaptured({ x: this.x, y: this.y }, this.op),
             open3: this.isOpenThree(),
             open3Block: this.isOpenThreeBlock() || this.finalRepport.open3Block || 0,
 
