@@ -63,9 +63,11 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
 function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number) {
     // Define the order of priority for fields
     let fieldPriority: (keyof TMvRepport)[] = [
+
         'winBreak',
         'win5',
         'win5Block',
+        'capture',
         'captured_opponent',
         'capture',
         'captured',
@@ -82,24 +84,55 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         'score',
         'score_opponent'
     ];
+    moves = moves.filter(l => !l.captured)
+    const captures = moves.filter(l => l.capture)
+    const win5 = moves.filter(l => l.win5)
+    const blockWin5 = moves.filter(l => l.win5Block)
+    const breakWin5 = moves.filter(l => l.winBreak)
 
-    if (player2Captures >= 4) {
-        moves = moves.filter(l => !l.captured)
-    }
+    const blockCapture = moves.filter(l => l.captureBlock)
+    const setupCapture = moves.filter(l => l.captureSetup)
+    const open4 = moves.filter(l => l.open4)
+    const open3 = moves.filter(l => l.open3)
+    const blockOpen4 = moves.filter(l => l.open4Block)
+    const blockOpen3 = moves.filter(l => l.open3Block)
 
-    if (player1Captures === 4
-        && moves.find(l => l.capture)) {
-        fieldPriority = changePosition(fieldPriority, 'capture', 0);
-    }
+    console.log(`
+const captures = ${captures.length}
+const win5 = ${win5.length}
+const blockWin5 = ${blockWin5.length}
+const breakWin5 = ${breakWin5.length}
 
-    else if (player2Captures >= 4
-        && !moves.find(l => l.winBreak)
-        && !moves.find(l => l.win5)) {
-        fieldPriority = changePosition(fieldPriority, 'captureBlock', 0);
-    }
+const blockCapture = ${blockCapture.length}
+const setupCapture = ${setupCapture.length}
+const open4 = ${open4.length}
+const open3 = ${open3.length}
+const blockOpen4 = ${blockOpen4.length}
+const blockOpen3 = ${blockOpen3.length}
+`)
 
-
-    const badWin5EnemyFilter = (l: TMvRepport) => l.captured_opponent
+    /*
+    
+- if captures > 0 && myCapture >= 4 X
+    : pick capture
+- if win5 > 0 && unbreakableWin5 > 0  X
+    : pick win5
+- if blockCapture > 0 && enemyCapture >= 4 X
+    : pick block capture
+- if break win5 by capture > 0  X
+    : pick capture to break win5
+- if block win5 > 0 X
+    : pick block5
+if block open4
+    : pick block4
+if open4 > 0
+    : pick open4
+if block open3
+    : pick block3
+if open3 > 0
+    : pick open 3
+    */
+    const badWin5EnemyFilter = (l: TMvRepport) => l.captured_opponent && !l.win5
 
     if (
         player1Captures === 4
@@ -108,6 +141,71 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
     ) {
         moves = moves.filter(l => !badWin5EnemyFilter(l))
     }
+    console.log("Moves", moves.length)
+    breakme: while (1) {
+        if (captures.length > 0) {
+            moves = captures
+            break
+        }
+
+        if (win5.length > 0) {
+            moves = win5
+            break
+        }
+
+        if (blockCapture.length > 0 && player2Captures >= 4) {
+            moves = blockCapture
+            break
+        }
+
+        if (breakWin5.length) {
+            moves = breakWin5
+            break
+        }
+
+        if (blockWin5.length) {
+            if (blockWin5.filter(l => l.captured_opponent) && player1Captures >= 4) {
+
+            } else {
+
+                moves = blockWin5
+                break
+            }
+
+        }
+        
+        if (open4.length) {
+            moves = open4
+            break
+        }
+
+        if (blockOpen4.length) {
+            moves = blockOpen4
+            break
+        }
+   
+        if (blockCapture.length > 0) {
+            moves = blockCapture
+            break
+        }
+        if (setupCapture.length > 0) {
+            moves = setupCapture
+            break
+        }
+        if (blockOpen3.length) {
+            moves = blockOpen3
+            break
+        }
+
+        if (open3.length) {
+            moves = open3
+            break
+        }
+        break
+    }
+
+
+
 
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
