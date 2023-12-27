@@ -242,7 +242,9 @@ export class MoveRepport {
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
+    
             if (match) {
+    
                 let coordList = []
                 let counter = 0
                 let coord = { x, y }
