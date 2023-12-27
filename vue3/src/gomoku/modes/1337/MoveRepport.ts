@@ -167,7 +167,7 @@ export class MoveRepport {
     }
     // - will be captured move, if played [x]
     isWillCaptured(coord?: TPoint, turn?: P): number {
-        let [matrix, x, y, p] = [cloneMatrix(this.matrix), coord?.x || this.x, coord?.y || this.y, turn || this.p]
+        let [matrix, x, y, p] = [cloneMatrix(turn ? this.backupMatrix : this.matrix), coord?.x || this.x, coord?.y || this.y, turn || this.p]
         matrix[x][y] = p;
         targetLoop: for (let i = 0; i < directions.length; i++) {
             const dir = directions[i];
