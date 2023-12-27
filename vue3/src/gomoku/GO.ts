@@ -146,20 +146,16 @@ class GO {
     }
 
     findBestMove() {
-        if (!this.players[this.turn].isAi) {
-            this.bestMoves = []
-            return
-        }
         if (this.mode === "1337") {
             const bestMoves = whatIsTheBestMove(
                 this.matrix,
                 this.turn,
                 this.players[this.turn].captures,
                 this.players[3 - this.turn as P].captures)
-
-            this.bestMoves = [bestMoves[0]]
-            // const mmScore = miniMax(bestMoves.slice(0, 10), this.turn, this.matrix);
-            return
+            if (bestMoves.length) {
+                this.bestMoves = bestMoves.slice(0, 1)
+                return bestMoves.slice(0, 4)
+            }
         }
     }
 }
