@@ -165,7 +165,7 @@ class GO {
                 this.log)
             if (bestMoves.length) {
                 this.bestMoves = bestMoves.slice(0, 1)
-                return bestMoves.slice(0, 4)
+                return bestMoves.length >= 10 ? bestMoves.slice(0, 3) : bestMoves
             }
         }
         return []
