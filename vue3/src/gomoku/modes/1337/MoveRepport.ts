@@ -420,7 +420,7 @@ export class MoveRepport {
     }
     // Punchline
     repport() {
-        this.repportObj()
+        this.repportObj(1)
         let rawTxtRepport = []
         rawTxtRepport.push([`X: ${this.x} | Y: ${this.y}`, ''])
         Object.keys(this.finalRepport).forEach((key) => {
@@ -428,7 +428,7 @@ export class MoveRepport {
         });
         return rawTxtRepport
     }
-    repportObj() {
+    repportObj(currentCapts: number) {
         this.evaluateMove()
         this.finalRepport = {
             ...this.finalRepport,
@@ -456,31 +456,34 @@ export class MoveRepport {
             winBreak: this.finalRepport.winBreak || 0
         } as TMvRepport
 
-        this.finalRepport.cScore = this.scoreIt(this.finalRepport)
+        this.finalRepport.cScore = this.scoreIt(this.finalRepport, currentCapts)
         return this.finalRepport
     }
-    scoreIt(repport: ReturnType<typeof this.repportObj>) {
+    scoreIt(repport: ReturnType<typeof this.repportObj>, currentCapts: number) {
         let score = 0
 
-        score += 100000 * repport.win5
-        
-        score += (100000 - 2) * repport.win5Block 
+        score += 2000 * repport.win5
 
-        score += 99999 * repport.open4
+        score += 1500 * repport.win5Block
+        score += 3000 * repport.winBreak
 
-        score += 10000 * repport.totalCaptures
+        score += 2000 * repport.open4
 
-        score += 50001 * repport.open4Block
+        score += repport.totalCaptures  ? (800 * (repport.totalCaptures + currentCapts) + (repport.totalCaptures * 300)) : 0
 
-        score += 40000 * repport.open4Bounded
+        score += 800 * repport.open4Block
 
-        score += 30001 * repport.open3Block
+        score += 700 * repport.open4Bounded
 
-        score += 3000 * repport.open3
+        score += 100 * repport.open3Block
 
-        score += 15001 * (repport.captureSetup + repport.captureBlock)
+        score += 400 * repport.open3
 
-        score += 50000 * repport.winBreak
+        score += repport.captureSetup  ? (800 * (repport.captureSetup + currentCapts) + (repport.captureSetup * 300)) : 0
+        score += 500 * repport.captureBlock
+
+        if (score === 0)
+            score += repport.score || repport.score_opponent
         return score
     }
 }
