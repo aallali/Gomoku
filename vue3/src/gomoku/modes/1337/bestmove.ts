@@ -17,7 +17,7 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number
         const repporter = new MoveRepport(matrix, { x, y }, turn)
 
         if (repporter.isNearBy()) {
-            const repport = repporter.repportObj()
+            const repport = repporter.repportObj(player1Captures)
 
             // Check if the current spot is not marked for capture by the opponent,
             // or if it is part of a winning line of 5 stones, or if it blocks an opponent's potential win.
