@@ -2,6 +2,7 @@ import create from "zustand-vue";
 import type { P, TMtx, TPoint } from "./gomoku/types/gomoku.type";
 import * as R from "ramda"
 import go from "./gomoku/GO"
+import { Minimax } from "./gomoku/modes/1337/MiniMax";
 
 
 export interface IGameStore {
@@ -98,6 +99,10 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         go.move({ x, y })
         go.findBestMove()
         get().updateStates()
+        let bestMoveByMinimax = Minimax.findBestMove(go, 10, true)
+        set({bestMoves: [bestMoveByMinimax]})
+        get().updateStates()
+
     },
     setPlayerType: (player, type) => {
         go.players[player].isAi = type === "ai"
@@ -137,7 +142,6 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
             winner: go.winner || null,
             goldenStones: go.winStones,
             blinks: go.winStones,
-            bestMoves: go.bestMoves
         })
     },
     setAnalyse(analyse) {

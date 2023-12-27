@@ -44,7 +44,7 @@ export default {
                     <th rowspan="2" style="border: none;"><button class="btn-copy"
                             @click="copyToClipboard(moves.join(','))">Copy</button></th>
                     <th style=""> <img :src='IMG_BlackStone' class='circle-black' style="width: 20px;"></th>
-                    <td v-for="move in moves?.filter((_l, i) => i % 2 == 0)" :key="move">{{ move }}</td>
+                    <td v-for="(_move, idx) in moves?.filter((_l, i) => i % 2 == 0)" :key="idx">{{ _move }}</td>
                 </tr>
 
                 <tr>
