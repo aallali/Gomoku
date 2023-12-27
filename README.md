@@ -77,7 +77,7 @@ This project involves creating, in the language of your choice, a Gomoku game in
             }
             ```
 
-<img src="./ressources/gomoku-ts-v1.2.png">
+<img src="./ressources/gomoku-ts-v1.3.png">
 
 ---
 ### 30/06/2023 (second day of AÏD AL ADHAA):
@@ -113,4 +113,3 @@ Todo:
 - [x] : blink the captured pieces before removing them from board for more visibility
 - [ ] : add board score calculation function and implement it to UI
 - [ ] : fix the cases mentioned in history file 
-
