@@ -269,7 +269,6 @@ export class MoveRepport {
 
                 const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
                 let isPerfectOpen3 = true
-
                 targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
 
