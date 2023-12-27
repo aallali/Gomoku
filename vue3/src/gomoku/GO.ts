@@ -38,9 +38,11 @@ class GO {
     size: number = 19
     lastPlayed: TPoint
     children: GO[]
+    log: boolean
     constructor() {
         this.lastPlayed = {} as TMvRepport
         this.children = [] as GO[]
+        this.log = true
     }
     setMatrix(matrix: TMtx) {
         this.matrix = cloneMatrix(matrix)
@@ -159,7 +161,8 @@ class GO {
                 this.matrix,
                 this.turn,
                 this.players[this.turn].captures,
-                this.players[3 - this.turn as P].captures)
+                this.players[3 - this.turn as P].captures,
+                this.log)
             if (bestMoves.length) {
                 this.bestMoves = bestMoves.slice(0, 1)
                 return bestMoves.slice(0, 4)
@@ -179,6 +182,7 @@ class GO {
             node.size = this.size
             node.players = { 1: { ...this.players[1] }, 2: { ...this.players[2] } }
             node.winner = this.winner
+            node.log = false
             node.move({ x: l.x, y: l.y })
             node.lastPlayed = { ...node.lastPlayed, score: l.cScore }
             return node
