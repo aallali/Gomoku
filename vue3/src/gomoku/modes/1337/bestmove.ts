@@ -1,41 +1,27 @@
-import type { P, TMtx, TPoint } from "@/gomoku/types/gomoku.type";
+import type { P, TMtx } from "@/gomoku/types/gomoku.type";
 import { findValidSpots } from "./moveValidity";
 import { MoveRepport, type TMvRepport } from "./MoveRepport";
-import { cloneMatrix } from "@/gomoku/common/shared-utils";
-import { applyCapturesIfAny } from "./captures";
+ 
 
 const { log } = console
 
-export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number, player2Captures: number) {
-
-
+export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number, player2Captures: number, log?: boolean) {
     const availableSpots: TMvRepport[] = []
     const validSpots = findValidSpots(matrix, turn, "1337")
 
     for (let i = 0; i < validSpots.length; i++) {
         const { x, y } = validSpots[i];
-        const repporter = new MoveRepport(matrix, { x, y }, turn)
+        const repporter = new MoveRepport()
+        repporter.setTurn(turn)
+        repporter.setMatrix(matrix)
+        repporter.setPoint({x,y})
 
         if (repporter.isNearBy()) {
             const repport = repporter.repportObj(player1Captures)
-
-            // Check if the current spot is not marked for capture by the opponent,
-            // or if it is part of a winning line of 5 stones, or if it blocks an opponent's potential win.
-            // Also, consider it if it is marked for capture and the current-player captures count is greater than or equal to 4.
-            if (
-                !repport.captured ||        // Condition: Not marked for capture by the opponent.
-                repport.win5 ||             // Condition: Part of a winning line of 5 stones.
-                repport.win5Block ||        // Condition: Blocks an opponent's potential win.
-                repport.winBreak ||         // Condition: break his 5 win   
-                (repport.capture && player1Captures >= 4)  // Condition: Marked for capture and current-player captures count >= 4.
-            ) {
-                // If any of the conditions is true, add the current spot to the available spots.
-                availableSpots.push({ ...repport, x, y });
-            }
+            availableSpots.push({ ...repport, x, y });
         }
     }
-
-    return movesSorter(availableSpots, player1Captures, player2Captures)
+    return movesSorter(availableSpots, player1Captures, player2Captures, log)
 }
 
 /**
@@ -47,7 +33,7 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
     const currentValueIndex = array.indexOf(valueToMove);
 
     if (currentValueIndex === -1) {
-        console.log(`Value ${valueToMove} not found in the array.`);
+        log(`Value ${valueToMove} not found in the array.`);
         return array; // Value not found, return the original array
     }
 
@@ -60,7 +46,7 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
     return array;
 }
 
-function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number) {
+function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number, log?: boolean) {
     // Define the order of priority for fields
     let fieldPriority: (keyof TMvRepport)[] = [
 
@@ -84,9 +70,11 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
         'score',
         'score_opponent'
     ];
+    const withCaptures = [...moves]
     moves = moves.filter(l => !l.captured)
-    const captures = moves.filter(l => l.capture)
-    const win5 = moves.filter(l => l.win5)
+    const captures = withCaptures.filter(l => l.capture)
+    const captured = moves.filter(l => l.captured)
+    const win5 = withCaptures.filter(l => l.win5)
     const blockWin5 = moves.filter(l => l.win5Block)
     const breakWin5 = moves.filter(l => l.winBreak)
 
@@ -97,22 +85,23 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
     const blockOpen4 = moves.filter(l => l.open4Block)
     const blockOpen3 = moves.filter(l => l.open3Block)
 
-    console.log(`
-const captures = ${captures.length}
+    if (log)
+console.log(`
 const win5 = ${win5.length}
 const blockWin5 = ${blockWin5.length}
 const breakWin5 = ${breakWin5.length}
 
+const captures = ${captures.length}
+const captured = ${captured.length}
 const blockCapture = ${blockCapture.length}
 const setupCapture = ${setupCapture.length}
+
 const open4 = ${open4.length}
 const open3 = ${open3.length}
 const blockOpen4 = ${blockOpen4.length}
 const blockOpen3 = ${blockOpen3.length}
 `)
-
-    /*
-    
+/*
 - if captures > 0 && myCapture >= 4 X
     : pick capture
 - if win5 > 0 && unbreakableWin5 > 0  X
@@ -131,7 +120,7 @@ if block open3
     : pick block3
 if open3 > 0
     : pick open 3
-    */
+*/
     const badWin5EnemyFilter = (l: TMvRepport) => l.captured_opponent && !l.win5
 
     if (
@@ -141,20 +130,26 @@ if open3 > 0
     ) {
         moves = moves.filter(l => !badWin5EnemyFilter(l))
     }
-    console.log("Moves", moves.length)
-    breakme: while (1) {
-        if (captures.length > 0) {
-            moves = captures
-            break
-        }
+    let additionalMoves = []
 
+    while (1) {
         if (win5.length > 0) {
-            moves = win5
-            break
+            if (moves.length === 1 && moves[0].captured === 0) {
+                moves = win5
+                break
+            } else {
+                additionalMoves.push(...win5)
+            }
         }
-
+        // TODO: we should not break after , mayb there is an open4 to block or something
+        if (captures.length > 0) {
+           
+            additionalMoves.push(...captures)
+            // break
+        }
         if (blockCapture.length > 0 && player2Captures >= 4) {
             moves = blockCapture
+            additionalMoves = []
             break
         }
 
@@ -165,15 +160,15 @@ if open3 > 0
 
         if (blockWin5.length) {
             if (blockWin5.filter(l => l.captured_opponent) && player1Captures >= 4) {
-
             } else {
-
                 moves = blockWin5
                 break
             }
+        }
+        if (setupCapture.length > 0) {
+            additionalMoves.push(...setupCapture)
 
         }
-        
         if (open4.length) {
             moves = open4
             break
@@ -183,15 +178,12 @@ if open3 > 0
             moves = blockOpen4
             break
         }
-   
+
         if (blockCapture.length > 0) {
             moves = blockCapture
             break
         }
-        if (setupCapture.length > 0) {
-            moves = setupCapture
-            break
-        }
+
         if (blockOpen3.length) {
             moves = blockOpen3
             break
@@ -204,9 +196,9 @@ if open3 > 0
         break
     }
 
+    moves.push(...additionalMoves)
 
-
-
+    moves = Array.from(new Set([...moves]))
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
@@ -229,34 +221,10 @@ if open3 > 0
         return 0; // Objects are equal based on the specified fields
     };
     const sortedArray = [...moves].sort(compareFunction);
-    return sortedArray
-}
-
-//  TODO: refactor
-export function miniMax(moves: TPoint[], player: P, matrix: TMtx) {
-    console.clear()
-    const opponent = 3 - player as P;
-    let mmMoves = []
-    let mvMap = new Map()
-
-    for (let i = 0; i < moves.length; i++) {
-        const { x, y } = moves[i]
-        let cloneMtx = cloneMatrix(matrix)
-        cloneMtx[x][y] = player
-        cloneMtx = applyCapturesIfAny(cloneMtx, { x, y }).matrix
-        const bestScore = whatIsTheBestMove(cloneMtx, opponent, 1, 1);
-        log(x, y, 'Best for him: ', bestScore[0].x, bestScore[0].y)
-        mmMoves.push(bestScore[0])
-        const cleanObj = { x: bestScore[0].x, y: bestScore[0].y }
-        const ky = `${cleanObj.x}|${cleanObj.y}`
-
-        if (!mvMap.get(ky))
-            mvMap.set(ky, { x, y })
+    if (log) {
+        sortedArray.forEach((el, i) => {
+            console.log(`${i}:---> {x: ${el.x}, y: ${el.y}, cScore: ${el.cScore}}`)
+        })
     }
-
-    // const sorted = movesSorter(mmMoves, opponent, 1, 1).reverse()
-    const sorted = mmMoves.sort((a, b) => a.cScore - b.cScore)
-    const cleanObj = { x: sorted[0].x, y: sorted[0].y }
-
-    return mvMap.get(`${cleanObj.x}|${cleanObj.y}`)
+    return sortedArray
 }
