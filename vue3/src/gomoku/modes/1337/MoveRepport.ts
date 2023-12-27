@@ -409,9 +409,9 @@ export class MoveRepport {
     isCaptureWin(): boolean { return false }
 
     isNearBy(_matrix?: TMtx, cell?: TPoint) {
-        const [matrix, _x, _y] = [_matrix || this.matrix, cell?.x || this.x, cell?.y || this.y]
+        const [matrix, x, y] = [_matrix || this.backupMatrix, cell?.x || this.x, cell?.y || this.y]
         return forEachDirection((dir) => {
-            const rawPath = ScrapLine(matrix, 0, 2, _x, _y, dir);
+            const rawPath = ScrapLine(matrix, 0, 1, x, y, dir);
             if (/1|2/.test(rawPath.substring(1))) {
                 return true
             }
