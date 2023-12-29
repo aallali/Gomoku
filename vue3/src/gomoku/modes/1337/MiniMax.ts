@@ -9,10 +9,9 @@ export class Minimax {
 
     const recursiveMinimax = (node: typeof GO, depth: number, alpha: number, beta: number, maximizingPlayer: boolean): number => {
       if (depth === 0 || node.winner || Date.now() - this.startMillis > Minimax.timeoutMillis) {
-        if (node.winner === 1) return 33333 - (10 - depth);
-        if (node.winner === 2) return 88888 - (10 - depth);
-
-        return node.lastPlayed.score || 0
+        if (node.winner === 1) return 33333
+        if (node.winner === 2) return 88888
+        return 0
       }
 
       node.generateChildren();
