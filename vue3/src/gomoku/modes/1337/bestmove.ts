@@ -1,7 +1,7 @@
 import type { P, TMtx } from "@/gomoku/types/gomoku.type";
 import { findValidSpots } from "./moveValidity";
 import { MoveRepport, type TMvRepport } from "./MoveRepport";
- 
+
 
 const { log } = console
 
@@ -14,7 +14,7 @@ export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number
         const repporter = new MoveRepport()
         repporter.setTurn(turn)
         repporter.setMatrix(matrix)
-        repporter.setPoint({x,y})
+        repporter.setPoint({ x, y })
 
         if (repporter.isNearBy()) {
             const repport = repporter.repportObj(player1Captures)
@@ -86,7 +86,7 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
     const blockOpen3 = moves.filter(l => l.open3Block)
 
     if (log)
-console.log(`
+        console.log(`
 const win5 = ${win5.length}
 const blockWin5 = ${blockWin5.length}
 const breakWin5 = ${breakWin5.length}
@@ -101,26 +101,7 @@ const open3 = ${open3.length}
 const blockOpen4 = ${blockOpen4.length}
 const blockOpen3 = ${blockOpen3.length}
 `)
-/*
-- if captures > 0 && myCapture >= 4 X
-    : pick capture
-- if win5 > 0 && unbreakableWin5 > 0  X
-    : pick win5
-- if blockCapture > 0 && enemyCapture >= 4 X
-    : pick block capture
-- if break win5 by capture > 0  X
-    : pick capture to break win5
-- if block win5 > 0 X
-    : pick block5
-if block open4
-    : pick block4
-if open4 > 0
-    : pick open4
-if block open3
-    : pick block3
-if open3 > 0
-    : pick open 3
-*/
+
     const badWin5EnemyFilter = (l: TMvRepport) => l.captured_opponent && !l.win5
 
     if (
@@ -134,16 +115,20 @@ if open3 > 0
 
     while (1) {
         if (win5.length > 0) {
-            if (moves.length === 1 && moves[0].captured === 0) {
+            if (win5.find(l => !l.captured)) {
                 moves = win5
                 break
             } else {
                 additionalMoves.push(...win5)
             }
         }
-        // TODO: we should not break after , mayb there is an open4 to block or something
+
         if (captures.length > 0) {
-           
+            if (player1Captures >= 4) {
+                moves = captures
+                additionalMoves = []
+                break
+            }
             additionalMoves.push(...captures)
             // break
         }
@@ -159,23 +144,25 @@ if open3 > 0
         }
 
         if (blockWin5.length) {
-            if (blockWin5.filter(l => l.captured_opponent) && player1Captures >= 4) {
+            if (blockWin5.find(l => l.captured_opponent) && player1Captures >= 4) {
             } else {
                 moves = blockWin5
                 break
             }
         }
         if (setupCapture.length > 0) {
-            additionalMoves.push(...setupCapture)
-
+            if (!captures.length)
+                additionalMoves.push(...setupCapture)
         }
         if (open4.length) {
             moves = open4
+            additionalMoves = []
             break
         }
 
         if (blockOpen4.length) {
             moves = blockOpen4
+            additionalMoves = []
             break
         }
 
@@ -199,6 +186,7 @@ if open3 > 0
     moves.push(...additionalMoves)
 
     moves = Array.from(new Set([...moves]))
+
     // Custom comparator function
     const compareFunction = (a: { [x: string]: any; }, b: { [x: string]: any; }): number => {
         for (const field of fieldPriority) {
