@@ -307,7 +307,6 @@ export class MoveRepport {
             const path = Standarize(p, rawPath)
             const patterns = [
                 /\.XXXX\./, // eg: [_BBBB_]
-                /XX\.XX\./, // eg: [BB_BB_]
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
