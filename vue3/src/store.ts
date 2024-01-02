@@ -99,10 +99,12 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         go.move({ x, y })
         go.findBestMove()
         get().updateStates()
-        let bestMoveByMinimax = Minimax.findBestMove(go, 10, true)
-        set({bestMoves: [bestMoveByMinimax]})
+        if (go.players[go.turn].isAi) {
+            let bestMoveByMinimax = Minimax.findBestMove(go, 10, true)
+            // set({ bestMoves: [bestMoveByMinimax] })
+            get().fillCell(bestMoveByMinimax.x, bestMoveByMinimax.y)
+        } else set({ bestMoves: [] })
         get().updateStates()
-
     },
     setPlayerType: (player, type) => {
         go.players[player].isAi = type === "ai"
