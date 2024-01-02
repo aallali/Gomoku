@@ -16,7 +16,6 @@ export class Minimax {
 
       node.generateChildren();
 
-
       if (maximizingPlayer) {
         let maxEval = Number.NEGATIVE_INFINITY;
 
@@ -31,7 +30,9 @@ export class Minimax {
         }
 
         return maxEval - (5 - depth);
+
       } else {
+
         let minEval = Number.POSITIVE_INFINITY;
 
         for (const child of node.children) {
@@ -64,6 +65,7 @@ export class Minimax {
       this.startMillis = Date.now();
       for (const child of root.children) {
         const score = Minimax.minimax(child, depth - 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, !maximizingPlayer) + (child.lastPlayed.score || 0);
+        console.log(`Minimax score: {x:${child.lastPlayed.x} ,y: ${child.lastPlayed.y}} | score: ${score}`, child.winner || "")
         if (
           (maximizingPlayer && score > bestValue)
           || (!maximizingPlayer && score < bestValue)) {
@@ -75,7 +77,7 @@ export class Minimax {
       bestValue = root.children[0].lastPlayed.score || -1;
       bestMove = root.children[0];
     }
-    
+
     console.log(`Best by Heuristic: {x: ${root.children[0].lastPlayed.x}, y: ${root.children[0].lastPlayed.y}}`)
     console.log(`Best by MiniMax: {x: ${bestMove?.lastPlayed.x}, y: ${bestMove?.lastPlayed.y}}`, bestValue)
     console.timeEnd("AllmovesMinimax:")
