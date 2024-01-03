@@ -202,6 +202,5 @@ class GO {
         return bestMoves?.[0]?.cScore || 0
     }
 }
-const go = new GO()
 
-export default go
+export default new GO()
