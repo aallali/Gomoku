@@ -1,17 +1,16 @@
-<script lang="ts">
+<script lang="ts" setup>
 import { useGame } from '@/store';
 
-export default {
-    data() {
-        return {
-            winner: useGame((state) => state.winner),
-        }
-    },
+const winner = useGame((state) => state.winner)
+const winnerDic = {
+    "T": "Tie",
+    1: "Black",
+    2: "White"
 }
+
 </script>
 <template>
-    <!-- <h3 style="color: transparent">_</h3> -->
     <fieldset v-if="winner">
-        <label>Winner: <b>{{ winner == 1 ? "Black" : "White" }}</b></label>
+        <label>Winner: <b>{{ winnerDic[winner] }}</b></label>
     </fieldset>
 </template>
