@@ -9,8 +9,14 @@ export class Minimax {
 
     const recursiveMinimax = (node: typeof GO, depth: number, alpha: number, beta: number, maximizingPlayer: boolean): number => {
       if (depth === 0 || node.winner || Date.now() - this.startMillis > Minimax.timeoutMillis) {
-        if (node.winner === 1) return 33333
-        if (node.winner === 2) return 88888
+        // if (node.winner === 1) return 33333
+        // if (node.winner === 2) return 88888
+        if (node.winner) {
+          if (node.winner === "T")
+            return 0
+
+          return 88888 * (maximizingPlayer ? 1 : -1)
+        }
         return 0
       }
 
