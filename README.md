@@ -80,7 +80,7 @@ This project involves creating, in the language of your choice, a Gomoku game in
 <img src="./ressources/gomoku-ts-v1.2.png">
 
 ---
-### 30/06/2023 (second day of AÏD AL ADHAA):
+### update 30/06/2023 (second day of AÏD AL ADHAA):
 
 I started this project 1 year ago (March 2022, I think) as a school project. I began with a simple React app and attempted to implement the solver within it. I encountered performance issues, of course (you can't apply hardcore MiniMax in the browser, haha 😆). 
 Well, I worked on it for a month or two, then put it on hold since no solution was clear at that time.
@@ -96,7 +96,8 @@ The JavaScript algorithm operates in the browser with an accompanying UI shown i
 
 ---
 *`img updated: 29/07/2023`*
-<img src="./ressources/gomoku-web-v4.1.png">
+
+<img src="./ressources/gomoku-web-v4.1.png"/>
 
 Todo:
 - [x] : add support to switch modes (`1337 rules` && `normal`)
