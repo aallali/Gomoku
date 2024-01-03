@@ -35,7 +35,7 @@ export class Minimax {
           }
         }
 
-        return maxEval - (5 - depth);
+        return maxEval
 
       } else {
 
@@ -51,7 +51,7 @@ export class Minimax {
           }
         }
 
-        return minEval + (5 - depth); // Apply penalty for minimizing player
+        return minEval // Apply penalty for minimizing player
       }
     };
 
