@@ -26,7 +26,7 @@ export class Minimax {
         let maxEval = Number.NEGATIVE_INFINITY;
 
         for (const child of node.children) {
-          const score = recursiveMinimax(child, depth - 1, alpha, beta, false);
+          const score = recursiveMinimax(child, depth + 1, alpha, beta, false);
           maxEval = Math.max(maxEval, score);
           alpha = Math.max(alpha, score);
 
@@ -42,7 +42,7 @@ export class Minimax {
         let minEval = Number.POSITIVE_INFINITY;
 
         for (const child of node.children) {
-          const score = recursiveMinimax(child, depth - 1, alpha, beta, true);
+          const score = recursiveMinimax(child, depth + 1, alpha, beta, true);
           minEval = Math.min(minEval, score);
           beta = Math.min(beta, score);
 
@@ -58,7 +58,7 @@ export class Minimax {
     return recursiveMinimax(node, depth, alpha, beta, maximizingPlayer);
   }
 
-  static findBestMove(initialState: typeof GO, depth: number, _delete?: boolean) {
+  static findBestMove(initialState: typeof GO) {
     let startTime = performance.now()
     const root = initialState
 
