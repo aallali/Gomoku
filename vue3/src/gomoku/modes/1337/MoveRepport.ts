@@ -307,7 +307,6 @@ export class MoveRepport {
             const path = Standarize(p, rawPath)
             const patterns = [
                 /\.XXXX\./, // eg: [_BBBB_]
-                /XX\.XX\./, // eg: [BB_BB_]
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
@@ -477,11 +476,12 @@ export class MoveRepport {
 
         score += 400 * repport.open3
 
-        score += repport.captureSetup  ? (800 * (repport.captureSetup + currentCapts) + (repport.captureSetup * 300)) : 0
+        score += repport.captureSetup  ? (700 * (repport.captureSetup + currentCapts) + (repport.captureSetup * 200)) : 0
         score += 500 * repport.captureBlock
 
+        score += (repport.aligned_siblings[0] * 100) - (repport.aligned_siblings[1] * 10)
         if (score === 0)
-            score += repport.score || repport.score_opponent
+            score += repport.score > repport.score_opponent ? repport.score : repport.score_opponent
         return score
     }
 }

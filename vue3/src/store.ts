@@ -20,6 +20,7 @@ export interface IGameStore {
     blinks: TPoint[]
     bestMoves: TPoint[]
     analyse: string
+    timeCost: number
 }
 
 export interface IPlayer {
@@ -75,7 +76,8 @@ const initState: IGameStore = {
     turn: go.turn,
     blinks: [],
     bestMoves: [],
-    analyse: ''
+    analyse: '',
+    timeCost: 0
 }
 export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     ...initState,
@@ -99,10 +101,17 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         go.move({ x, y })
         go.findBestMove()
         get().updateStates()
-        let bestMoveByMinimax = Minimax.findBestMove(go, 10, true)
-        set({bestMoves: [bestMoveByMinimax]})
-        get().updateStates()
+        if (go.players[go.turn].isAi && !go.winner) {
+            setTimeout(() => {
+                let bestMoveByMinimax = Minimax.findBestMove(go, 10, true)
+                // set({ bestMoves: [bestMoveByMinimax] })
+                
+                get().fillCell(bestMoveByMinimax.bestMove.x, bestMoveByMinimax.bestMove.y)
+                set({ timeCost: bestMoveByMinimax.timeCost })
+            }, 200)
 
+        } else set({ bestMoves: [],  timeCost: 0 })
+        get().updateStates()
     },
     setPlayerType: (player, type) => {
         go.players[player].isAi = type === "ai"

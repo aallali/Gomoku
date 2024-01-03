@@ -83,9 +83,9 @@ class GO {
             throw "Invalid move: forbidden"
 
         this.checkWinner()
-        if (!this.winner) {
-            this.setTurn(3 - this.turn as P)
-        }
+
+        this.setTurn(3 - this.turn as P)
+
 
         this.lastPlayed = { x, y }
     }
@@ -113,10 +113,10 @@ class GO {
         const o_turn = 3 - this.turn as P
         // check if there is 5 in row pieces
         const winStones = check5Win(this.matrix, this.turn, x, y)
-        if (!winStones && this.players[this.turn].captures < 5)
-            return
+
         // - extract all valid oponnent's moves
         const oponentValidMoves = findValidSpots(this.matrix, o_turn, this.mode)
+
         // - extract all possible  oponnent's captures moves  if any
         const capturesOfEnemy = extractCaptures(this.matrix, oponentValidMoves, o_turn)
         // - check breakable line only if captures mode is activated + if there is a win stones row.
@@ -131,6 +131,11 @@ class GO {
                 this.winStones = winStones
             // declare winner and end the game
             this.winner = this.turn
+        } else {
+            if (oponentValidMoves.length === 0) {
+                this.winner = "T"
+                return
+            }
         }
     }
     undo() {

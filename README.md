@@ -2,6 +2,26 @@
 This project involves creating, in the language of your choice, a Gomoku game integrating an AI player capable of beating a human player the fastest way possible. To do this, you will implement a min-max algorithm but also do research, trial and error to find the most adapted heuristics. This will not be as easy as checkers. 
 
 ---
+### update 27/12/2023 :
+ 
+2 days ago, I started implementing MiniMax. After some experimentation and algorithm refinement, it seems to work quite well so far. I improved the order for certain moves and fixed the best move chosen by the heuristic. Now, I need to work on how to handle scores inside MiniMax for more precise decisions.
+
+Wins at level 1 are somewhat ignored, but it's not a big issue since it can be addressed before initiating a MiniMax search. However, all went well, Hamdullah.
+
+Quick tips learned:
+- Code slowly but organize it; it helps a lot in controlling the project's progression.
+- Create all the utility/helper functions in a functional way (no dependency on external states); it aids in reusing and optimizing the code while keeping the logic in one place. `One fix == fix all`.
+- Keep the cake for last; you eat it better.
+- Writing the game in GO was a good decision, but jumping straight to MiniMax without having a good heuristic ruined it for me. I got overwhelmed quickly and gave up after 2 months of trying.
+
+To-Do:
+- Implement a quick fix for the moves sorter to handle instant win/block win.
+- Pause work on MiniMax and focus on cleaning/organizing the code.
+- Add missing/necessary functionalities for better UX.
+- Reduce the number of view renderings if any.
+- Create a test environment to detect breaking changes.
+- Attempt to make the tests executable via the UI.
+ 
 
 ### update 17/12/2023 :
 - Migrated the app to TypeScript/Vue 3.
@@ -80,7 +100,7 @@ This project involves creating, in the language of your choice, a Gomoku game in
 <img src="./ressources/gomoku-ts-v1.2.png">
 
 ---
-### 30/06/2023 (second day of AÏD AL ADHAA):
+### update 30/06/2023 (second day of AÏD AL ADHAA):
 
 I started this project 1 year ago (March 2022, I think) as a school project. I began with a simple React app and attempted to implement the solver within it. I encountered performance issues, of course (you can't apply hardcore MiniMax in the browser, haha 😆). 
 Well, I worked on it for a month or two, then put it on hold since no solution was clear at that time.
@@ -96,7 +116,8 @@ The JavaScript algorithm operates in the browser with an accompanying UI shown i
 
 ---
 *`img updated: 29/07/2023`*
-<img src="./ressources/gomoku-web-v4.1.png">
+
+<img src="./ressources/gomoku-web-v4.1.png"/>
 
 Todo:
 - [x] : add support to switch modes (`1337 rules` && `normal`)
@@ -113,4 +134,3 @@ Todo:
 - [x] : blink the captured pieces before removing them from board for more visibility
 - [ ] : add board score calculation function and implement it to UI
 - [ ] : fix the cases mentioned in history file 
-
