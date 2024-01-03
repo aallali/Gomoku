@@ -52,20 +52,27 @@ export class Minimax {
     return recursiveMinimax(node, depth, alpha, beta, maximizingPlayer);
   }
 
-  static findBestMove(initialState: typeof GO, depth: number, _delete?: boolean): any {
+  static findBestMove(initialState: typeof GO, depth: number, _delete?: boolean) {
+    let startTime = performance.now()
     const root = initialState
 
-    let bestMove: typeof GO | null = null;
+    let bestMove = {} as typeof GO;
     let maximizingPlayer = true
     let bestValue = maximizingPlayer ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
     root.generateChildren();
     console.time("AllmovesMinimax:")
     console.log(`Total moves checked : ${root.children.length}`)
+    let minimaxTimeCost = 0
+
+    let endTime = 0
     if (root.children.length > 1 && root.moves.length >= 5) {
+
+      startTime = performance.now()
+
       this.startMillis = Date.now();
       for (const child of root.children) {
-        const score = Minimax.minimax(child, depth - 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, !maximizingPlayer) + (child.lastPlayed.score || 0);
-        console.log(`Minimax score: {x:${child.lastPlayed.x} ,y: ${child.lastPlayed.y}} | score: ${score}`, child.winner || "")
+        const score = Minimax.minimax(child, depth - 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, !maximizingPlayer)
+        console.log(`:--------: mmax score: {x:${child.lastPlayed.x} ,y: ${child.lastPlayed.y}} | score: ${score}`, child.winner || "")
         if (
           (maximizingPlayer && score > bestValue)
           || (!maximizingPlayer && score < bestValue)) {
@@ -73,15 +80,20 @@ export class Minimax {
           bestMove = child;
         }
       }
+      endTime = performance.now()
+
     } else {
       bestValue = root.children[0].lastPlayed.score || -1;
       bestMove = root.children[0];
+      endTime = performance.now()
     }
+    minimaxTimeCost = endTime - startTime
 
+    console.log(`Call to MiniMax took ${minimaxTimeCost / 1000} seconds | ${minimaxTimeCost} miliseconds`)
     console.log(`Best by Heuristic: {x: ${root.children[0].lastPlayed.x}, y: ${root.children[0].lastPlayed.y}}`)
-    console.log(`Best by MiniMax: {x: ${bestMove?.lastPlayed.x}, y: ${bestMove?.lastPlayed.y}}`, bestValue)
-    console.timeEnd("AllmovesMinimax:")
-    return bestMove?.lastPlayed;
+    console.log(`Best by MiniMax: {x: ${bestMove.lastPlayed.x}, y: ${bestMove.lastPlayed.y}}`, bestValue)
+
+    return { bestMove: bestMove.lastPlayed, timeCost: minimaxTimeCost / 1000 }
   }
 }
 
