@@ -118,7 +118,12 @@ const blockOpen3 = ${blockOpen3.length}
             if (win5.find(l => !l.captured)) {
                 moves = win5
                 break
-            } else {
+            }
+            else if (player2Captures <= 2) {
+                moves = win5
+                break
+
+            } else if (player2Captures < 4) {
                 additionalMoves.push(...win5)
             }
         }
