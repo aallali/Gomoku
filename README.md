@@ -77,7 +77,7 @@ This project involves creating, in the language of your choice, a Gomoku game in
             }
             ```
 
-<img src="./ressources/gomoku-ts-v1.3.png">
+<img src="./ressources/gomoku-ts-v1.2.png">
 
 ---
 ### 30/06/2023 (second day of AÏD AL ADHAA):
