@@ -170,7 +170,7 @@ class GO {
                 this.log)
             if (bestMoves.length) {
                 this.bestMoves = bestMoves.slice(0, 1)
-                return bestMoves.length >= 10 ? bestMoves.slice(0, 3) : bestMoves
+                return bestMoves.length >= 10 ? bestMoves.slice(0, 7) : bestMoves
             }
         }
         return []
@@ -202,6 +202,5 @@ class GO {
         return bestMoves?.[0]?.cScore || 0
     }
 }
-const go = new GO()
 
-export default go
+export default new GO()
