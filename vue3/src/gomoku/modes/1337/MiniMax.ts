@@ -1,24 +1,27 @@
 import type GO from "@/gomoku/GO";
+import type { P } from "@/gomoku/types/gomoku.type";
 
 export class Minimax {
-  static timeoutMillis = 550; // time depth limit
+  static timeoutMillis = 500; // time depth limit
   static startMillis = Date.now();
-
+  static playerToWin: P = 1
+  static maxDepth: number = 10
   static minimax(node: typeof GO, depth: number, alpha: number, beta: number, maximizingPlayer: boolean): number {
 
-
     const recursiveMinimax = (node: typeof GO, depth: number, alpha: number, beta: number, maximizingPlayer: boolean): number => {
-      if (depth === 0 || node.winner || Date.now() - this.startMillis > Minimax.timeoutMillis) {
-        // if (node.winner === 1) return 33333
-        // if (node.winner === 2) return 88888
-        if (node.winner) {
-          if (node.winner === "T")
-            return 0
+      if (depth > 1)
+        if (depth === this.maxDepth || node.winner || Date.now() - this.startMillis > Minimax.timeoutMillis) {
 
-          return 88888 * (maximizingPlayer ? 1 : -1)
+          if (node.winner) {
+            if (node.winner === "T")
+              return 0
+
+            return 88888 * (node.winner === this.playerToWin ? 1 : -1)
+          }
+
+          // J7,I6,K6,I8,L5,I7,I5,H8,G8,J8,K9,H6,G6,J6,G9,G10,G7,G5,F4,H9,H10,I11
+          return maximizingPlayer ? node.players[this.playerToWin].captures - node.players[3 - this.playerToWin as P].captures : node.players[3 - this.playerToWin as P].captures - node.players[this.playerToWin].captures
         }
-        return 0
-      }
 
       node.generateChildren();
 
@@ -61,13 +64,14 @@ export class Minimax {
   static findBestMove(initialState: typeof GO) {
     let startTime = performance.now()
     const root = initialState
+    this.playerToWin = initialState.turn
 
     let bestMove = {} as typeof GO;
     let maximizingPlayer = true
     let bestValue = maximizingPlayer ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
     root.generateChildren();
     console.time("AllmovesMinimax:")
-    console.log(`Total moves checked : ${root.children.length}`)
+    console.log(`Total moves being checked : [${root.children.length}]`)
     let minimaxTimeCost = 0
 
     let endTime = 0
@@ -76,9 +80,14 @@ export class Minimax {
       startTime = performance.now()
 
       this.startMillis = Date.now();
-      for (const child of root.children) {
-        const score = Minimax.minimax(child, depth - 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, !maximizingPlayer)
+      miniMaxLoop: for (const child of root.children) {
+        const score = Minimax.minimax(child, 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, !maximizingPlayer)
         console.log(`:--------: mmax score: {x:${child.lastPlayed.x} ,y: ${child.lastPlayed.y}} | score: ${score}`, child.winner || "")
+        if (score >= 88888) {
+          bestValue = score;
+          bestMove = child;
+          break miniMaxLoop
+        }
         if (
           (maximizingPlayer && score > bestValue)
           || (!maximizingPlayer && score < bestValue)) {
@@ -95,7 +104,6 @@ export class Minimax {
     }
     minimaxTimeCost = endTime - startTime
 
-    console.log(`Call to MiniMax took ${minimaxTimeCost / 1000} seconds | ${minimaxTimeCost} miliseconds`)
     console.log(`Best by Heuristic: {x: ${root.children[0].lastPlayed.x}, y: ${root.children[0].lastPlayed.y}}`)
     console.log(`Best by MiniMax: {x: ${bestMove.lastPlayed.x}, y: ${bestMove.lastPlayed.y}}`, bestValue)
 
