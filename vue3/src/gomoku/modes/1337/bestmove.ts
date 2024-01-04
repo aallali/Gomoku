@@ -82,7 +82,7 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
     const setupCapture = moves.filter(l => l.captureSetup)
     const open4 = moves.filter(l => l.open4)
     const open3 = moves.filter(l => l.open3)
-    const blockOpen4 = moves.filter(l => l.open4Block)
+    const blockOpen4 = withCaptures.filter(l => l.open4Block)
     const blockOpen3 = moves.filter(l => l.open3Block)
 
     if (log)
@@ -188,6 +188,7 @@ const blockOpen3 = ${blockOpen3.length}
         break
     }
 
+    
     moves.push(...additionalMoves)
 
     moves = Array.from(new Set([...moves]))
