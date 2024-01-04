@@ -1,5 +1,5 @@
 import { MoveDirection, directions, type TDirection, DirectionMirror } from "@/gomoku/common/directions";
-import { ScrapLine, Standarize, cloneMatrix, scrapDirection } from "@/gomoku/common/shared-utils";
+import { ScrapLine, Standarize, cloneMatrix } from "@/gomoku/common/shared-utils";
 import type { P, TMtx, TPoint, TRepport } from "@/gomoku/types/gomoku.type";
 import { findValidSpots, isValidMoveFor1337Mode, validXY } from "./moveValidity";
 import { EvalPiece } from "@/gomoku/common/pieceWeight";
@@ -16,7 +16,7 @@ function forEachDirection(cb: (dir: TDirection, iterator: number) => any) {
     return false
 }
 
-export interface TMvRepport {
+export interface THeuristic {
     x: number
     y: number
     capture: number,
@@ -48,7 +48,7 @@ export interface TMvRepport {
     totalCaptures: number
 }
 
-export class MoveRepport {
+export class Heuristic {
     matrix: TMtx = []
     backupMatrix: TMtx = []
     x: TPoint["x"] = 0
@@ -61,7 +61,7 @@ export class MoveRepport {
     o_weight?: Omit<TRepport, "directions">
 
 
-    finalRepport = {} as TMvRepport
+    finalRepport = {} as THeuristic
     constructor(matrix?: TMtx, cell?: TPoint, turn?: P) {
         matrix && this.setMatrix(cloneMatrix(matrix));
         turn && this.setTurn(turn);
@@ -451,7 +451,7 @@ export class MoveRepport {
             win5: this.weight?.isWin ? 1 : 0,
             win5Block: this.o_weight?.isWin ? 1 : 0,
             winBreak: this.finalRepport.winBreak || 0
-        } as TMvRepport
+        } as THeuristic
 
         this.finalRepport.cScore = this.scoreIt(this.finalRepport, currentCapts)
         return this.finalRepport

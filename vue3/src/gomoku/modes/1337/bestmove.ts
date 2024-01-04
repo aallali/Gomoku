@@ -1,17 +1,17 @@
 import type { P, TMtx } from "@/gomoku/types/gomoku.type";
 import { findValidSpots } from "./moveValidity";
-import { MoveRepport, type TMvRepport } from "./MoveRepport";
+import { Heuristic, type THeuristic } from "./Heuristic";
 
 
 const { log } = console
 
 export function whatIsTheBestMove(matrix: TMtx, turn: P, player1Captures: number, player2Captures: number, log?: boolean) {
-    const availableSpots: TMvRepport[] = []
+    const availableSpots: THeuristic[] = []
     const validSpots = findValidSpots(matrix, turn, "1337")
 
     for (let i = 0; i < validSpots.length; i++) {
         const { x, y } = validSpots[i];
-        const repporter = new MoveRepport()
+        const repporter = new Heuristic()
         repporter.setTurn(turn)
         repporter.setMatrix(matrix)
         repporter.setPoint({ x, y })
@@ -46,9 +46,9 @@ function changePosition<T>(array: T[], valueToMove: T, newPosition: number): T[]
     return array;
 }
 
-function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captures: number, log?: boolean) {
+function movesSorter(moves: THeuristic[], player1Captures: number, player2Captures: number, log?: boolean) {
     // Define the order of priority for fields
-    let fieldPriority: (keyof TMvRepport)[] = [
+    let fieldPriority: (keyof THeuristic)[] = [
 
         'winBreak',
         'win5',
@@ -86,7 +86,7 @@ function movesSorter(moves: TMvRepport[], player1Captures: number, player2Captur
     const blockOpen3 = moves.filter(l => l.open3Block)
 
     if (log)
-        console.log(`
+    console.log(`
 const win5 = ${win5.length}
 const blockWin5 = ${blockWin5.length}
 const breakWin5 = ${breakWin5.length}
@@ -102,7 +102,7 @@ const blockOpen4 = ${blockOpen4.length}
 const blockOpen3 = ${blockOpen3.length}
 `)
 
-    const badWin5EnemyFilter = (l: TMvRepport) => l.captured_opponent && !l.win5
+    const badWin5EnemyFilter = (l: THeuristic) => l.captured_opponent && !l.win5
 
     if (
         player1Captures === 4
