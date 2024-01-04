@@ -15,12 +15,14 @@ Quick tips learned:
 - Writing the game in GO was a good decision, but jumping straight to MiniMax without having a good heuristic ruined it for me. I got overwhelmed quickly and gave up after 2 months of trying.
 
 To-Do:
-- Implement a quick fix for the moves sorter to handle instant win/block win.
-- Pause work on MiniMax and focus on cleaning/organizing the code.
+- [x] ⚠️ Important : It is important to note that it is not forbidden to introduce a
+double-three by capturing a pair. ⚠️
+- [x] Implement a quick fix for the moves sorter to handle instant win/block win.
+- [ ] Pause work on MiniMax and focus on cleaning/organizing the code.
 - Add missing/necessary functionalities for better UX.
 - Reduce the number of view renderings if any.
 - Create a test environment to detect breaking changes.
-- Attempt to make the tests executable via the UI.
+- try make the tests executable via the UI.
  
 
 ### update 17/12/2023 :

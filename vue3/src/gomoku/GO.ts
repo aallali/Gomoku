@@ -1,5 +1,5 @@
 import { cloneMatrix } from "./common/shared-utils";
-import { MoveRepport, type TMvRepport } from "./modes/1337/MoveRepport";
+import { Heuristic, type THeuristic } from "./modes/1337/Heuristic";
 import { whatIsTheBestMove } from "./modes/1337/bestmove";
 import { applyCapturesIfAny, extractCaptures, isLineBreakableByAnyCapture } from "./modes/1337/captures";
 import { findValidSpots, isValidMoveFor1337Mode } from "./modes/1337/moveValidity";
@@ -40,7 +40,7 @@ class GO {
     children: GO[]
     log: boolean
     constructor() {
-        this.lastPlayed = {} as TMvRepport
+        this.lastPlayed = {} as THeuristic
         this.children = [] as GO[]
         this.log = true
     }
@@ -194,7 +194,7 @@ class GO {
         })
     }
     evaluate() {
-        const report = new MoveRepport()
+        const report = new Heuristic()
         report.setMatrix(this.matrix)
         report.setTurn(this.turn)
         report.setPoint(this.lastPlayed)

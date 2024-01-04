@@ -1,7 +1,8 @@
 
 import type { TMtx, Nb, TMode, TPoint, P } from "../../types/gomoku.type";
-import { MoveDirection, directions } from "../../common/directions";
+import { directions } from "../../common/directions";
 import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils";
+import { IsCapture } from "./captures";
 
 /**
  * Determines if a move is valid in the "1337" mode, considering capture and double-free-three conditions.
@@ -13,7 +14,16 @@ import { ScrapLine, Standarize, cloneMatrix } from "../../common/shared-utils";
  * @returns {boolean} A boolean indicating whether the move is valid in "1337" mode.
  */
 export function isValidMoveFor1337Mode(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
-    return !isInCapture(cloneMatrix(matrix), turn, x, y) && !isDoubleFreeThree(cloneMatrix(matrix), turn, x, y)
+    const mtxCopy = cloneMatrix(matrix)
+    if (isInCapture(mtxCopy, turn, x, y))
+        return false
+
+    if (isDoubleFreeThree(mtxCopy, turn, x, y)) {
+        mtxCopy[x][y] = turn
+        if (!IsCapture(mtxCopy, x, y))
+            return false
+    }
+    return true
 }
 
 /**
@@ -63,7 +73,7 @@ function isInCapture(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
 function isDoubleFreeThree(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
     // double free three 1: .XXX.
     // double free three 2: .X.XX.
-    matrix[x][y] = 3 - turn as P
+    matrix[x][y] = turn
     let count = 0
     for (let i = 0; i < 4; i++) {
         const dir = directions[i];
@@ -71,11 +81,11 @@ function isDoubleFreeThree(matrix: TMtx, turn: P, x: Nb, y: Nb): boolean {
         const path = Standarize(turn, rawPath);
 
         if (path.includes(".XXX.") || path.includes(".XX.X.") || path.includes(".X.XX.")) {
-            if (++count >= 2)
+            if (++count > 1)
                 break;
         }
     }
-
+    // J8,R1,K9,S2,M12,S3,M13,S1
     matrix[x][y] = 0
     return count > 1
 }
