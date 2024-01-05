@@ -189,7 +189,7 @@ class GO {
             node.winner = this.winner
             node.log = false
             node.move({ x: l.x, y: l.y })
-            node.lastPlayed = { ...node.lastPlayed, score: l.cScore }
+            node.lastPlayed = { ...node.lastPlayed, score: l.heurScore }
             return node
         })
     }
@@ -199,7 +199,7 @@ class GO {
         report.setTurn(this.turn)
         report.setPoint(this.lastPlayed)
         const bestMoves = this.findBestMove()
-        return bestMoves?.[0]?.cScore || 0
+        return bestMoves?.[0]?.heurScore || 0
     }
 }
 

@@ -35,11 +35,11 @@ export interface THeuristic {
     forbiddenOpponent: number
 
     aligned_siblings: [number, number, number],
-    score: number
-    cScore: number
+    nes_score: number
+    heurScore: number
 
     open4Bounded: number
-    score_opponent: number,
+    nes_score_opponent: number,
 
     win5: number
     winBreak: number
@@ -409,15 +409,15 @@ export class Heuristic {
     isNearBy(_matrix?: TMtx, cell?: TPoint) {
         const [matrix, x, y] = [_matrix || this.backupMatrix, cell?.x || this.x, cell?.y || this.y]
         return forEachDirection((dir) => {
-            const rawPath = ScrapLine(matrix, 0, 1, x, y, dir);
+            const rawPath = ScrapLine(matrix, 0, 2, x, y, dir);
             if (/1|2/.test(rawPath.substring(1))) {
                 return true
             }
         }) as boolean
     }
     // Punchline
-    repport() {
-        this.repportObj(1)
+    repport(currentCapts: number) {
+        this.repportObj(currentCapts)
         let rawTxtRepport = []
         rawTxtRepport.push([`X: ${this.x} | Y: ${this.y}`, ''])
         Object.keys(this.finalRepport).forEach((key) => {
@@ -445,15 +445,15 @@ export class Heuristic {
             forbiddenOpponent: this.isForbiddenForOpponent(),
 
             aligned_siblings: this.isAlginedWithPeer(),
-            score: this.weight?.score || 0,
-            score_opponent: this.o_weight?.score || 0,
+            nes_score: this.weight?.score || 0,
+            nes_score_opponent: this.o_weight?.score || 0,
 
             win5: this.weight?.isWin ? 1 : 0,
             win5Block: this.o_weight?.isWin ? 1 : 0,
             winBreak: this.finalRepport.winBreak || 0
         } as THeuristic
 
-        this.finalRepport.cScore = this.scoreIt(this.finalRepport, currentCapts)
+        this.finalRepport.heurScore = this.scoreIt(this.finalRepport, currentCapts)
         return this.finalRepport
     }
     scoreIt(repport: ReturnType<typeof this.repportObj>, currentCapts: number) {
@@ -481,7 +481,7 @@ export class Heuristic {
 
         score += (repport.aligned_siblings[0] * 100) - (repport.aligned_siblings[1] * 10)
         if (score === 0)
-            score += repport.score > repport.score_opponent ? repport.score : repport.score_opponent
+            score += repport.nes_score > repport.nes_score_opponent ? repport.nes_score : repport.nes_score_opponent
         return score
     }
 }

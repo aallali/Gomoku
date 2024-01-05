@@ -67,8 +67,8 @@ function movesSorter(moves: THeuristic[], player1Captures: number, player2Captur
         'aligned_siblings',
         'open4Bounded',
         'open4BoundedBlock',
-        'score',
-        'score_opponent'
+        'nes_score',
+        'nes_score_opponent'
     ];
     const withCaptures = [...moves]
     moves = moves.filter(l => !l.captured)
