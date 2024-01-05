@@ -65,7 +65,7 @@ export function EvalPiece(matrix: TMtx, x: Nb, y: Nb, turn: P) {
         const consecutives = repport.directions[dir].consecutives;
         const bounds = repport.directions[dir].bounds;
 
-        if (consecutives >= 4) {
+        if (consecutives >= 4 || consecutives >= matrix.length - 1) {
             repport.isWin = true;
             repport.score = 111110 /* 10 000*/
             break
