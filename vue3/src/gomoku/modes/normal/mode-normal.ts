@@ -24,7 +24,7 @@ export function check5Win(matrix: TMtx, player: P, x: Nb, y: Nb) {
         const goldenStones = checkWinInDirection(matrix, player, x, y, dir);
 
         // If a winning sequence is found and it's long enough
-        if (goldenStones && goldenStones.length >= 4) {
+        if (goldenStones && (goldenStones.length >= 4 || goldenStones.length === matrix.length - 1)) {
             // Include the current move in the winning sequence
             if (matrix[x][y] == player)
                 goldenStones.unshift({ x, y });
