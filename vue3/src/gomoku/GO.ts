@@ -27,7 +27,7 @@ class GO {
     backup_matrix: TMtx = []
     mode: TMode = "1337"
     moves: string[] = []
-    winner: P | "T" | undefined
+    winner: P | "T" | null = null
     players = {
         1: { ...playerObjTemplate },
         2: { ...playerObjTemplate }
