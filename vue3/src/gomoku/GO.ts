@@ -2,7 +2,7 @@ import { cloneMatrix } from "./common/shared-utils";
 import { Heuristic, type THeuristic } from "./modes/1337/Heuristic";
 import { whatIsTheBestMove } from "./modes/1337/bestmove";
 import { applyCapturesIfAny, extractCaptures, isLineBreakableByAnyCapture } from "./modes/1337/captures";
-import { findValidSpots, isValidMoveFor1337Mode } from "./modes/1337/moveValidity";
+import { findValidSpots, isValidMoveFor1337Mode, validXY } from "./modes/1337/moveValidity";
 import { check5Win } from "./modes/normal/mode-normal";
 import type { P, TMode, TMtx, TPoint } from "./types/gomoku.type";
 
@@ -66,26 +66,31 @@ class GO {
         this.turn = t
     }
     move({ x, y }: TPoint) {
-
         if (this.matrix[x][y] !== 0)
             throw "Invalid move: non empty cell"
-        if (isValidMoveFor1337Mode(this.matrix, this.turn, x, y)) {
-            this.matrix[x][y] = this.turn;
+        if (this.mode === "1337") {
+            if (isValidMoveFor1337Mode(this.matrix, this.turn, x, y)) {
+                this.matrix[x][y] = this.turn;
 
-            const captures = applyCapturesIfAny(this.matrix, { x, y });
+                const captures = applyCapturesIfAny(this.matrix, { x, y });
 
-            this.matrix = captures.matrix
-            this.moves.push(alpha[x] + y)
-            if (captures.total) {
-                this.players[this.turn].captures += captures.total
+                this.matrix = captures.matrix
+                this.moves.push(alpha[x] + y)
+                if (captures.total) {
+                    this.players[this.turn].captures += captures.total
+                }
+            } else
+                throw "Invalid move: forbidden"
+        } else {
+            if (validXY(this.size, x, y)) {
+                this.matrix[x][y] = this.turn;
+                this.moves.push(alpha[x] + y)
             }
-        } else
-            throw "Invalid move: forbidden"
+        }
 
         this.checkWinner()
 
         this.setTurn(3 - this.turn as P)
-
 
         this.lastPlayed = { x, y }
     }
@@ -116,6 +121,16 @@ class GO {
 
         // - extract all valid oponnent's moves
         const oponentValidMoves = findValidSpots(this.matrix, o_turn, this.mode)
+
+        if (this.mode === "normal") {
+            if (winStones) {
+                this.winner = this.turn
+                this.winStones = winStones
+            } else if (oponentValidMoves.length === 0) {
+                this.winner = "T"
+            }
+            return
+        }
 
         // - extract all possible  oponnent's captures moves  if any
         const capturesOfEnemy = extractCaptures(this.matrix, oponentValidMoves, o_turn)
@@ -149,7 +164,7 @@ class GO {
         this.backup_matrix = []
         this.mode = "1337"
         this.moves = []
-        this.winner = undefined
+        this.winner = null
         this.players = {
             1: { ...this.players[1], captures: 0, score: 0 },
             2: { ...this.players[2], captures: 0, score: 0 }
