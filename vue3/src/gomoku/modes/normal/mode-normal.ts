@@ -80,7 +80,8 @@ function checkWinInDirection(matrix: TMtx, player: P, x: Nb, y: Nb, dir: TDirect
  * @param validMoves - Array of valid moves to evaluate.
  * @returns The best move with its score.
  */
-export function BestMove_NormalMode(matrix: TMtx, turn: P, validMoves: TPoint[]): TPoint {
+export function BestMove_NormalMode(matrix: TMtx, turn: P, validMoves: TPoint[]): { bestMove: TPoint, timeCost: number } {
+    const startTime = performance.now()
     // Determine the opponent's color
     const opponent = (3 - turn) as P
 
@@ -108,13 +109,13 @@ export function BestMove_NormalMode(matrix: TMtx, turn: P, validMoves: TPoint[])
 
         // If the move results in a win for the current player, return it immediately
         if (offensiveMove.isWin) {
-            return myBestMove;
+            return { bestMove: myBestMove, timeCost: (performance.now() - startTime) / 1000 }
         }
     }
  
 
     if (myBestMove.score >= enemyBestMove.score) {
-        return myBestMove
+        return { bestMove: myBestMove, timeCost: (performance.now() - startTime) / 1000 }
     } else {
         const customSort = allScores.filter(l => l.os === enemyBestMove.score).sort((a, b) => {
             if (a.s > b.s) return -1
@@ -123,7 +124,8 @@ export function BestMove_NormalMode(matrix: TMtx, turn: P, validMoves: TPoint[])
             if (b.os > a.os) return 1
             return 0
         })
-        return customSort[0]
+
+        return { bestMove: customSort[0], timeCost: (performance.now() - startTime) / 1000 }
     }
     // Return the best move, preferring the current player's move if the scores are equal
     // return myBestMove.score >= enemyBestMove.score ? myBestMove : enemyBestMove

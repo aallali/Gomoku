@@ -102,15 +102,23 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         go.findBestMove()
         get().updateStates()
         if (go.players[go.turn].isAi && !go.winner) {
-            setTimeout(() => {
-                let bestMoveByMinimax = Minimax.findBestMove(go)
-                // set({ bestMoves: [bestMoveByMinimax] })
-                
-                get().fillCell(bestMoveByMinimax.bestMove.x, bestMoveByMinimax.bestMove.y)
-                set({ timeCost: bestMoveByMinimax.timeCost })
-            }, 200)
+            setTimeout(async () => {
 
-        } else set({ bestMoves: [],  timeCost: 0 })
+                if (go.mode === "1337") {
+                    let bestMoveByMinimax = await Minimax.findBestMove(go)
+                    // set({ bestMoves: [bestMoveByMinimax] })
+                    get().fillCell(bestMoveByMinimax.bestMove.x, bestMoveByMinimax.bestMove.y)
+                    set({ timeCost: bestMoveByMinimax.timeCost })
+                } else {
+                    let bestMoveByNES = BestMove_NormalMode(go.matrix, go.turn, findValidSpots(go.matrix, go.turn, "normal"))
+
+                    set({ bestMoves: [bestMoveByNES.bestMove] })
+                    get().fillCell(bestMoveByNES.bestMove.x, bestMoveByNES.bestMove.y)
+                    set({ timeCost: bestMoveByNES.timeCost })
+                }
+            }, 500)
+
+        } else set({ bestMoves: [], timeCost: 0 })
         get().updateStates()
     },
     setPlayerType: (player, type) => {
