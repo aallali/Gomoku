@@ -30,7 +30,7 @@ class GO {
     winner: P | "T" | null = null
     players = {
         1: { ...playerObjTemplate },
-        2: { ...playerObjTemplate }
+        2: { ...playerObjTemplate, isAi: true }
     } as IPlayers
     winStones: TPoint[] = []
     turn: P = 1
@@ -39,10 +39,11 @@ class GO {
     lastPlayed: TPoint
     children: GO[]
     log: boolean
+    recentBreakableWin: TPoint[] = []
     constructor() {
         this.lastPlayed = {} as THeuristic
         this.children = [] as GO[]
-        this.log = true
+        this.log = false
     }
     setMatrix(matrix: TMtx) {
         this.matrix = cloneMatrix(matrix)

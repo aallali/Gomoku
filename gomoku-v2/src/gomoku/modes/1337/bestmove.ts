@@ -133,6 +133,8 @@ const blockOpen3 = ${blockOpen3.length}
             }
         }
 
+
+        // J9,H7,I10,H11,K8,H8,H9,G8,I8,J11,F8,K10,L9,J7,I12,I7,K7,K6,I8,K9,L5,J8,G7,H6,J7,I7,G5,L10
         if (captures.length > 0) {
             if (player1Captures >= 4) {
                 moves = captures
@@ -218,7 +220,7 @@ const blockOpen3 = ${blockOpen3.length}
     const sortedArray = [...moves].sort(compareFunction);
     if (log) {
         sortedArray.forEach((el, i) => {
-            console.log(`${i}:---> {x: ${el.x}, y: ${el.y}, cScore: ${el.cScore}}`)
+            // console.log(`${i}:---> {x: ${el.x}, y: ${el.y}, cScore: ${el.heurScore}}`)
         })
     }
     return sortedArray
