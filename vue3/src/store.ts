@@ -3,6 +3,8 @@ import type { P, TMtx, TPoint } from "./gomoku/types/gomoku.type";
 import * as R from "ramda"
 import go from "./gomoku/GO"
 import { Minimax } from "./gomoku/modes/1337/MiniMax";
+import { BestMove_NormalMode } from "./gomoku/modes/normal/mode-normal";
+import { findValidSpots } from "./gomoku/modes/1337/moveValidity";
 
 
 export interface IGameStore {
@@ -56,9 +58,9 @@ interface IGameActions {
 
 const initState: IGameStore = {
     matrix: go.matrix,
-    moves: [],
+    moves: go.moves,
     boardSize: go.size,
-    mode: '1337',
+    mode: go.mode,
     players: {
         1: {
             type: "h",
@@ -71,8 +73,8 @@ const initState: IGameStore = {
             score: go.players[2].score,
         },
     },
-    winner: null,
-    goldenStones: null,
+    winner: go.winner,
+    goldenStones: [],
     turn: go.turn,
     blinks: [],
     bestMoves: [],
@@ -101,6 +103,7 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         go.move({ x, y })
         go.findBestMove()
         get().updateStates()
+
         if (go.players[go.turn].isAi && !go.winner) {
             setTimeout(async () => {
 
@@ -156,7 +159,7 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
             },
             turn: go.turn,
             mode: go.mode,
-            winner: go.winner || null,
+            winner: go.winner,
             goldenStones: go.winStones,
             blinks: go.winStones,
         })
@@ -184,8 +187,6 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         set(R.over(R.lensPath(["players", currentPlayer, "captures"]), (c) => c + totalCaptures))
     },
 }))
-
-
 
 go.setSize(19)
 
