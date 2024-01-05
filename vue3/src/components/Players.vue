@@ -1,5 +1,5 @@
 <template>
-    <fieldset>
+    <fieldset style="min-width: 120px;">
         <div>
             <h4 class="option-title">Black is:</h4>
             <SwitcheButton v-bind:options="['ai', 'human']" :selected="players.black === 'ai' ? 'ai' : 'human'"

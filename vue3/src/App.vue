@@ -12,17 +12,18 @@ import { useGame } from "./store";
 
 const undo = useGame((state) => state.undoMove)
 const moves = useGame((state) => state.moves)
+const is1337Mode = useGame((state) => state.mode === "1337")
 
 // inline component with JSX
 // 'Droid Sans Mono', 'monospace', monospace
-const StartButton = defineComponent({
+const UndoMoveButton = defineComponent({
   props: {
     label: String
   },
   render() {
     return (
       <fieldset>
-        <button class="startBtn" onClick={undo}>Undo move</button>
+        <button class="undoMoveBtn" onClick={undo}>undo</button>
       </fieldset>
     )
   }
@@ -31,12 +32,13 @@ const StartButton = defineComponent({
 export default {
   data(): any {
     return {
-      moves
+      moves,
+      is1337Mode
     }
   },
   components: {
     Grid,
-    StartButton,
+    UndoMoveButton,
     Board,
     GameMode,
     AiAnalayse,
@@ -51,27 +53,28 @@ export default {
 <template>
   <div class="title-container">
     <div class="line" />
-    <div class="title">Gomoku </div>
+    <div class="title">Gomoku v2.0</div>
     <div class="line" />
   </div>
-
 
   <div class="grid-container">
     <!-- Board  -->
     <Grid>
       <Board />
     </Grid>
-    <!-- Ai analyse board -->
-    <Grid>
-      <AiAnalayse />
-    </Grid>
+
     <!-- Game settings -->
     <Grid>
       <Stats />
       <Winner />
+      <AiAnalayse v-if="is1337Mode"/>
+    </Grid>
+
+    <!-- Ai analyse board -->
+    <Grid>
       <Players />
-      <GameMode v-if="!moves.length"/>
-      <StartButton v-if="moves.length"/>
+      <GameMode v-if="!moves.length" />
+      <UndoMoveButton v-if="is1337Mode && moves.length" />
     </Grid>
   </div>
 

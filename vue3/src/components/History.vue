@@ -73,6 +73,7 @@ export default {
 
 <style scoped>
 .moves_container {
+    margin-top: 10px;
     font-size: 17px;
     color: black;
     background-image: url(@/assets/images/wood.jpeg);
@@ -83,13 +84,11 @@ export default {
     overflow-x: auto;
 }
 
-
-
 button {
     width: 100%;
     height: 32px;
     /* border: none; */
-    border: dotted 1px black;
+    border: solid 2px black;
     border-radius: 6px;
     font-weight: bold;
     color: rgb(49, 49, 49);
@@ -114,7 +113,7 @@ button:hover {
     table,
     th,
     td {
-        border: 1px solid rgb(76, 95, 114);
+        border: 2px solid rgb(76, 95, 114);
         /* border-collapse: collapse; */
         border-radius: 3px;
     }
@@ -133,6 +132,7 @@ button:hover {
 
 .import_table {
     width: 100%;
+
     table,
     th,
     td {
@@ -140,17 +140,18 @@ button:hover {
         /* border-collapse: collapse; */
         border-radius: 3px;
     }
+
     th {
         width: 100px;
     }
- 
+
     input {
-    font-size: 21px;
-   
-    width: 100%;
-    height: 30px;
-    border: none;
-    box-sizing: border-box;
+        font-size: 21px;
+
+        width: 100%;
+        height: 30px;
+        border: none;
+        box-sizing: border-box;
+    }
 }
- 
-}</style>
+</style>

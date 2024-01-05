@@ -5,8 +5,9 @@ import { type Ref } from "vue"
 import * as IMG from "@/assets/images"
 import { useGame, type IGameStore } from "@/store";
 import { isValidMoveFor1337Mode } from "@/gomoku/modes/1337/moveValidity"
-import { MoveRepport } from "@/gomoku/modes/1337/MoveRepport";
 import type { TPoint } from "@/gomoku/types/gomoku.type";
+import { Heuristic } from "@/gomoku/modes/1337/Heuristic";
+import go from "@/gomoku/GO";
 const alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 interface IBoardData {
@@ -22,7 +23,7 @@ interface IBoardData {
     bestMoves: Ref<IGameStore["bestMoves"]>
     isValidSpot?: boolean
     isValidMoveFor1337Mode: typeof isValidMoveFor1337Mode
-    mvr: MoveRepport
+    mvr: Heuristic
 }
 
 
@@ -50,7 +51,7 @@ export default {
             bestMoves: useGame((state) => state.bestMoves),
             alpha,
             isValidMoveFor1337Mode,
-            mvr: new MoveRepport()
+            mvr: new Heuristic()
         }
     },
     methods: {
@@ -80,11 +81,11 @@ export default {
             return this.bestMoves?.find(p => p.x == (x) && p.y == (y))
         },
         showSates({ x, y }: TPoint) {
-            const mvr = new MoveRepport()
+            const mvr = new Heuristic()
             mvr.setMatrix(this.matrix)
             mvr.setTurn(this.turn)
             mvr.setPoint({ x, y })
-            const analyse = mvr.repport()
+            const analyse = mvr.repport(go.players[this.turn].captures)
             function formatAsTable(lines: string[][]): string {
                 // Find the length of the longest label
                 const maxLabelLength = lines.reduce((max, line) => {
@@ -107,11 +108,21 @@ export default {
             if (this.matrix[x][y] !== 0)
                 return false
             return this.mvr.isNearBy(this.matrix, { x, y })
+        },
+        isValidSpotChecker({ x, y }: TPoint) {
+            if (this.mode === "1337") {
+                if (isValidMoveFor1337Mode(this.matrix, this.turn, x, y))
+                    return true
+                return false
+            }
+            return true
+        },
+        generateCellClass(isValidSpot: boolean, x: number, y: number) {
+            return ((isValidSpot && !this.matrix[x][y] && "hoverable") || "") + " cross " + ((this.isGoldenStone(x, y) || this.blinks.find(l => l.x == x && l.y == y)) && "blink")
         }
     }
 }
 </script>
-
 
 <template>
     <div id="board">
@@ -127,18 +138,20 @@ export default {
 
                 <template v-else-if="matrix[i - 1]?.[j - 1] !== undefined">
                     <div @click="(e: any) => makeMove(e, i - 1, j - 1)" @mouseover="() => showSates({ x: i - 1, y: j - 1 })"
-                        :set="isValidSpot = mode == '1337' ? isValidMoveFor1337Mode(matrix, turn, i - 1, j - 1) : true"
-                        :data-is-valid-spot="isValidSpot"
-                        :class='((isValidSpot && !matrix[i - 1][j - 1] && "hoverable") || "") + " cross " + ((isGoldenStone(i - 1, j - 1) || blinks.find(l => l.x == i - 1 && l.y == j - 1)) && "blink")'>
+                        :set="isValidSpot = isValidSpotChecker({ x: i - 1, y: j - 1 })" :data-is-valid-spot="isValidSpot"
+                        :class='generateCellClass(isValidSpot, i - 1, j - 1)'>
 
-                        <div v-if="matrix[i - 1][j - 1] == 1" class="piece-black-flat" />
-                        <div v-if="matrix[i - 1][j - 1] == 2" class="piece-white-flat" />
+                        <template v-if="[1, 2].includes(matrix[i - 1][j - 1])">
+                            <div v-if="matrix[i - 1][j - 1] == 1" class="piece-black-flat" />
+                            <div v-if="matrix[i - 1][j - 1] == 2" class="piece-white-flat" />
+                        </template>
 
-
-                        <div v-if="!isValidSpot" class="forbidden-sign" />
                         <template v-else>
-                            <img v-if="isBestMove(i - 1, j - 1)" :src='images.lowCheckmark' class='circle-green' />
-                            <div v-else-if="isNearBy({ x: i - 1, y: j - 1 })" class="nearby-dot" />
+                            <div v-if="!isValidSpot" class="forbidden-sign" />
+                            <template v-else>
+                                <img v-if="isBestMove(i - 1, j - 1)" :src='images.lowCheckmark' class='circle-green' />
+                                <div v-else-if="isNearBy({ x: i - 1, y: j - 1 })" class="nearby-dot" />
+                            </template>
                         </template>
 
                         <span class="tooltiptext">
@@ -287,8 +300,6 @@ export default {
     margin-bottom: 4px;
 }
 
-
-
 .piece-black-flat,
 .piece-white-flat {
     position: relative;
@@ -332,7 +343,6 @@ export default {
     top: 50%;
     transform: translateY(-50%);
 }
-
 
 .forbidden-sign {
     position: relative;
