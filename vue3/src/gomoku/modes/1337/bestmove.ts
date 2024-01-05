@@ -114,6 +114,11 @@ const blockOpen3 = ${blockOpen3.length}
     let additionalMoves = []
 
     while (1) {
+        if (breakWin5.length) {
+            moves = breakWin5
+            break
+        }
+
         if (win5.length > 0) {
             if (win5.find(l => !l.captured)) {
                 moves = win5
@@ -143,11 +148,7 @@ const blockOpen3 = ${blockOpen3.length}
             break
         }
 
-        if (breakWin5.length) {
-            moves = breakWin5
-            break
-        }
-
+        
         if (blockWin5.length) {
             if (blockWin5.find(l => l.captured_opponent) && player1Captures >= 4) {
             } else {
