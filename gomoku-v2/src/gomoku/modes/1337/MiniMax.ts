@@ -2,34 +2,71 @@ import type GO from "@/gomoku/GO";
 import type { P } from "@/gomoku/types/gomoku.type";
 
 export class Minimax {
-  static timeoutMillis = 2000; // time depth limit
-  static startMillis = performance.now();
-  static playerToWin: P = 1
-  static maxDepth: number = 10
-  static minimax(node: typeof GO, depth: number, alpha: number, beta: number, maximizingPlayer: boolean): number {
-
-    const recursiveMinimax = (node: typeof GO, depth: number, alpha: number, beta: number, maximizingPlayer: boolean): number => {
-      if (depth > 1)
-        if (
-          ((performance.now() - this.startMillis) > Minimax.timeoutMillis)
-          || depth === this.maxDepth
-          || node.winner
-        ) {
-          if (node.winner) {
-            if (node.winner === "T")
-              return 0
-            return 88888 * (node.winner === this.playerToWin ? 1 : -1)
+  timeoutMillis; // time depth limit
+  startMillis = performance.now();
+  playerToWin: P = 1
+  maxDepth: number = 10
+  workerUrl: string
+  constructor(st: number, timeoutLimit: number, workerUrl: string) {
+    this.startMillis = st
+    this.workerUrl = workerUrl
+    this.timeoutMillis = timeoutLimit
+  }
+  /**
+   * Minimax algorithm for calculating the best move in a given game state.
+   * @param node - The current game state node.
+   * @param depth - The depth of the recursion in the minimax tree.
+   * @param alpha - The alpha value for alpha-beta pruning.
+   * @param beta - The beta value for alpha-beta pruning.
+   * @param maximizingPlayer - Indicates whether it's the turn of the maximizing player.
+   * @returns The score of the best move calculated by the minimax algorithm.
+   */
+  minimax(node: typeof GO, depth: number, alpha: number, beta: number, maximizingPlayer: boolean): number {
+    /**
+     * Recursive function for the minimax algorithm.
+     * @param node - The current game state node.
+     * @param depth - The depth of the recursion in the minimax tree.
+     * @param alpha - The alpha value for alpha-beta pruning.
+     * @param beta - The beta value for alpha-beta pruning.
+     * @param maximizingPlayer - Indicates whether it's the turn of the maximizing player.
+     * @returns The score of the best move calculated by the minimax algorithm.
+     */
+    const recursiveMinimax = (
+      node: typeof GO,
+      depth: number,
+      alpha: number,
+      beta: number,
+      maximizingPlayer: boolean
+    ): number => {
+      // Check for termination conditions.
+      if (
+        depth === this.maxDepth
+        || node.winner
+        || ((performance.now() - this.startMillis) >= this.timeoutMillis)
+      ) {
+        if (node.winner) {
+          if (node.winner === "T") {
+            return 0; // Tie
           }
-          // J7,I6,K6,I8,L5,I7,I5,H8,G8,J8,K9,H6,G6,J6,G9,G10,G7,G5,F4,H9,H10,I11
-          return maximizingPlayer ? node.players[this.playerToWin].captures - node.players[3 - this.playerToWin as P].captures : node.players[3 - this.playerToWin as P].captures - node.players[this.playerToWin].captures
+          // Return a high score if the player wins, penalize based on depth.
+          return (88888 * (node.winner === this.playerToWin ? 1 : -1)) - depth;
         }
 
+        // Return the captures difference if the game is not terminated.
+        return maximizingPlayer
+          ? node.players[this.playerToWin].captures - node.players[3 - this.playerToWin as P].captures
+          : node.players[3 - this.playerToWin as P].captures - node.players[this.playerToWin].captures;
+      }
+
+      // Generate children nodes for the current state.
       node.generateChildren();
 
       if (maximizingPlayer) {
+        // Maximizing player's turn.
         let maxEval = Number.NEGATIVE_INFINITY;
 
         for (const child of node.children) {
+          // Recursively calculate the score for each child node.
           const score = recursiveMinimax(child, depth + 1, alpha, beta, false);
           maxEval = Math.max(maxEval, score);
           alpha = Math.max(alpha, score);
@@ -39,14 +76,13 @@ export class Minimax {
           }
         }
 
-        return maxEval
-
+        return maxEval;
       } else {
-
+        // Minimizing player's turn.
         let minEval = Number.POSITIVE_INFINITY;
 
         for (const child of node.children) {
-
+          // Recursively calculate the score for each child node.
           const score = recursiveMinimax(child, depth + 1, alpha, beta, true);
           minEval = Math.min(minEval, score);
           beta = Math.min(beta, score);
@@ -56,85 +92,85 @@ export class Minimax {
           }
         }
 
-        return minEval // Apply penalty for minimizing player
+        return minEval; // Apply penalty for minimizing player
       }
     };
 
+    // Start the recursive minimax algorithm.
     return recursiveMinimax(node, depth, alpha, beta, maximizingPlayer);
   }
 
-  static async findBestMove(initialState: typeof GO) {
-    this.startMillis = performance.now()
-    const root = initialState
-    this.playerToWin = initialState.turn
+  /**
+   * Finds the best move based on the given initial state.
+   * @param initialState - The initial state of the game.
+   * @returns An object containing the best move and the time cost of the minimax algorithm.
+   */
+  async findBestMove(initialState: typeof GO) {
+    // console.clear()
 
-    let bestMove = {} as typeof GO;
-    let maximizingPlayer = true
-    let bestScore = maximizingPlayer ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY;
+    const root = initialState;
+    this.playerToWin = initialState.turn;
+    this.startMillis = performance.now();
+
+    let bestMove = {} as { x: number; y: number };
+    let bestScore = Number.NEGATIVE_INFINITY;
+    let minimaxTimeCost = 0;
+
     root.generateChildren();
-    console.log(`>> Total moves being checked : [${root.children.length}]`)
-    let minimaxTimeCost = 0
 
-    let endTime = 0
-    if (root.children.length > 1 && root.moves.length >= 5) {
-      this.startMillis = performance.now();
-      // for (const child of root.children) {
-      //   const score = Minimax.minimax(child, 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, !maximizingPlayer)
-      //   console.log(`:--: mmax score: {x:${child.lastPlayed.x} ,y: ${child.lastPlayed.y}} | score: ${score} | time : ${(performance.now()-this.startMillis)/1000}`, child.winner || "")
-      //   if (score >= 88888) {
-      //     console.log("..........>>>>>", score)
-      //     bestValue = score;
-      //     bestMove = child;
-      //     break
-      //   }
-      //   if (
-      //     (maximizingPlayer && score > bestValue)
-      //     || (!maximizingPlayer && score < bestValue)) {
-      //     bestValue = score;
-      //     bestMove = child;
-      //   }
-      // }
+    if (root.children.length > 1 && root.moves.length >= 4) {
+      // Concurrently calculate scores for all child nodes.
 
-      const minimaxPromises: Promise<number>[] = root.children.map((child, i) => {
-        return new Promise((resolve) => {
-          const tmpStr = performance.now();
+      const scores = await Promise.all(root.children.map((child, i) => this.calculateScore(child, i)));
+      const sortedMoves = scores.sort((a, b) => b.score - a.score);
 
-          const score = Minimax.minimax(child, 1, Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY, !maximizingPlayer);
-          console.log(`:--: [${i}] mmax score: {x:${child.lastPlayed.x} ,y: ${child.lastPlayed.y}} | score: ${score} | time : ${(performance.now() - tmpStr) / 1000}`, child.winner || "")
-          resolve(score)
-        });
-      });
-
-
-      const scores = await Promise.all(minimaxPromises)
-
-      // Now 'scores' is an array containing the results of all minimax calculations
-      // Perform sorting or any other post-processing logic here
-      const sortedMoves = root.children
-        .map((child, index) => ({ move: child, score: scores[index] }))
-        .sort((a, b) => b.score - a.score);
-
-      // Access the best move and its score
+      // Extract the best move and score.
       bestMove = sortedMoves[0].move;
       bestScore = sortedMoves[0].score;
 
-      console.log(`Best Move: {x:${bestMove.lastPlayed.x}, y:${bestMove.lastPlayed.y}} | Score: ${bestScore}`);
-
-
-      endTime = performance.now()
-
+      // Calculate the average time cost of the minimax algorithm.
+      const sum = scores.reduce((acc, num) => acc + num.time, 0);
+      minimaxTimeCost = parseFloat((sum / scores.length).toFixed(2));
     } else {
-      console.log("ooooo")
-      bestScore = root.children[0].lastPlayed.score || -1;
-      bestMove = root.children[0];
-      endTime = performance.now()
-    }
-    minimaxTimeCost = endTime - this.startMillis
-    console.log(this.startMillis, endTime)
-    console.log(`Best by Heuristic: {x: ${root.children[0].lastPlayed.x}, y: ${root.children[0].lastPlayed.y}}`)
-    console.log(`Best by MiniMax: {x: ${bestMove.lastPlayed.x}, y: ${bestMove.lastPlayed.y}}`, bestScore)
+      // If there's only one child, use it as the best move.
+      if (root.moves.length === 1) {
+        const bestChild = root.children[0];
+        bestScore = bestChild.lastPlayed.score || -1;
+        bestMove = bestChild.lastPlayed;
+      } else {
+        const bestChild = root.children[0];
+        bestScore = bestChild.lastPlayed.score || -1;
+        bestMove = bestChild.lastPlayed;
+      }
 
-    return { bestMove: bestMove.lastPlayed, timeCost: minimaxTimeCost / 1000 }
+      minimaxTimeCost = (performance.now() - this.startMillis) / 1000;
+    }
+
+    // Log the results.
+    console.log(`:---> Total moves checked: [${root.children.length}]`);
+    console.log(`Best by Heuristic: {x: ${root.children[0].lastPlayed.x}, y: ${root.children[0].lastPlayed.y}}`);
+    console.log(`Best by MiniMax: {x: ${bestMove.x}, y: ${bestMove.y}}`, bestScore);
+
+    return { bestMove, timeCost: minimaxTimeCost };
+  }
+
+  /**
+   * Calculates the score for a given child node using the minimax algorithm.
+   * @param child - The child node to calculate the score for.
+   * @param i - The index of the child node.
+   * @returns A promise containing the score, move, and time taken for the calculation.
+   */
+  private async calculateScore(child: typeof GO, i: number): Promise<{ score: number; move: { x: number; y: number }; time: number }> {
+    return new Promise((resolve) => {
+      const tims = this.timeoutMillis
+      const wrk = new Worker(this.workerUrl, { type: 'module' })
+
+      // Handle the message from the worker.
+      wrk.onmessage = (e: any) => resolve(e.data);
+
+      // // Post the message to the worker to calculate the score.
+      wrk.postMessage({ i, child, pToWin: this.playerToWin, thinkTime: tims });
+    });
   }
 }
 
