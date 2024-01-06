@@ -220,3 +220,4 @@ class GO {
 }
 
 export default new GO()
+export const go = GO
