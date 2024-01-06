@@ -70,23 +70,28 @@ function movesSorter(moves: THeuristic[], player1Captures: number, player2Captur
         'nes_score',
         'nes_score_opponent'
     ];
+
     const withCaptures = [...moves]
+
     moves = moves.filter(l => !l.captured)
-    const captures = withCaptures.filter(l => l.capture)
-    const captured = moves.filter(l => l.captured)
+
     const win5 = withCaptures.filter(l => l.win5)
     const blockWin5 = moves.filter(l => l.win5Block)
-    const breakWin5 = moves.filter(l => l.winBreak)
+    const breakWin5 = withCaptures.filter(l => l.winBreak)
 
+    const captures = withCaptures.filter(l => l.capture)
+    const captured = moves.filter(l => l.captured)
     const blockCapture = moves.filter(l => l.captureBlock)
     const setupCapture = moves.filter(l => l.captureSetup)
+
     const open4 = moves.filter(l => l.open4)
     const open3 = moves.filter(l => l.open3)
+
     const blockOpen4 = withCaptures.filter(l => l.open4Block)
     const blockOpen3 = moves.filter(l => l.open3Block)
 
     if (log)
-    console.log(`
+        console.log(`
 const win5 = ${win5.length}
 const blockWin5 = ${blockWin5.length}
 const breakWin5 = ${breakWin5.length}
@@ -133,8 +138,6 @@ const blockOpen3 = ${blockOpen3.length}
             }
         }
 
-
-        // J9,H7,I10,H11,K8,H8,H9,G8,I8,J11,F8,K10,L9,J7,I12,I7,K7,K6,I8,K9,L5,J8,G7,H6,J7,I7,G5,L10
         if (captures.length > 0) {
             if (player1Captures >= 4) {
                 moves = captures
@@ -150,7 +153,7 @@ const blockOpen3 = ${blockOpen3.length}
             break
         }
 
-        
+
         if (blockWin5.length) {
             if (blockWin5.find(l => l.captured_opponent) && player1Captures >= 4) {
             } else {
@@ -162,36 +165,54 @@ const blockOpen3 = ${blockOpen3.length}
             if (!captures.length)
                 additionalMoves.push(...setupCapture)
         }
+
         if (open4.length) {
-            moves = open4
-            additionalMoves = []
-            break
+            if (open4.filter(l => !l.captured).length === 0) {
+                moves = open4
+                break
+            } else {
+                additionalMoves.push(...open4)
+            }
         }
 
         if (blockOpen4.length) {
-            moves = blockOpen4
-            additionalMoves = []
-            break
+            if (blockOpen4.filter(l => !l.captured).length > 0 && player2Captures <= 3) {
+                moves = blockOpen4
+                additionalMoves = []
+                break
+            }
         }
 
         if (blockCapture.length > 0) {
-            moves = blockCapture
-            break
+            if (blockCapture.filter(l => !l.captured).length === 0) {
+                moves = blockCapture
+                break
+            } else {
+                additionalMoves.push(...blockCapture)
+            }
         }
 
         if (blockOpen3.length) {
-            moves = blockOpen3
-            break
+            if (blockOpen3.filter(l => !l.captured).length === 0) {
+                moves = blockOpen3
+                break
+            } else {
+                additionalMoves.push(...blockOpen3)
+            }
         }
 
         if (open3.length) {
-            moves = open3
-            break
+            if (open3.filter(l => !l.captured).length === 0) {
+                moves = open3
+                break
+            } else {
+                additionalMoves.push(...open3)
+            }
         }
         break
     }
 
-    
+
     moves.push(...additionalMoves)
 
     moves = Array.from(new Set([...moves]))
@@ -218,6 +239,7 @@ const blockOpen3 = ${blockOpen3.length}
         return 0; // Objects are equal based on the specified fields
     };
     const sortedArray = [...moves].sort(compareFunction);
+
     if (log) {
         sortedArray.forEach((el, i) => {
             // console.log(`${i}:---> {x: ${el.x}, y: ${el.y}, cScore: ${el.heurScore}}`)
