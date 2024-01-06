@@ -16,16 +16,21 @@ export default {
     methods: {
         async copyToClipboard(txt2Cpy: string) {
             try {
+                if (!txt2Cpy)
+                    throw Error("No moves has been played yet!")
                 await navigator.clipboard.writeText(txt2Cpy);
-                alert('Text successfully copied to clipboard');
+                alert('Moves history successfully copied to clipboard');
             } catch (error: any) {
-
-                console.error('Unable to copy text to clipboard', error);
+                console.error('Unable to copy text to clipboard', error.message);
                 alert('Unable to copy text to clipboard: ' + error.message)
             }
         },
         importFromInput() {
-            useGame((state) => state.importMove)(this.movesInput)
+            this.movesInput = this.movesInput?.replace(/\s/g, '')
+            if (!/^[A-S]\d{1,2}(?:,[A-S]\d{1,2})*$/.test(this.movesInput))
+                alert("Invalid input")
+            else
+                useGame((state) => state.importMove)(this.movesInput)
         }
     }
 }
@@ -51,8 +56,6 @@ export default {
                     <th style=""><img :src='IMG_WhiteStone' class='circle-white' style="width: 20px;"></th>
                     <td v-for="move in moves?.filter((_l, i) => i % 2 != 0)" :key="move">{{ move }}</td>
                 </tr>
-
-
             </thead>
         </table>
         <table class="import_table">
