@@ -1,12 +1,66 @@
-# 42-Gomuku
-This project involves creating, in the language of your choice, a Gomoku game integrating an AI player capable of beating a human player the fastest way possible. To do this, you will implement a min-max algorithm but also do research, trial and error to find the most adapted heuristics. This will not be as easy as checkers. 
+# 1337/42 - Gomuku v2.0
+This project involves creating a Gomoku game integrating an AI player capable of beating a human player the fastest way possible. To do this, you will implement a min-max algorithm but also do research, trial and error to find the most adapted heuristics.
+
+---
+### Rules:
+
+#### Patterns:
+
+- **Free three** /or **Open Three** (both considered as free 3):
+    <p align="center">
+    <img style="float:left" src="./ressources/patterns/open3.png">
+    <img src="./ressources/patterns/open3-2.png">
+    </p>
+---
+- **Open Four**:
+    <p align="start">
+    <img src="./ressources/patterns/open4.png">
+    </p>
+---
+- **Forbidden 2 open three**:
+    - [img1] F5 is forbidden to play by black, because it will form a doulbe open3 patterns, which is not allowed by our rules.
+    - [img2] this case is allowed to play F5 because the white piece is breaking of of the open3 patterns
+    - [img3] it is allowed to have a double free three by a capture move.
+
+    <p align="center">
+    <img width="260px" src="./ressources/patterns/double-open3.png">
+    <img width="260px" src="./ressources/patterns/broken-double-open3.png">
+    <img width="260px" src="./ressources/patterns/allowed-double-open3.png">
+    </p>
+---
+- **Capture move**:
+    - in this case below, if 2 opponent's pieces alligned in front of out piece and the next spot is available for us, then we can capture his both pieces by playing B4
+    - this move called CAPTURE, if a player get 5 captures (which means captured 10 opponent's pieces) he win
+    <p align="center">
+    <img style="float: left;" src="./ressources/patterns/capture-setup.png">
+    <img src="./ressources/patterns/capture.png">
+    </p>
+- **Forbidden in capture move**
+    - as you can see in this example, white cant play in B3, because this is a capture move by default to black, so its forbidden to play this move
+    <img src="./ressources/patterns/in-capture.png">
+---
+- **win conditions**:
+    - 5 or more pieces in a row:
+        - this is only considered a win, if all pieces are not threatened to be captured by opponent.
+    <img src="./ressources/patterns/5win.png">
+    - 5 captures , if a player reached 5 captures, he is declared as a winner.
+
+---
+### update 06/01/2024 :
+- applied web workers to execute paralel minimax for all moves.
+- user can pick thinking time (`0.5`, `1`, `1.5`, `2`, `2.5`, `3` seconds) before start a game.
+- validate input : at moves import.
+- customize message when no moves to copy.
+- heuristic score calculator function refactored
+- comment out MiniMax methods
+- more efficient performance time calculation for minimax run, eliminating before/after processes
 
 ---
 ### update 27/12/2023 :
  
 2 days ago, I started implementing MiniMax. After some experimentation and algorithm refinement, it seems to work quite well so far. I improved the order for certain moves and fixed the best move chosen by the heuristic. Now, I need to work on how to handle scores inside MiniMax for more precise decisions.
 
-Wins at level 1 are somewhat ignored, but it's not a big issue since it can be addressed before initiating a MiniMax search. However, all went well, Hamdullah.
+~~Wins at level 1 are somewhat ignored, but it's not a big issue since it can be addressed before initiating a MiniMax search~~(**fixed**). However, all went well, Hamdullah.
 
 Quick tips learned:
 - Code slowly but organize it; it helps a lot in controlling the project's progression.
@@ -18,28 +72,27 @@ To-Do:
 - [x] ⚠️ Important : It is important to note that it is not forbidden to introduce a
 double-three by capturing a pair. ⚠️
 - [x] Implement a quick fix for the moves sorter to handle instant win/block win.
-- [ ] Pause work on MiniMax and focus on cleaning/organizing the code.
-- Add missing/necessary functionalities for better UX.
-- Reduce the number of view renderings if any.
-- Create a test environment to detect breaking changes.
-- try make the tests executable via the UI.
+- [x] Pause work on MiniMax and focus on cleaning/organizing the code.
+- [x] Add missing/necessary functionalities for better UX.
+- [ ] Create a test environment to detect breaking changes.
+- [ ] try make the tests executable via the UI.
  
 
 ### update 17/12/2023 :
 - Migrated the app to TypeScript/Vue 3.
-- Still under construction 🚧 (80% of the work done).
+- ~~Still under construction~~ 🚧 (100% of the work done).
 - Optimization is progressing well so far, but there's room for more improvement.
 - Wrote a move sorting algorithm based on properties calculated from the `MoveReport` class, such as `capture, block capture, open 4, block 3, alignment with other peers,... etc`. (still needs improvement).
 
 - live here : https://gomoku.allali.me/
 - Ai Analayse text area currentl contains only basic details. (will be updated)
 - **TODO**:
-    - [ ] Include a scenario where:
-        - There are three pieces in a row.
-        - The fourth position is a forbidden cell for the opponent.
-        - Place the fourth piece/move in the fifth position, which may be allowed for the opponent.
-        - By doing so, we are one move away from achieving a five-in-a-row win, and the opponent cannot prevent it.
-    - [ ] Implement limited-depth Minimax to check for any potential unhandled cases.
+    - [ ] ❌ (**Advanced**) _~~Include a scenario where:~~_
+        - _~~There are three pieces in a row.~~_
+        - _~~The fourth position is a forbidden cell for the opponent.~~_
+        - _~~Place the fourth piece/move in the fifth position, which may be allowed for the opponent.~~_
+        - _~~By doing so, we are one move away from achieving a five-in-a-row win, and the opponent cannot prevent it.~~_
+    - [x] Implement limited-depth Minimax to check for any potential unhandled cases.
         - [x] experiment it a little bit
     - [x] implement moves import
     - [x] implement Undo move
@@ -53,7 +106,7 @@ double-three by capturing a pair. ⚠️
         - [x] fix it for block_open3
         - [x] fix it for block_open4
         - [ ] if you can improve that logic (that do the check above), will be great (`priority:low`)
-    - [ ] `[fix]` : correct move for black is `K10` but it chosed to block fifth move in open 4, which is lost any way, instead setup a capture that will break this win5 row and also make the fifth capture which is winnable
+    - [x] `[fix]` : (**FIXED BY MINIMAX**) correct move for black is `K10` but it chosed to block fifth move in open 4, which is lost any way, instead setup a capture that will break this win5 row and also make the fifth capture which is winnable
         - scenario : 
             - `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5`
         - solution : 
@@ -61,35 +114,36 @@ double-three by capturing a pair. ⚠️
                 - can be open4
                 - can be open4 split to 2 (`XX_XX`)
                 - check for block win5 move first, then start check for any capture that will block that
-    - [ ] `[fix]` : a perfect capture setup is when the capture spot is valid move for me
-        - update capture setup field with 2 fields :
-            - `captureSetupPerfect`
-            - `captureSetupImperfect`
+
     - [x] `[check]` : still have captures to break the row of 5 but considered white as winner
         - scenario : 
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,J10,J9,G10,I8`
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,G10,I8,H9,H7`
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,J10,J9,G10,F4,F3,I8`
         - checked but nothing look wrong !!
-    - [ ] `[improve]` : best move is `F5` but chosed `F3`, not a bug actually, but if `F5` played, it will force the black to play F3 because it gonna block the win5, which is an "in-capture" move for him, so we gain a free capture
-        - scenario :
-            - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,F4,E3,J8,I7,F2,B0,C5,A2,D2,E3,A4,D1,A1,E1,F1,F0,B10,B7,B5,D5`
-        - how to solutions: 
-            - try to detect if a move will force bad move for opponent
-            - try to reverse the process by finding the bad move for him, and check if it can be forced by making him play it to block an open4 or win5
+    - [ ] _~~`[improve]` : best move is `F5` but chosed `F3`, not a bug actually, but if `F5` played, it will force the black to play F3 because it gonna block the win5, which is an "in-capture" move for him, so we gain a free capture~~_
+        - ~~scenario :~~
+            - _~~`B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,F4,E3,J8,I7,F2,B0,C5,A2,D2,E3,A4,D1,A1,E1,F1,F0,B10,B7,B5,D5`~~_
+        - _~~how to solutions:~~_
+            - _~~try to detect if a move will force bad move for opponent~~_
+            - _~~try to reverse the process by finding the bad move for him, and check if it can be forced by making him play it to block an open4 or win5~~_
+
+        unnecessary, an advanced move thinking, that require wide base of moves and in depth check, my current version of gomoku played safer move in this case, played A5 and won against me after 17 moves by aligning 5 in row and finished stats with 2(b)-4(w).
+        - the rest moves history `A5,A6,A3,A2,F3,F5,I5,G7,J4,H7,F7,J6,K5,L6,H8,I3,I7`
+        
     - [ ] `[fix]` : black aligned  6 in row, the opponent still had to capture the last rock, but even tho, it doesnt break the win 5, so it should declare black as winner directly
         - scenario:
             - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,B10,D1,E4,F4,E0,C0,F0,H0,I7,K9,A2,B7,B5,D3,D5,F3,G4,C6,E4,D5,D2,G3,E3,E2,D7,E5,E4,D6,H2,C7,A7,C7,B7`
         - solution:
             - when verify if the opoonent's captures are covering the row, we also have to check i the remaining pieces are forming a 5win row.
-    - [x] `[fix]` : the white chosed to block 5 in row win, but that position is a capture for white if black played it, and white was one capture away to win, so just ignore him and play my open4.
+    - [x] `[fix]` : the white chosed to block 5 in row win, but that position is a capture for white if black played it, and white was one capture away to win, so just ignore him and play something better like setup capture since we have 4 captures in hand.
         - scenario:
             - `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5,I4,I10,I9`
         - solution:
-            - try to find an adapted condition inside the sorter, **otherwise just add custom condition for this case outside the scope**
+            - ~~try to find an adapted condition inside the sorter~~, **otherwise just add custom condition for this case outside the scope**
             - i excluded this specific move for black, and let the sorter work normally
             ```ts
-            const badWin5EnemyFilter = (l: TMvRepport) => l.win5Block && l.captured_opponent
+            const badWin5EnemyFilter = (l: THeuristic) => l.win5Block && l.captured_opponent
             if (
                 player1Captures === 4 
                 && player2Captures < 5 
@@ -118,21 +172,27 @@ The JavaScript algorithm operates in the browser with an accompanying UI shown i
 
 ---
 *`img updated: 29/07/2023`*
+**Gomoku v1.0**
 
 <img src="./ressources/gomoku-web-v4.1.png"/>
 
-Todo:
+Todo: [**DEPRECATED** (check gomoku v2.0)]
 - [x] : add support to switch modes (`1337 rules` && `normal`)
 - [x] : support startup game from list of moves set in the '`Moves`' textarea
 - [x] : add welcome animation at first load of page
 - [x] : find and apply captures before running some checks inside the `AnalyseMoves(..)` function
 - [x] : hover the 5 win pieces with bright color when the game ends
-- [ ] : prevent the game from ending when there still a move that can break tht 5 in row
+- [ ] : ~~prevent the game from ending when there still a move that can break tht 5 in row~~
 - [x] : make the '`Ai Suggestion`' part functional by including the moves analyse in there
-    - [ ] : make the analyse more detailed
+    - [ ] : ~~make the analyse more detailed~~
 - [x] : organize the order of game start function to avoid conflicts.
-    - [ ] : refactor it
-- [ ] : improve algo to: if the oponent setup a capture, and you dont have any other good option to do except 'best by score', try to find if there is a possible move that will make the capture spot for him forbidden using 'forbidden in capture move' pattern.
+    - [ ] : ~~refactor it~~
+- [ ] : ~~improve algo to: if the oponent setup a capture, and you dont have any other good option to do except 'best by score', try to find if there is a possible move that will make the capture spot for him forbidden using 'forbidden in capture move' pattern.~~
 - [x] : blink the captured pieces before removing them from board for more visibility
-- [ ] : add board score calculation function and implement it to UI
-- [ ] : fix the cases mentioned in history file 
+- [ ] : ~~add board score calculation function and implement it to UI~~
+- [ ] : ~~fix the cases mentioned in history file~~
+
+
+### update ?/03/2022
+ 
+**gomoku v1.0** experimental app made in reactjs to play around.
