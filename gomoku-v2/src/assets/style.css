@@ -1,0 +1,187 @@
+body {
+    font-family: Ubuntu, "times new roman", times, roman, serif;
+    background-color: rgb(76, 95, 114);
+}
+
+input[type="radio"] {
+    width: 20px;
+    height: 20px;
+}
+
+.headerTitle {
+    text-align: center;
+    color: white;
+    font-size: 30px;
+    margin: 0px;
+    margin-top: 10px;
+}
+
+.grid-container {
+    margin-right: auto;
+    margin-left: auto;
+    justify-content: center;
+    justify-self: center;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;  
+
+}
+/* @media (max-width:1465px) { 
+    
+    .grid-container {
+        display: flex;
+    }
+} */
+.grid {
+    min-width: 0; /* To prevent overflow issues */
+    height: 100%;
+    display: table-cell;
+    /* padding: 15px; */
+    /* border: 1px solid #ccc; */
+ 
+}
+
+
+.flag {
+    border-top-right-radius: 30% !important;
+    border-bottom-left-radius: 30% !important;
+    border-bottom-left-radius: 30% !important;
+}
+
+
+
+.empty {
+    width: 30px;
+    height: 30px;
+    background-color: transparent;
+    margin: 1px;
+    display: inline-block;
+    line-height: 30px;
+    text-align: center;
+    vertical-align: text-top;
+}
+
+.empty img {
+    background-color: transparent;
+    border-radius: 50% !important;
+
+}
+
+.fa {
+    background: transparent;
+    line-height: 30px;
+    display: none;
+}
+
+.fa-circle {
+    color: rgb(0, 0, 0);
+}
+
+.circle-thin {
+    color: rgb(255, 255, 255);
+}
+
+
+.menu {
+ 
+  
+
+    background: transparent;
+    color: wheat;
+    padding-right: 10px;
+    padding-left: 10px;
+
+}
+
+
+.menu h3 {
+    color: white;
+}
+
+
+#contact h4 {
+    margin: 5px 0 15px;
+    display: block;
+    font-size: 13px;
+}
+
+fieldset {
+    border: solid 1px white;
+    border-radius: 7px;
+    margin: 0 0 10px;
+    padding: 10px;
+    /* width: 100%; */
+}
+
+.option-title {
+    margin: 0px;
+}
+
+
+.fa-times {
+    color: red;
+}
+
+.circle-white {
+    color: white;
+    /* margin-top: 1px; */
+    width: 30px;
+}
+
+.circle-black {
+    width: 28px;
+    margin-top: 1px;
+}
+
+.circle-wood {
+    width: 27px;
+    margin-top: 1px;
+}
+
+.circle-green {
+    width: 30px;
+    margin-top: 1px;
+}
+
+.welcome-stone {
+    width: 30px;
+    /* margin-top: 1px; */
+}
+
+.golden-stone {
+    width: 27px;
+    margin-top: 1px;
+}
+
+.score {
+    font-size: 13px;
+}
+ 
+.blink_capture {
+    background: yellow;
+    border-radius: 20%;
+}
+
+button.undoMoveBtn {
+    width: 100%;
+    padding: 5px;
+    font-size: 15px;
+    background-color: wheat;
+    width: 100%;
+    padding: 5px;
+    font-size: 18px;
+    border: none;
+    border-radius: 4px;
+}
+
+input.boardSize {
+    margin-top: 5px;
+    padding-right: 5px;
+    padding-left: 5px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+    font-size: 20px;
+    width: 80px;
+    border-radius: 10px;
+    border: none;
+}
