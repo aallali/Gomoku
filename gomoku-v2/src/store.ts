@@ -23,6 +23,7 @@ export interface IGameStore {
     bestMoves: TPoint[]
     analyse: string
     timeCost: number
+    thinkingTime: number
 }
 
 export interface IPlayer {
@@ -54,6 +55,8 @@ interface IGameActions {
     setAnalyse: (analyse: string) => void
     undoMove: () => void
     importMove: (rawMoves: string) => void
+
+    setThinkTime: (time: number) => void
 }
 
 const initState: IGameStore = {
@@ -79,7 +82,8 @@ const initState: IGameStore = {
     blinks: [],
     bestMoves: [],
     analyse: '',
-    timeCost: 0
+    timeCost: 0,
+    thinkingTime: 0.5
 }
 export const useGame = create<IGameStore & IGameActions>((set, get) => ({
     ...initState,
@@ -88,7 +92,6 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
         go.initMatrix()
         get().updateStates()
         return set(() => ({ boardSize: go.size }))
-        // TODO: reset states
     },
     setMtx: (matrix: TMtx) => set({ matrix }),
     setGameMode: (mode) => {
@@ -108,7 +111,9 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
             setTimeout(async () => {
 
                 if (go.mode === "1337") {
-                    let bestMoveByMinimax = await Minimax.findBestMove(go)
+
+                    const mmx = new Minimax(performance.now(), get().thinkingTime * 1000, workerUrl)
+                    let bestMoveByMinimax = await mmx.findBestMove(go)
                     // set({ bestMoves: [bestMoveByMinimax] })
                     get().fillCell(bestMoveByMinimax.bestMove.x, bestMoveByMinimax.bestMove.y)
                     set({ timeCost: bestMoveByMinimax.timeCost })
@@ -186,6 +191,9 @@ export const useGame = create<IGameStore & IGameActions>((set, get) => ({
 
         set(R.over(R.lensPath(["players", currentPlayer, "captures"]), (c) => c + totalCaptures))
     },
+    setThinkTime: (thinkTime) => {
+        set({ thinkingTime: thinkTime })
+    }
 }))
 
 go.setSize(19)
