@@ -37,7 +37,7 @@ export default {
         return {
             boardSize: useGame((state) => state.boardSize),
             mode: useGame((state) => state.mode),
-            selectedThinkingTime: 1
+            selectedThinkingTime: 0.5
         }
     },
     watch: {
