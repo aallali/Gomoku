@@ -242,9 +242,9 @@ export class Heuristic {
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
-    
+
             if (match) {
-    
+
                 let coordList = []
                 let counter = 0
                 let coord = { x, y }
@@ -269,6 +269,7 @@ export class Heuristic {
 
                 const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
                 let isPerfectOpen3 = true
+                
                 targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
 
@@ -457,31 +458,39 @@ export class Heuristic {
         return this.finalRepport
     }
     scoreIt(repport: ReturnType<typeof this.repportObj>, currentCapts: number) {
-        let score = 0
+        let score = 0;
 
-        score += 2000 * repport.win5
+        // Weighted scores for different patterns
+        score += 2000 * repport.win5;
+        score += 1500 * repport.win5Block;
+        score += 3000 * repport.winBreak;
+        score += 2000 * repport.open4;
 
-        score += 1500 * repport.win5Block
-        score += 3000 * repport.winBreak
+        // Scores based on total captures
+        if (repport.totalCaptures) {
+            score += 800 * (repport.totalCaptures + currentCapts) + (repport.totalCaptures * 300);
+        }
 
-        score += 2000 * repport.open4
+        score += 800 * repport.open4Block;
+        score += 700 * repport.open4Bounded;
+        score += 100 * repport.open3Block;
+        score += 400 * repport.open3;
 
-        score += repport.totalCaptures  ? (800 * (repport.totalCaptures + currentCapts) + (repport.totalCaptures * 300)) : 0
+        // Scores based on capture setup
+        if (repport.captureSetup) {
+            score += 700 * (repport.captureSetup + currentCapts) + (repport.captureSetup * 200);
+        }
 
-        score += 800 * repport.open4Block
+        score += 500 * repport.captureBlock;
 
-        score += 700 * repport.open4Bounded
+        // Scores based on aligned siblings
+        score += (repport.aligned_siblings[0] * 100) - (repport.aligned_siblings[1] * 10);
 
-        score += 100 * repport.open3Block
+        // Nes score comparison
+        if (score === 0) {
+            score += Math.max(repport.nes_score, repport.nes_score_opponent);
+        }
 
-        score += 400 * repport.open3
-
-        score += repport.captureSetup  ? (700 * (repport.captureSetup + currentCapts) + (repport.captureSetup * 200)) : 0
-        score += 500 * repport.captureBlock
-
-        score += (repport.aligned_siblings[0] * 100) - (repport.aligned_siblings[1] * 10)
-        if (score === 0)
-            score += repport.nes_score > repport.nes_score_opponent ? repport.nes_score : repport.nes_score_opponent
-        return score
+        return score;
     }
 }
