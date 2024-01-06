@@ -195,4 +195,4 @@ Todo: [**DEPRECATED** (check gomoku v2.0)]
 
 ### update ?/03/2022
  
-**gomoku v1.0** experimental app made in reactjs to play around.
+**gomoku v0** experimental app made in reactjs to play around.
