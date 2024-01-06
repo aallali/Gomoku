@@ -5,7 +5,7 @@ import go from "./gomoku/GO"
 import { Minimax } from "./gomoku/modes/1337/MiniMax";
 import { BestMove_NormalMode } from "./gomoku/modes/normal/mode-normal";
 import { findValidSpots } from "./gomoku/modes/1337/moveValidity";
-
+import workerUrl from "@/gomoku/modes/1337/minimax.worker?worker&url"
 
 export interface IGameStore {
     matrix: TMtx;
