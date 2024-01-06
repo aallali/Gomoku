@@ -26,7 +26,6 @@ interface IBoardData {
     mvr: Heuristic
 }
 
-
 export default {
     data(): IBoardData {
         return {
@@ -142,8 +141,10 @@ export default {
                         :class='generateCellClass(isValidSpot, i - 1, j - 1)'>
 
                         <template v-if="[1, 2].includes(matrix[i - 1][j - 1])">
-                            <div v-if="matrix[i - 1][j - 1] == 1" class="piece-black-flat" />
-                            <div v-if="matrix[i - 1][j - 1] == 2" class="piece-white-flat" />
+                            <!-- <div v-if="matrix[i - 1][j - 1] == 1" class="piece-black-flat" /> -->
+                            <!-- <div v-if="matrix[i - 1][j - 1] == 2" class="piece-white-flat" /> -->
+                            <img v-if="matrix[i - 1][j - 1] == 1" :src="images.blackStone" class="circle-black"/>
+                            <img v-if="matrix[i - 1][j - 1] == 2" :src="images.whiteStone" class="circle-black"/>
                         </template>
 
                         <template v-else>
@@ -153,7 +154,6 @@ export default {
                                 <div v-else-if="isNearBy({ x: i - 1, y: j - 1 })" class="nearby-dot" />
                             </template>
                         </template>
-
                         <span class="tooltiptext">
                             {{ alpha[i - 1] }}{{ j - 1 }} ({{ i - 1 }},{{ j - 1 }})
                         </span>
@@ -221,7 +221,7 @@ export default {
 
 }
 
-.cross:hover .tooltiptext {
+.cross:hover .tooltiptext,.circle-black {
     visibility: visible;
 }
 
@@ -242,7 +242,7 @@ export default {
     background-color: rgb(76, 95, 114);
 }
 
-.cross:hover> :not(.piece-black-flat):not(.piece-white-flat):not(.forbidden-sign):not(.tooltiptext) {
+.cross:hover> :not(.piece-black-flat):not(.piece-white-flat):not(.forbidden-sign):not(.tooltiptext):not(.circle-black) {
     display: none;
 }
 
@@ -336,8 +336,8 @@ export default {
 .nearby-dot {
     position: relative;
     border-radius: 50%;
-    width: 15%;
-    height: 15%;
+    width: 12%;
+    height: 12%;
     margin: auto;
     background-color: green;
     top: 50%;
