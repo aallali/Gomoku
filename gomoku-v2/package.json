@@ -1,5 +1,5 @@
 {
-  "name": "gomoku-remastered",
+  "name": "gomoku-v2",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -26,5 +26,6 @@
     "vite": "^4.4.11",
     "vue-tsc": "^1.8.19"
   },
+  "url": "https://gomoku.allali.me/",
   "author": "Abdellah A. <job@allali.me> (https://allali.me/)"
 }
