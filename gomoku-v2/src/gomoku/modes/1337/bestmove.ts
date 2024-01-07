@@ -87,6 +87,7 @@ function movesSorter(moves: THeuristic[], player1Captures: number, player2Captur
     const open4 = moves.filter(l => l.open4)
     const open3 = moves.filter(l => l.open3)
 
+    const open4Bounded = withCaptures.filter(l => l.open4Bounded)
     const blockOpen4 = withCaptures.filter(l => l.open4Block)
     const blockOpen3 = moves.filter(l => l.open3Block)
 
@@ -102,6 +103,8 @@ const blockCapture = ${blockCapture.length}
 const setupCapture = ${setupCapture.length}
 
 const open4 = ${open4.length}
+const open4Bounded = ${open4Bounded.length}
+
 const open3 = ${open3.length}
 const blockOpen4 = ${blockOpen4.length}
 const blockOpen3 = ${blockOpen3.length}
@@ -162,6 +165,20 @@ const blockOpen3 = ${blockOpen3.length}
             }
         }
 
+        if (open4.length) {
+            if (open4.filter(l => l.captured).length === 0) {
+                moves = open4
+                break
+            } else {
+                additionalMoves.push(...open4)
+            }
+        }
+        if (open4Bounded.length) {
+            // moves = open4Bounded
+            // break
+            additionalMoves.push(...open4Bounded)
+        }
+
         if (blockOpen4.length) {
 
             if (blockOpen4.filter(l => l.captured).length > 0 && player2Captures <= 3) {
@@ -174,16 +191,6 @@ const blockOpen3 = ${blockOpen3.length}
 
             }
         }
-        if (open4.length) {
-            if (open4.filter(l => l.captured).length === 0) {
-                moves = open4
-                break
-            } else {
-                additionalMoves.push(...open4)
-            }
-        }
-
-
         if (setupCapture.length > 0) {
             if (!captures.length)
                 additionalMoves.push(...setupCapture)

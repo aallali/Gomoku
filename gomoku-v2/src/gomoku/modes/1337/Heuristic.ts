@@ -323,28 +323,29 @@ export class Heuristic {
 
                 breakme: while (counter++ < leftSide) {
                     coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+
                     if (!validXY(this.matrix.length, coord.x, coord.y))
                         break breakme
-                    coordList.push(coord)
+                    coordList.unshift(coord)
                 }
 
-                coordList = coordList.reverse()
                 coord = { x, y }
                 counter = 0
 
                 breakme: while (counter++ < rightSide) {
                     coord = MoveDirection(dir, coord.x, coord.y)
+
                     if (!validXY(matrix.length, coord.x, coord.y))
                         break breakme
                     coordList.push(coord)
                 }
+                const indexOfIt = path.indexOf(match[0])
+                const exactMatchCoordinations = coordList.reverse().slice(indexOfIt, indexOfIt + match[0].length)
 
-                const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
                 let isPerfectOpen4 = true
 
                 targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
-
                     if (this.matrix[ex][ey] === 0) {
                         if (!isValidMoveFor1337Mode(matrix, p, ex, ey)) {
                             isPerfectOpen4 = false
@@ -357,7 +358,10 @@ export class Heuristic {
                 }
 
                 if (isPerfectOpen4) {
-                    return 1
+                    if (['X.XXX', 'XXX.X'].includes(match[0])) {
+                        this.finalRepport.open4Bounded = (this.finalRepport.open4Bounded || 0) + 1
+                    } else
+                        return 1
                 }
             }
         }
@@ -444,7 +448,7 @@ export class Heuristic {
 
             open4: this.isOpenFour(),
             open4Block: this.isOpenFourBlock() || this.finalRepport.open4Block || 0,
-            open4Bounded: this.weight?.isBounded4 ? 1 : 0,
+            open4Bounded: (this.finalRepport.open4Bounded || 0) + (this.weight?.isBounded4 ? 1 : 0),
             open4BoundedBlock: this.o_weight?.isBounded4 ? 1 : 0,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
