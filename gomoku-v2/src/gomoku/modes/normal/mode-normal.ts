@@ -24,10 +24,7 @@ export function check5Win(matrix: TMtx, player: P, x: Nb, y: Nb) {
         const goldenStones = checkWinInDirection(matrix, player, x, y, dir);
 
         // If a winning sequence is found and it's long enough
-        if (goldenStones && (goldenStones.length >= 4 || goldenStones.length === matrix.length - 1)) {
-            // Include the current move in the winning sequence
-            if (matrix[x][y] == player)
-                goldenStones.unshift({ x, y });
+        if (goldenStones && (goldenStones.length >= 5 || goldenStones.length === matrix.length - 1)) {
 
             // Return the winning sequence
             return goldenStones;
@@ -60,7 +57,7 @@ function checkWinInDirection(matrix: TMtx, player: P, x: Nb, y: Nb, dir: TDirect
         goldenStones.push({ x: coord.x, y: coord.y });
         coord = MoveDirection(mirrorDir, coord.x, coord.y);
     }
-
+    goldenStones.push({x, y})
     // Check in the original direction
     coord = MoveDirection(dir, x, y);
     while (validXY(matrix.length, coord.x, coord.y) && matrix[coord.x][coord.y] == player) {
@@ -69,7 +66,7 @@ function checkWinInDirection(matrix: TMtx, player: P, x: Nb, y: Nb, dir: TDirect
     }
 
     // Return the winning sequence if it's non-empty
-    return goldenStones.length >= 1 ? goldenStones : undefined;
+    return goldenStones.length >= 2 ? goldenStones : undefined;
 }
 
 /**
