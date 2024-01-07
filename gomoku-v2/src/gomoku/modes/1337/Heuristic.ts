@@ -452,7 +452,7 @@ export class Heuristic {
 
             open4: this.isOpenFour(),
             open4Block: this.isOpenFourBlock() || this.finalRepport.open4Block || 0,
-            open4Bounded: (this.finalRepport.open4Bounded || 0) + (this.weight?.isBounded4 ? 1 : 0),
+            open4Bounded: (this.finalRepport.open4Bounded || 0),
             open4BoundedBlock: this.o_weight?.isBounded4 ? 1 : 0,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),
