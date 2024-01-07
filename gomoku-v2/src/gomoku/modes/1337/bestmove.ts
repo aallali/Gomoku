@@ -196,7 +196,6 @@ const blockOpen3 = ${blockOpen3.length}
                 additionalMoves.push(...setupCapture)
         }
         if (blockCapture.length > 0) {
-            // console.log(blockCapture, blockCapture.filter(l => l.captured).length)
             if (blockCapture.filter(l => l.captured).length === 0) {
                 moves = blockCapture
                 break
