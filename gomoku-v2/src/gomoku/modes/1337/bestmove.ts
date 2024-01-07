@@ -161,11 +161,19 @@ const blockOpen3 = ${blockOpen3.length}
                 break
             }
         }
-        if (setupCapture.length > 0) {
-            if (!captures.length)
-                additionalMoves.push(...setupCapture)
-        }
 
+        if (blockOpen4.length) {
+
+            if (blockOpen4.filter(l => l.captured).length > 0 && player2Captures <= 3) {
+                moves = blockOpen4
+                additionalMoves = []
+                break
+            } else if (blockOpen4.filter(l => !l.captured).length > 0) {
+                moves = blockOpen4.filter(l => !l.captured)
+                break
+
+            }
+        }
         if (open4.length) {
             if (open4.filter(l => l.captured).length === 0) {
                 moves = open4
@@ -175,14 +183,11 @@ const blockOpen3 = ${blockOpen3.length}
             }
         }
 
-        if (blockOpen4.length) {
-            if (blockOpen4.filter(l => l.captured).length > 0 && player2Captures <= 3) {
-                moves = blockOpen4
-                additionalMoves = []
-                break
-            }
-        }
 
+        if (setupCapture.length > 0) {
+            if (!captures.length)
+                additionalMoves.push(...setupCapture)
+        }
         if (blockCapture.length > 0) {
             // console.log(blockCapture, blockCapture.filter(l => l.captured).length)
             if (blockCapture.filter(l => l.captured).length === 0) {
