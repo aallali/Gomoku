@@ -1,4 +1,4 @@
-import { cloneMatrix } from "./common/shared-utils";
+import { Standarize, cloneMatrix } from "./common/shared-utils";
 import { Heuristic, type THeuristic } from "./modes/1337/Heuristic";
 import { whatIsTheBestMove } from "./modes/1337/bestmove";
 import { applyCapturesIfAny, extractCaptures, isLineBreakableByAnyCapture } from "./modes/1337/captures";
@@ -114,6 +114,16 @@ class GO {
         }
     }
     checkWinner() {
+        if (this.recentBreakableWin.length) {
+            console.log(this.recentBreakableWin)
+            const lineAfterCapture = Standarize(3 - this.turn as P, this.recentBreakableWin.map(l => this.matrix[l.x][l.y]).join(""))
+            if (lineAfterCapture.includes('XXXXX')) {
+                this.winner = 3 - this.turn as P
+                this.winStones = this.recentBreakableWin.filter(l => this.matrix[l.x][l.y])
+                return
+            }
+        }
+
         const { x, y } = this.translateMove(this.moves[this.moves.length - 1])
         // get the opponent's cell value (1 or 2) by simple math, 3 - (1|2) = 1|2 
         const o_turn = 3 - this.turn as P
@@ -135,9 +145,33 @@ class GO {
 
         // - extract all possible  oponnent's captures moves  if any
         const capturesOfEnemy = extractCaptures(this.matrix, oponentValidMoves, o_turn)
+
         // - check breakable line only if captures mode is activated + if there is a win stones row.
-        const breakableRow = winStones && this.mode === "1337" && isLineBreakableByAnyCapture(capturesOfEnemy, winStones)
+        let breakableRow = winStones
+            && this.mode === "1337"
+            && isLineBreakableByAnyCapture(capturesOfEnemy, winStones)
+
+        if (breakableRow && winStones) {
+            breakableRow = false
+            for (let i = 0; i < capturesOfEnemy.length; i++) {
+                const pair = capturesOfEnemy[i]
+                const mtxCopy = cloneMatrix([...this.matrix])
+                pair.forEach(p => mtxCopy[p.x][p.y] = 0)
+                const lineAfterCapture = Standarize(this.turn, winStones.map(l => mtxCopy[l.x][l.y]).join(""))
+                if (!lineAfterCapture.includes('XXXXX')) {
+                    breakableRow = true
+                    break
+                }
+            }
+        }
+
+
         const isWinBy5 = winStones && !breakableRow
+
+        if (breakableRow) {
+            this.recentBreakableWin = [...winStones as TPoint[]]
+        } else
+            this.recentBreakableWin = []
         // a player declared winner if:
         // 1- aligned atleast 5 pieces in row.
         // 2- if collected atleast 5 captures.
@@ -147,12 +181,14 @@ class GO {
                 this.winStones = winStones
             // declare winner and end the game
             this.winner = this.turn
+            return
         } else {
             if (oponentValidMoves.length === 0) {
                 this.winner = "T"
                 return
             }
         }
+
     }
     undo() {
         this.moves.pop()
