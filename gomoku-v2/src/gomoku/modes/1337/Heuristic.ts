@@ -359,7 +359,12 @@ export class Heuristic {
 
                 if (isPerfectOpen4) {
                     if (['X.XXX', 'XXX.X'].includes(match[0])) {
-                        this.finalRepport.open4Bounded = (this.finalRepport.open4Bounded || 0) + 1
+                        console.log(path, turn, this.p)
+                        if (turn) {
+                            this.finalRepport.open4BoundedBlock = (this.finalRepport.open4BoundedBlock || 0) + 1
+                        } else {
+                            this.finalRepport.open4Bounded = (this.finalRepport.open4Bounded || 0) + 1
+                        }
                     } else
                         return 1
                 }
