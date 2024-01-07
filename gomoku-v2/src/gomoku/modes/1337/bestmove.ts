@@ -174,8 +174,6 @@ const blockOpen3 = ${blockOpen3.length}
             }
         }
         if (open4Bounded.length) {
-            // moves = open4Bounded
-            // break
             additionalMoves.push(...open4Bounded)
         }
 
@@ -183,10 +181,10 @@ const blockOpen3 = ${blockOpen3.length}
 
             if (blockOpen4.filter(l => l.captured).length > 0 && player2Captures <= 3) {
                 moves = blockOpen4
-                additionalMoves = []
                 break
             } else if (blockOpen4.filter(l => !l.captured).length > 0) {
                 moves = blockOpen4.filter(l => !l.captured)
+                additionalMoves = []
                 break
 
             }
