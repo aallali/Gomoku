@@ -169,6 +169,7 @@ export class Heuristic {
     isWillCaptured(coord?: TPoint, turn?: P): number {
         let [matrix, x, y, p] = [cloneMatrix(turn ? this.backupMatrix : this.matrix), coord?.x || this.x, coord?.y || this.y, turn || this.p]
         matrix[x][y] = p;
+
         targetLoop: for (let i = 0; i < directions.length; i++) {
             const dir = directions[i];
             const rawPath = ScrapLine(matrix, 2, 1, x, y, dir);
@@ -269,7 +270,7 @@ export class Heuristic {
 
                 const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
                 let isPerfectOpen3 = true
-                
+
                 targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
 
@@ -308,9 +309,13 @@ export class Heuristic {
             const path = Standarize(p, rawPath)
             const patterns = [
                 /\.XXXX\./, // eg: [_BBBB_]
+                /XXX\.X/,
+                /X\.XXX/,
+
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
+
             if (match) {
                 let coordList = []
                 let counter = 0
@@ -352,7 +357,6 @@ export class Heuristic {
                 }
 
                 if (isPerfectOpen4) {
-
                     return 1
                 }
             }
