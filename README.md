@@ -2,42 +2,45 @@
 This project involves creating a Gomoku game integrating an AI player capable of beating a human player the fastest way possible. To do this, you will implement a min-max algorithm but also do research, trial and error to find the most adapted heuristics.
 
 ---
-### Rules:
+## Game custom rules:
 
 #### Patterns:
 
 - **Free three** /or **Open Three** (both considered as free 3):
-    <p align="center">
-    <img style="float:left" src="./ressources/patterns/open3.png">
-    <img src="./ressources/patterns/open3-2.png">
-    </p>
+    - both sides are not blocked by opponent's piece
+        <p align="start">
+            <img style="float:left;margin-right:10px"" src="./ressources/patterns/open3.png">
+            <img src="./ressources/patterns/open3-2.png">
+        </p>
 ---
 - **Open Four**:
-    <p align="start">
-    <img src="./ressources/patterns/open4.png">
-    </p>
+    - both sides are not blocked by opponent's piece
+        <p align="start">
+            <img src="./ressources/patterns/open4.png">
+        </p>
+
+---
+- **Capture move**:
+    - in this case below, if 2 opponent's pieces alligned in front of out piece and the next spot is available for us, then we can capture his both pieces by playing B4
+    - this move called CAPTURE, if a player get 5 captures (which means captured 10 opponent's pieces) he win
+        <p align="start">
+            <img style="float: left;margin-right:10px" src="./ressources/patterns/capture-setup.png">
+            <img src="./ressources/patterns/capture.png">
+        </p>
+- **Forbidden in capture move**
+    - as you can see in this example, white cant play in B3, because this is a capture move by default to black, so its forbidden to play this move
+    <img src="./ressources/patterns/in-capture.png">
 ---
 - **Forbidden 2 open three**:
     - [img1] F5 is forbidden to play by black, because it will form a doulbe open3 patterns, which is not allowed by our rules.
     - [img2] this case is allowed to play F5 because the white piece is breaking of of the open3 patterns
     - [img3] it is allowed to have a double free three by a capture move.
 
-    <p align="center">
-    <img width="260px" src="./ressources/patterns/double-open3.png">
-    <img width="260px" src="./ressources/patterns/broken-double-open3.png">
-    <img width="260px" src="./ressources/patterns/allowed-double-open3.png">
-    </p>
----
-- **Capture move**:
-    - in this case below, if 2 opponent's pieces alligned in front of out piece and the next spot is available for us, then we can capture his both pieces by playing B4
-    - this move called CAPTURE, if a player get 5 captures (which means captured 10 opponent's pieces) he win
-    <p align="center">
-    <img style="float: left;" src="./ressources/patterns/capture-setup.png">
-    <img src="./ressources/patterns/capture.png">
-    </p>
-- **Forbidden in capture move**
-    - as you can see in this example, white cant play in B3, because this is a capture move by default to black, so its forbidden to play this move
-    <img src="./ressources/patterns/in-capture.png">
+        <p align="start">
+            <img width="260px" src="./ressources/patterns/double-open3.png">
+            <img width="260px" src="./ressources/patterns/broken-double-open3.png">
+            <img width="260px" src="./ressources/patterns/allowed-double-open3.png">
+        </p>
 ---
 - **win conditions**:
     - 5 or more pieces in a row:
@@ -54,7 +57,9 @@ This project involves creating a Gomoku game integrating an AI player capable of
 - heuristic score calculator function refactored
 - comment out MiniMax methods
 - more efficient performance time calculation for minimax run, eliminating before/after processes
-
+- 👍 with think time >= 1 seconds, Ai played a very clean move , which is `K12`, an open 4 (splitted) `OXXX_X`, `O` cant play in the empty cell, because its forbidden for him (double open3) , so X guarenteed a win after 1 move.
+    - scenario: `J9,I8,I10,K8,H11,J8,H8,I7,I6,H6,I9,I8,I11,K9,K7,K10,H9,K12`
+    <img src="/ressources/gomoku-v2.0-smart-move.png"/>
 ---
 ### update 27/12/2023 :
  
