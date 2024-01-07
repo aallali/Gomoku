@@ -346,7 +346,7 @@ export class Heuristic {
 
                 targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
-                    if (this.matrix[ex][ey] === 0) {
+                    if (matrix[ex][ey] === 0) {
                         if (!isValidMoveFor1337Mode(matrix, p, ex, ey)) {
                             isPerfectOpen4 = false
                             break targetLoop
@@ -359,10 +359,28 @@ export class Heuristic {
 
                 if (isPerfectOpen4) {
                     if (['X.XXX', 'XXX.X'].includes(match[0])) {
-                        if (turn) {
-                            this.finalRepport.open4BoundedBlock = (this.finalRepport.open4BoundedBlock || 0) + 1
-                        } else {
-                            this.finalRepport.open4Bounded = (this.finalRepport.open4Bounded || 0) + 1
+                        for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
+                            const cell = exactMatchCoordinations[idx]
+
+                            if (matrix[cell.x][cell.y] === 0) {
+
+                                const prev = exactMatchCoordinations[idx - 1]
+                                const next = exactMatchCoordinations[idx + 1]
+
+                                if (prev && matrix[prev.x][prev.y] !== 0 || next && matrix[next.x][next.y] !== 0) {
+
+                                    if (!isValidMoveFor1337Mode(matrix, 3 - this.p as P, cell.x, cell.y)) {
+
+                                        if (turn) {
+                                            this.finalRepport.open4BoundedBlock = (this.finalRepport.open4BoundedBlock || 0) + 1
+                                        } else {
+                                            this.finalRepport.open4Bounded = (this.finalRepport.open4Bounded || 0) + 1
+                                        }
+
+                                        break
+                                    }
+                                }
+                            }
                         }
                     } else
                         return 1
