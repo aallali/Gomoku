@@ -167,7 +167,7 @@ const blockOpen3 = ${blockOpen3.length}
         }
 
         if (open4.length) {
-            if (open4.filter(l => !l.captured).length === 0) {
+            if (open4.filter(l => l.captured).length === 0) {
                 moves = open4
                 break
             } else {
@@ -176,7 +176,7 @@ const blockOpen3 = ${blockOpen3.length}
         }
 
         if (blockOpen4.length) {
-            if (blockOpen4.filter(l => !l.captured).length > 0 && player2Captures <= 3) {
+            if (blockOpen4.filter(l => l.captured).length > 0 && player2Captures <= 3) {
                 moves = blockOpen4
                 additionalMoves = []
                 break
@@ -184,7 +184,8 @@ const blockOpen3 = ${blockOpen3.length}
         }
 
         if (blockCapture.length > 0) {
-            if (blockCapture.filter(l => !l.captured).length === 0) {
+            // console.log(blockCapture, blockCapture.filter(l => l.captured).length)
+            if (blockCapture.filter(l => l.captured).length === 0) {
                 moves = blockCapture
                 break
             } else {
@@ -193,7 +194,7 @@ const blockOpen3 = ${blockOpen3.length}
         }
 
         if (blockOpen3.length) {
-            if (blockOpen3.filter(l => !l.captured).length === 0) {
+            if (blockOpen3.filter(l => l.captured).length === 0) {
                 moves = blockOpen3
                 break
             } else {
@@ -202,7 +203,7 @@ const blockOpen3 = ${blockOpen3.length}
         }
 
         if (open3.length) {
-            if (open3.filter(l => !l.captured).length === 0) {
+            if (open3.filter(l => l.captured).length === 0) {
                 moves = open3
                 break
             } else {
