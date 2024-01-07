@@ -1,5 +1,5 @@
 # 1337/42 - Gomuku v2.0
-This project involves creating a Gomoku game integrating an AI player capable of beating a human player the fastest way possible. To do this, you will implement a min-max algorithm but also do research, trial and error to find the most adapted heuristics.
+This project involves creating a Gomoku game integrating an AI player capable of beating a human player in the fastest way possible. To do this, you will implement a min-max algorithm but also do research, trial and error to find the most adapted heuristics.
 
 ---
 ## Game custom rules:
@@ -7,32 +7,32 @@ This project involves creating a Gomoku game integrating an AI player capable of
 #### Patterns:
 
 - **Free three** /or **Open Three** (both considered as free 3):
-    - both sides are not blocked by opponent's piece
+    - both sides are not blocked by the opponent's piece
         <p align="start">
             <img style="float:left;margin-right:10px"" src="./ressources/patterns/open3.png">
             <img src="./ressources/patterns/open3-2.png">
         </p>
 ---
 - **Open Four**:
-    - both sides are not blocked by opponent's piece
+    - both sides are not blocked by the opponent's piece
         <p align="start">
             <img src="./ressources/patterns/open4.png">
         </p>
 
 ---
 - **Capture move**:
-    - in this case below, if 2 opponent's pieces alligned in front of out piece and the next spot is available for us, then we can capture his both pieces by playing B4
-    - this move called CAPTURE, if a player get 5 captures (which means captured 10 opponent's pieces) he win
+    - in this case below, if 2 opponent's pieces are aligned in front of our piece and the next spot is available for us, then we can capture both pieces by playing B4
+this move is called CAPTURE, if a player gets 5 captures (which means capturing 10 opponent's pieces) he wins
         <p align="start">
             <img style="float: left;margin-right:10px" src="./ressources/patterns/capture-setup.png">
             <img src="./ressources/patterns/capture.png">
         </p>
 - **Forbidden in capture move**
-    - as you can see in this example, white cant play in B3, because this is a capture move by default to black, so its forbidden to play this move
+    - as you can see in this example, white can't play in B3, because this is a capture move by default to black, so it's forbidden to play this move
     <img src="./ressources/patterns/in-capture.png">
 ---
 - **Forbidden 2 open three**:
-    - [img1] F5 is forbidden to play by black, because it will form a doulbe open3 patterns, which is not allowed by our rules.
+    - [img1] F5 is forbidden to play by black because it will form a double open3 pattern, which is not allowed by our rules.
     - [img2] this case is allowed to play F5 because the white piece is breaking of of the open3 patterns
     - [img3] it is allowed to have a double free three by a capture move.
 
@@ -44,22 +44,29 @@ This project involves creating a Gomoku game integrating an AI player capable of
 ---
 - **win conditions**:
     - 5 or more pieces in a row:
-        - this is only considered a win, if all pieces are not threatened to be captured by opponent.
+        - this is only considered a win if all pieces are not threatened to be captured by the opponent.
     <img src="./ressources/patterns/5win.png">
-    - 5 captures , if a player reached 5 captures, he is declared as a winner.
+    - 5 captures, if a player reaches 5 captures, he is declared a winner.
 
 ---
 ### update 06/01/2024 :
-- applied web workers to execute paralel minimax for all moves.
-- user can pick thinking time (`0.5`, `1`, `1.5`, `2`, `2.5`, `3` seconds) before start a game.
-- validate input : at moves import.
+- applied web workers to execute parallel minimax for all moves.
+- Users can pick thinking time (`0.5`, `1`, `1.5`, `2`, `2.5`, `3` seconds) before starting a game.
+validate input: at moves import.
 - customize message when no moves to copy.
 - heuristic score calculator function refactored
 - comment out MiniMax methods
 - more efficient performance time calculation for minimax run, eliminating before/after processes
-- 👍 with think time >= 1 seconds, Ai played a very clean move , which is `K12`, an open 4 (splitted) `OXXX_X`, `O` cant play in the empty cell, because its forbidden for him (double open3) , so X guarenteed a win after 1 move.
+- 👍 with think time >= 1 second, Ai played a very clean move, which is `K12`, an open 4 (split) `OXXX_X`, `O` can't play in the empty cell because it's forbidden for him (double open3), so X guaranteed a win after 1 move.
     - scenario: `J9,I8,I10,K8,H11,J8,H8,I7,I6,H6,I9,I8,I11,K9,K7,K10,H9,K12`
     <img src="/ressources/gomoku-v2.0-smart-move.png"/>
+- handled the breakable lane by captures for these cases:
+    - if P1 (player1) aligned more than >5 piece in row, and P2 have captures that cover this line:
+    - I check if the captures cover pieces that will break the 5 in a row, or just the side, based on result i decide if the game stops or continues, so P2 can break it:
+        - in scenario 2 where P2 has 2 captures for example:
+            - capture 1: break the line in the middle
+            - capture 2: take side pieces in the row, (doesn't break the line)
+        - in this case, I let P2 play a move, and after I check if the most recent row of 5 made by P2 is broken or not.
 ---
 ### update 27/12/2023 :
  
@@ -74,7 +81,7 @@ Quick tips learned:
 - Writing the game in GO was a good decision, but jumping straight to MiniMax without having a good heuristic ruined it for me. I got overwhelmed quickly and gave up after 2 months of trying.
 
 To-Do:
-- [x] ⚠️ Important : It is important to note that it is not forbidden to introduce a
+- [x] ⚠️ Important: It is important to note that it is not forbidden to introduce a
 double-three by capturing a pair. ⚠️
 - [x] Implement a quick fix for the moves sorter to handle instant win/block win.
 - [x] Pause work on MiniMax and focus on cleaning/organizing the code.
@@ -102,25 +109,25 @@ double-three by capturing a pair. ⚠️
     - [x] implement moves import
     - [x] implement Undo move
     - [x] detect if the capture move will also break an open4/open3
-    - [x] `[fix]` : all the moves considered "will be captured" are ignored even if a fifth (winning) capture move is there, adapt script to bypass this one
-    - [x] `[fix]` : set open3/open4 only if all the pieces forming it are not in to-be-capture position
+    - [x] `[fix]`: all the moves considered "will be captured" are ignored even if a fifth (winning) capture move is there, adapt the script to bypass this one
+    - [x] `[fix]`: set open3/open4 only if all the pieces forming it are not in a to-be-capture position
         - scenario: 
             - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4`
         - [x] fix it for open3
         - [x] fix it for open4 
         - [x] fix it for block_open3
         - [x] fix it for block_open4
-        - [ ] if you can improve that logic (that do the check above), will be great (`priority:low`)
-    - [x] `[fix]` : (**FIXED BY MINIMAX**) correct move for black is `K10` but it chosed to block fifth move in open 4, which is lost any way, instead setup a capture that will break this win5 row and also make the fifth capture which is winnable
+        - [ ] if you can improve that logic (that do the check above), that would be great (`priority:` `low`)
+    - [x] `[fix]` : (**FIXED BY MINIMAX**) correct move for black is `K10` but it chose to block fifth move in open 4, which is lost any way, instead set up a capture that will break this win5 row and also make the fifth capture which is winnable
         - scenario : 
             - `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5`
         - solution : 
             - always prioritize to break a win5 by capture/or setup capture.
                 - can be open4
                 - can be open4 split to 2 (`XX_XX`)
-                - check for block win5 move first, then start check for any capture that will block that
+                - check for block win5 move first, then start checking for any capture that will block that
 
-    - [x] `[check]` : still have captures to break the row of 5 but considered white as winner
+    - [x] `[check]`: still have captured to break the row of 5 but considered white as the winner
         - scenario : 
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,J10,J9,G10,I8`
             - `I9,H8,H10,J8,G11,I8,G8,H7,H6,H9,G7,G6,J7,F5,E4,J9,G10,I8,H9,H7`
@@ -133,20 +140,21 @@ double-three by capturing a pair. ⚠️
             - _~~try to detect if a move will force bad move for opponent~~_
             - _~~try to reverse the process by finding the bad move for him, and check if it can be forced by making him play it to block an open4 or win5~~_
 
-        unnecessary, an advanced move thinking, that require wide base of moves and in depth check, my current version of gomoku played safer move in this case, played A5 and won against me after 17 moves by aligning 5 in row and finished stats with 2(b)-4(w).
+        unnecessary, an advanced move thinking, that requires a wide base of moves and in-depth check, my current version of Gomoku played a safer move in this case, played A5 and won against me after 17 moves by aligning 5 in a row and finished stats with 2(b)-4(w).
         - the rest moves history `A5,A6,A3,A2,F3,F5,I5,G7,J4,H7,F7,J6,K5,L6,H8,I3,I7`
         
-    - [ ] `[fix]` : black aligned  6 in row, the opponent still had to capture the last rock, but even tho, it doesnt break the win 5, so it should declare black as winner directly
+    - [x] `[fix]`: black aligned  6 in a row, the opponent still had to capture the last rock, but even tho, it doesn't break the win 5, it should declare black as the winner directly
         - scenario:
             - `B1,B2,B4,C1,A3,D0,C2,D3,A0,D2,D4,G5,B8,H6,B9,B10,D1,E4,F4,E0,C0,F0,H0,I7,K9,A2,B7,B5,D3,D5,F3,G4,C6,E4,D5,D2,G3,E3,E2,D7,E5,E4,D6,H2,C7,A7,C7,B7`
         - solution:
-            - when verify if the opoonent's captures are covering the row, we also have to check i the remaining pieces are forming a 5win row.
-    - [x] `[fix]` : the white chosed to block 5 in row win, but that position is a capture for white if black played it, and white was one capture away to win, so just ignore him and play something better like setup capture since we have 4 captures in hand.
+when verifying if the opponent's captures are covering the row, we also have to check i the remaining pieces are forming a 5win row.
+        - \+ also handled the case when there were multiple breaks, one of them broke the line and the other didn't, so if he picked the wrong capture, it would still consider the player who aligned >=5 in a row as the winner,
+    - [x] `[fix]`: the white chose to block 5 in a row win, but that position is a capture for white if black played it, and white was one capture away to win, so just ignore him and play something better like setup capture since we have 4 captures in hand.
         - scenario:
             - `J9,I8,I9,H9,J7,K9,G10,J8,I7,K7,L10,H7,H10,F10,I10,I7,J7,G7,H9,I8,J9,F11,G6,K8,K9,H11,K6,I8,L5,M11,J8,J9,J6,I6,L6,I5,I4,I10,I9`
         - solution:
-            - ~~try to find an adapted condition inside the sorter~~, **otherwise just add custom condition for this case outside the scope**
-            - i excluded this specific move for black, and let the sorter work normally
+            - ~~try to find an adapted condition inside the sorter, **otherwise, just add custom condition for this case outside the scope**
+            - I excluded this specific move for black, and let the sorter work normally
             ```ts
             const badWin5EnemyFilter = (l: THeuristic) => l.win5Block && l.captured_opponent
             if (
@@ -167,9 +175,9 @@ I started this project 1 year ago (March 2022, I think) as a school project. I b
 Well, I worked on it for a month or two, then put it on hold since no solution was clear at that time.
 
 
-Recently, I revisited the project, this time developing the solver engine in the Go language for its speed, which proved to be quite fast. I implemented numerous algorithms and strategies, gaining valuable insights along the way. Unfortunately, the outcomes did not meet expectations. The algorithm was required to identify the optimal move in less than half a second, and my code lacked organization, coupled with subpar and inefficient heuristics. Faced with these challenges, I decided to abandon the project. 
- 
-But, i gained significant insights into a technique known as NES (Natural Evolution Strategy). This method involves analyzing the board for potential threats or offensive moves. It works flawlessly for the standard "5 in a row" rule. However, in our scenario with custom rules (such as captures, restrictions on capturing moves, and the prohibition of moves forming a double free three shape), I had to devise a solution. After numerous retries and tests, I managed to develop the initial version. It took thousands of attempts to arrive at the optimal combination for this algorithm. I continue to refine it by playing more games against the AI.
+Recently, I revisited the project, this time developing the solver engine in the Go language for its speed, which proved to be quite fast. I implemented numerous algorithms and strategies, gaining valuable insights along the way. Unfortunately, the outcomes did not meet expectations. The algorithm was required to identify the optimal move in less than half a second, and my code lacked organization, coupled with subpar and inefficient heuristics. Faced with these challenges, I decided to abandon the project.
+
+However, I gained significant insights into a technique known as NES (Natural Evolution Strategy). This method involves analyzing the board for potential threats or offensive moves. It works flawlessly for the standard "5 in a row" rule. However, in our scenario with custom rules (such as captures, restrictions on capturing moves, and the prohibition of moves forming a double-free three-shape), I had to devise a solution. After numerous retries and tests, I managed to develop the initial version. It took thousands of attempts to arrive at the optimal combination for this algorithm. I continue to refine it by playing more games against the AI.
 
 The JavaScript algorithm operates in the browser with an accompanying UI shown in the image. Implemented using only HTML, CSS, and JavaScript—no frameworks—it utilizes a customized NES algorithm to efficiently choose optimal moves. Although the current functionality is strong, there's potential for further enhancements.
 
@@ -183,7 +191,7 @@ The JavaScript algorithm operates in the browser with an accompanying UI shown i
 
 Todo: [**DEPRECATED** (check gomoku v2.0)]
 - [x] : add support to switch modes (`1337 rules` && `normal`)
-- [x] : support startup game from list of moves set in the '`Moves`' textarea
+- [x] : support the startup game from the list of moves set in the '`Moves`' textarea
 - [x] : add welcome animation at first load of page
 - [x] : find and apply captures before running some checks inside the `AnalyseMoves(..)` function
 - [x] : hover the 5 win pieces with bright color when the game ends
