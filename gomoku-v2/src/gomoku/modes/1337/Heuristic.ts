@@ -169,6 +169,7 @@ export class Heuristic {
     isWillCaptured(coord?: TPoint, turn?: P): number {
         let [matrix, x, y, p] = [cloneMatrix(turn ? this.backupMatrix : this.matrix), coord?.x || this.x, coord?.y || this.y, turn || this.p]
         matrix[x][y] = p;
+
         targetLoop: for (let i = 0; i < directions.length; i++) {
             const dir = directions[i];
             const rawPath = ScrapLine(matrix, 2, 1, x, y, dir);
@@ -269,7 +270,7 @@ export class Heuristic {
 
                 const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
                 let isPerfectOpen3 = true
-                
+
                 targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
 
@@ -308,9 +309,13 @@ export class Heuristic {
             const path = Standarize(p, rawPath)
             const patterns = [
                 /\.XXXX\./, // eg: [_BBBB_]
+                /XXX\.X/,
+                /X\.XXX/,
+
             ];
             const combinedRegex = new RegExp(`(${patterns.map(pattern => pattern.source).join('|')})`);
             const match = combinedRegex.exec(path);
+
             if (match) {
                 let coordList = []
                 let counter = 0
@@ -318,29 +323,30 @@ export class Heuristic {
 
                 breakme: while (counter++ < leftSide) {
                     coord = MoveDirection(DirectionMirror[dir], coord.x, coord.y)
+
                     if (!validXY(this.matrix.length, coord.x, coord.y))
                         break breakme
-                    coordList.push(coord)
+                    coordList.unshift(coord)
                 }
 
-                coordList = coordList.reverse()
                 coord = { x, y }
                 counter = 0
 
                 breakme: while (counter++ < rightSide) {
                     coord = MoveDirection(dir, coord.x, coord.y)
+
                     if (!validXY(matrix.length, coord.x, coord.y))
                         break breakme
                     coordList.push(coord)
                 }
+                const indexOfIt = path.indexOf(match[0])
+                const exactMatchCoordinations = coordList.reverse().slice(indexOfIt, indexOfIt + match[0].length)
 
-                const exactMatchCoordinations = coordList.reverse().slice(path.indexOf(match[0]), match[0].length)
                 let isPerfectOpen4 = true
 
                 targetLoop: for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
                     const { x: ex, y: ey } = exactMatchCoordinations[idx]
-
-                    if (this.matrix[ex][ey] === 0) {
+                    if (matrix[ex][ey] === 0) {
                         if (!isValidMoveFor1337Mode(matrix, p, ex, ey)) {
                             isPerfectOpen4 = false
                             break targetLoop
@@ -352,8 +358,32 @@ export class Heuristic {
                 }
 
                 if (isPerfectOpen4) {
+                    if (['X.XXX', 'XXX.X'].includes(match[0])) {
+                        for (let idx = 0; idx < exactMatchCoordinations.length; idx++) {
+                            const cell = exactMatchCoordinations[idx]
 
-                    return 1
+                            if (matrix[cell.x][cell.y] === 0) {
+
+                                const prev = exactMatchCoordinations[idx - 1]
+                                const next = exactMatchCoordinations[idx + 1]
+
+                                if (prev && matrix[prev.x][prev.y] !== 0 || next && matrix[next.x][next.y] !== 0) {
+
+                                    if (!isValidMoveFor1337Mode(matrix, 3 - this.p as P, cell.x, cell.y)) {
+
+                                        if (turn) {
+                                            this.finalRepport.open4BoundedBlock = (this.finalRepport.open4BoundedBlock || 0) + 1
+                                        } else {
+                                            this.finalRepport.open4Bounded = (this.finalRepport.open4Bounded || 0) + 1
+                                        }
+
+                                        break
+                                    }
+                                }
+                            }
+                        }
+                    } else
+                        return 1
                 }
             }
         }
@@ -440,7 +470,7 @@ export class Heuristic {
 
             open4: this.isOpenFour(),
             open4Block: this.isOpenFourBlock() || this.finalRepport.open4Block || 0,
-            open4Bounded: this.weight?.isBounded4 ? 1 : 0,
+            open4Bounded: (this.finalRepport.open4Bounded || 0),
             open4BoundedBlock: this.o_weight?.isBounded4 ? 1 : 0,
 
             forbiddenOpponent: this.isForbiddenForOpponent(),

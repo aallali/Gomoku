@@ -106,7 +106,7 @@ export class Minimax {
    * @returns An object containing the best move and the time cost of the minimax algorithm.
    */
   async findBestMove(initialState: typeof GO) {
-    // console.clear()
+    console.clear()
 
     const root = initialState;
     this.playerToWin = initialState.turn;
