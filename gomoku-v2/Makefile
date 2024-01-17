@@ -8,11 +8,18 @@ build:
 	pnpm build
 
 serve:
-	serve -l 1338 -s dist
+	npx serve -l 1338 -s dist
 
-clear:
+clean:
 	rm -rf dist
 	rm -rf .vite
+	rm pnpm-lock.yaml
+	
+fclean:
+	rm -rf node_modules
+	rm -rf dist
+	rm -rf .vite
+	rm pnpm-lock.yaml
 
 .DEFAULT_GOAL := default
 
